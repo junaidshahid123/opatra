@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../constant/AppColors.dart';
@@ -92,25 +93,165 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
   }
 
   Widget buildForm() {
-    return Container(
-      margin: EdgeInsets.only(top: 20, left: 20),
+    return Expanded(
       child: SingleChildScrollView(
-        child: Column(
-          children: [
-            buildHeading(),
-            buildFastNameField(),
-            buildLastNameField(),
-            buildAddressField(),
-            buildCountryField(),
-            buildPhoneField(),
-            buildDateOFBirthField()
-          ],
+        child: Container(
+          margin: EdgeInsets.only(top: 20, left: 20, bottom: 20),
+          child: Column(
+            children: [
+              buildCustomersDetails(),
+              buildFastNameField(),
+              buildLastNameField(),
+              buildAddressField(),
+              buildCountryField(),
+              buildPhoneField(),
+              buildDateOFBirthField(),
+              buildProductDetails(),
+              buildSelectProductField(),
+              buildSelectedList()
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget buildHeading() {
+  Widget buildSelectedList() {
+    return Container(
+      margin: EdgeInsets.only(top: 20),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Color(0xFFFBF3D7)),
+                child: Container(
+                  margin: EdgeInsets.all(10),
+                  child: Row(
+                    children: [
+                      Text(
+                        'AIR FLOSS',
+                        style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFFB7A06A)),
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Image.asset(
+                        'assets/images/crossIcon.png',
+                        height: 10,
+                        width: 10,
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Color(0xFFFBF3D7)),
+                child: Container(
+                  margin: EdgeInsets.all(10),
+                  child: Row(
+                    children: [
+                      Text(
+                        'CAVISHAPER',
+                        style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFFB7A06A)),
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Image.asset(
+                        'assets/images/crossIcon.png',
+                        height: 10,
+                        width: 10,
+                      )
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Row(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Color(0xFFFBF3D7)),
+                child: Container(
+                  margin: EdgeInsets.all(10),
+                  child: Row(
+                    children: [
+                      Text(
+                        'CAPSULATE CHAIR',
+                        style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFFB7A06A)),
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Image.asset(
+                        'assets/images/crossIcon.png',
+                        height: 10,
+                        width: 10,
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Color(0xFFFBF3D7)),
+                child: Container(
+                  margin: EdgeInsets.all(10),
+                  child: Row(
+                    children: [
+                      Text(
+                        'DERMISYSYTEM',
+                        style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFFB7A06A)),
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Image.asset(
+                        'assets/images/crossIcon.png',
+                        height: 10,
+                        width: 10,
+                      )
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildCustomersDetails() {
     return Row(
       children: [
         Text(
@@ -121,6 +262,23 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
               color: AppColors.appPrimaryBlackColor),
         ),
       ],
+    );
+  }
+
+  Widget buildProductDetails() {
+    return Container(
+      margin: EdgeInsets.only(top: 20),
+      child: Row(
+        children: [
+          Text(
+            'Product Details',
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                color: AppColors.appPrimaryBlackColor),
+          ),
+        ],
+      ),
     );
   }
 
@@ -394,6 +552,72 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
                 border: OutlineInputBorder(
                   borderSide: BorderSide(
                     color: Color(0xFFEDEDED),
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget buildSelectProductField() {
+    return Container(
+      margin: EdgeInsets.only(top: 20, right: 20),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Text(
+                'Select Your Product',
+                style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12,
+                    color: Color(0xFF666666)),
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              Text(
+                '*',
+                style: TextStyle(color: Colors.red),
+              )
+            ],
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Container(
+            height: 45,
+            width: double.infinity, // Full width
+            child: TextField(
+              decoration: InputDecoration(
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+                suffixIcon: Container(
+                  height: 10, // Specific height
+                  width: 10, // Specific width
+                  child: Container(
+                    margin: EdgeInsets.all(15),
+                    child: Image.asset(
+                      'assets/images/downIcon.png', // Adjust the image within the container
+                    ),
                   ),
                 ),
               ),
