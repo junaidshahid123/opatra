@@ -3,16 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+
 import '../../constant/AppColors.dart';
 
-class RegisterYourOwnProduct extends StatefulWidget {
-  const RegisterYourOwnProduct({super.key});
+class WarrantyClaim extends StatefulWidget {
+  const WarrantyClaim({super.key});
 
   @override
-  State<RegisterYourOwnProduct> createState() => _RegisterYourOwnProductState();
+  State<WarrantyClaim> createState() => _WarrantyClaimState();
 }
 
-class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
+class _WarrantyClaimState extends State<WarrantyClaim> {
   RxBool yesOption = false.obs;
 
   @override
@@ -20,77 +22,10 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
     return Scaffold(
       backgroundColor: AppColors.appWhiteColor,
       body: SafeArea(
-          child: Column(
-        children: [buildAppBar(), buildForm()],
-      )),
-    );
-  }
-
-  Widget buildAppBar() {
-    return Container(
-      margin: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 30,
-      ),
-      child: Row(
-        children: [
-          buildBackOption(),
-          Spacer(),
-          buildName(),
-          Spacer(),
-          buildNotificationOption()
-        ],
-      ),
-    );
-  }
-
-  Widget buildBackOption() {
-    return InkWell(
-      onTap: () {
-        Get.back();
-      },
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Container(
-            height: 50.sp,
-            width: 50.sp,
-            child: Image.asset('assets/images/ellipse.png'),
-          ),
-          Container(
-            height: 15,
-            width: 15,
-            child: Image.asset('assets/images/leftArrow.png'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildNotificationOption() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          height: 50.sp,
-          width: 50.sp,
-          child: Image.asset('assets/images/ellipse.png'),
+        child: Column(
+          children: [buildAppBar(), buildForm()],
         ),
-        Container(
-          height: 15,
-          width: 15,
-          child: Image.asset('assets/images/bellIcon.png'),
-        ),
-      ],
-    );
-  }
-
-  Widget buildName() {
-    return const Text(
-      'Register Your Product',
-      style: TextStyle(
-          fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF333333)),
+      ),
     );
   }
 
@@ -98,9 +33,10 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
     return Expanded(
       child: SingleChildScrollView(
         child: Container(
-          margin: EdgeInsets.only(top: 20, left: 20, bottom: 20),
+          margin: EdgeInsets.only(left: 20),
           child: Column(
             children: [
+              buildNote(),
               buildCustomersDetails(),
               buildFastNameField(),
               buildLastNameField(),
@@ -109,12 +45,12 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
               buildPhoneField(),
               buildDateOFBirthField(),
               buildProductDetails(),
-              buildSelectProductField(),
-              buildSelectedList(),
               buildPlaceOfPurchaseField(),
               buildDateOfPurchaseField(),
               buildReceiptNumberField(),
               buildAdvisorNameField(),
+              buildDescribeIssueField(),
+              buildUploadImageOption(),
               buildQuestion(),
               buildYesAndNoButtons(),
               buildMessage(),
@@ -126,21 +62,38 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
     );
   }
 
-  Widget buildSubmitButton() {
+  Widget buildUploadImageOption() {
     return Container(
-        margin: EdgeInsets.only(top: 50, right: 20),
-        width: MediaQuery.of(context).size.width,
-        height: 45,
-        decoration: BoxDecoration(
-          color: Color(0xFFB7A06A),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Center(
-          child: Text(
-            'Submit',
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+      margin: EdgeInsets.only(top: 20, right: 20),
+      height: 150,
+      width: double.infinity,
+      decoration: BoxDecoration(
+          border: Border.all(
+            color: Color(0xFFEDEDED),
           ),
-        ));
+          borderRadius: BorderRadius.circular(10)),
+      // color: Colors.grey[200], // Optional: Background color for the container
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/images/uploadImageIcon.png',
+              height: 40,
+              width: 40,
+            ),
+            SizedBox(height: 10), // Space between image and text
+            Text(
+              'Upload an image of the \nproduct/issue (if applicable)',
+              style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w400,
+                  color: AppColors.appPrimaryBlackColor),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget buildMessage() {
@@ -154,6 +107,23 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
             color: Color(0xFFAAAAAA)),
       ),
     );
+  }
+
+  Widget buildSubmitButton() {
+    return Container(
+        margin: EdgeInsets.only(top: 50, right: 20, bottom: 20),
+        width: MediaQuery.of(context).size.width,
+        height: 45,
+        decoration: BoxDecoration(
+          color: Color(0xFFB7A06A),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Center(
+          child: Text(
+            'Submit',
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+          ),
+        ));
   }
 
   Widget buildYesAndNoButtons() {
@@ -250,152 +220,101 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
     );
   }
 
-  Widget buildSelectedList() {
+  Widget buildNote() {
     return Container(
-      margin: EdgeInsets.only(top: 20),
-      child: Column(
+      margin: EdgeInsets.only(top: 20, right: 20),
+      child: Text(
+        'Note: Product Registration required to be able to make a claim. Please fill in the claim form for one product at a time.',
+        style: TextStyle(
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
+            color: Color(0xFFAAAAAA)),
+      ),
+    );
+  }
+
+  Widget buildAppBar() {
+    return Container(
+      margin: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 30,
+      ),
+      child: Row(
         children: [
-          Row(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Color(0xFFFBF3D7)),
-                child: Container(
-                  margin: EdgeInsets.all(10),
-                  child: Row(
-                    children: [
-                      Text(
-                        'AIR FLOSS',
-                        style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFFB7A06A)),
-                      ),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Image.asset(
-                        'assets/images/crossIcon.png',
-                        height: 10,
-                        width: 10,
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 5,
-              ),
-              Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Color(0xFFFBF3D7)),
-                child: Container(
-                  margin: EdgeInsets.all(10),
-                  child: Row(
-                    children: [
-                      Text(
-                        'CAVISHAPER',
-                        style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFFB7A06A)),
-                      ),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Image.asset(
-                        'assets/images/crossIcon.png',
-                        height: 10,
-                        width: 10,
-                      )
-                    ],
-                  ),
-                ),
-              )
-            ],
+          buildBackOption(),
+          Spacer(),
+          buildName(),
+          Spacer(),
+          buildNotificationOption()
+        ],
+      ),
+    );
+  }
+
+  Widget buildBackOption() {
+    return InkWell(
+      onTap: () {
+        Get.back();
+      },
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            height: 50.sp,
+            width: 50.sp,
+            child: Image.asset('assets/images/ellipse.png'),
           ),
-          SizedBox(
-            height: 5,
-          ),
-          Row(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Color(0xFFFBF3D7)),
-                child: Container(
-                  margin: EdgeInsets.all(10),
-                  child: Row(
-                    children: [
-                      Text(
-                        'CAPSULATE CHAIR',
-                        style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFFB7A06A)),
-                      ),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Image.asset(
-                        'assets/images/crossIcon.png',
-                        height: 10,
-                        width: 10,
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 5,
-              ),
-              Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Color(0xFFFBF3D7)),
-                child: Container(
-                  margin: EdgeInsets.all(10),
-                  child: Row(
-                    children: [
-                      Text(
-                        'DERMISYSYTEM',
-                        style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFFB7A06A)),
-                      ),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Image.asset(
-                        'assets/images/crossIcon.png',
-                        height: 10,
-                        width: 10,
-                      )
-                    ],
-                  ),
-                ),
-              )
-            ],
+          Container(
+            height: 15,
+            width: 15,
+            child: Image.asset('assets/images/leftArrow.png'),
           ),
         ],
       ),
     );
   }
 
-  Widget buildCustomersDetails() {
-    return Row(
+  Widget buildNotificationOption() {
+    return Stack(
+      alignment: Alignment.center,
       children: [
-        Text(
-          'Customers Details',
-          style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: AppColors.appPrimaryBlackColor),
+        Container(
+          height: 50.sp,
+          width: 50.sp,
+          child: Image.asset('assets/images/ellipse.png'),
+        ),
+        Container(
+          height: 15,
+          width: 15,
+          child: Image.asset('assets/images/bellIcon.png'),
         ),
       ],
+    );
+  }
+
+  Widget buildName() {
+    return const Text(
+      'Warranty Claim',
+      style: TextStyle(
+          fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF333333)),
+    );
+  }
+
+  Widget buildCustomersDetails() {
+    return Container(
+      margin: EdgeInsets.only(top: 20),
+      child: Row(
+        children: [
+          Text(
+            'Customers Details',
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                color: AppColors.appPrimaryBlackColor),
+          ),
+        ],
+      ),
     );
   }
 
@@ -759,6 +678,62 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
                     fontSize: 12,
                     color: Color(0xFF666666)),
               ),
+            ],
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Container(
+            height: 45,
+            width: double.infinity, // Full width
+            child: TextField(
+              decoration: InputDecoration(
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget buildDescribeIssueField() {
+    return Container(
+      margin: EdgeInsets.only(top: 20, right: 20),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Text(
+                'Please Describe the issue',
+                style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12,
+                    color: Color(0xFF666666)),
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              Text(
+                '*',
+                style: TextStyle(color: Colors.red),
+              )
             ],
           ),
           SizedBox(

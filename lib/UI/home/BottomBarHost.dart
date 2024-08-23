@@ -7,7 +7,10 @@ import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:opatra/UI/home/ask_our_experts.dart';
 import 'package:opatra/UI/home/product_detail.dart';
 import 'package:opatra/UI/home/register_your_own_product.dart';
+import 'package:opatra/UI/home/warranty_claim.dart';
 import 'package:opatra/constant/AppColors.dart';
+
+import 'contact_us.dart';
 
 class BottomBarHost extends StatefulWidget {
   const BottomBarHost({super.key});
@@ -286,6 +289,7 @@ class _BottomBarHost extends State<BottomBarHost> {
       highlightColor: Colors.transparent,
       onTap: () {
         selectedIndex.value = 6;
+        Get.to(() => WarrantyClaim());
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),
@@ -367,6 +371,7 @@ class _BottomBarHost extends State<BottomBarHost> {
       highlightColor: Colors.transparent,
       onTap: () {
         selectedIndex.value = 4;
+        Get.to(() => ContactUs());
       },
       child: Container(
         margin: EdgeInsets.only(
