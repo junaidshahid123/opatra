@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -13,6 +15,8 @@ class RegisterYourOwnProduct extends StatefulWidget {
 }
 
 class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
+  RxBool yesOption = false.obs;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,10 +112,142 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
               buildDateOFBirthField(),
               buildProductDetails(),
               buildSelectProductField(),
-              buildSelectedList()
+              buildSelectedList(),
+              buildPlaceOfPurchaseField(),
+              buildDateOfPurchaseField(),
+              buildReceiptNumberField(),
+              buildAdvisorNameField(),
+              buildQuestion(),
+              buildYesAndNoButtons(),
+              buildMessage(),
+              buildSubmitButton()
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildSubmitButton() {
+    return Container(
+        margin: EdgeInsets.only(top: 50, right: 20),
+        width: MediaQuery.of(context).size.width,
+        height: 45,
+        decoration: BoxDecoration(
+          color: Color(0xFFB7A06A),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Center(
+          child: Text(
+            'Submit',
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+          ),
+        ));
+  }
+
+  Widget buildMessage() {
+    return Container(
+      margin: EdgeInsets.only(top: 20, right: 20),
+      child: Text(
+        'We hate spam! We promise to send you only valued information and offers that are tailoured to you! \n \nWe use email and targeted online advertising to send you product and service updates, promotional offers and other marketing communications based on the inofmation we collect about you, such as your email address,general location, and purchase and website browsing history. \n \nWe process your personal data as stated in our Privacy Policy. You may withdraw your consent or manage your prefernces at anytime by clicking the unsubscribe link at  the bottom of any of our marketing emails, or by emailing us at info@opatra.com ',
+        style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: Color(0xFFAAAAAA)),
+      ),
+    );
+  }
+
+  Widget buildYesAndNoButtons() {
+    return Obx(() => Container(
+          margin: EdgeInsets.only(top: 20),
+          child: Row(
+            children: [
+              InkWell(
+                onTap: () {
+                  yesOption.value = true;
+                },
+                child: Container(
+                  child: Row(
+                    children: [
+                      Container(
+                        height: 25,
+                        width: 25,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            border: Border.all(
+                              color: Color(0xFFEDEDED),
+                            ),
+                            color: yesOption.value == true
+                                ? Color(0xFFB7A06A)
+                                : Colors.transparent),
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        'Yes',
+                        style: TextStyle(
+                            color: Color(0xFF666666),
+                            fontWeight: FontWeight.w400,
+                            fontSize: 12),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 20,
+              ),
+              InkWell(
+                onTap: () {
+                  yesOption.value = false;
+                },
+                child: Container(
+                  child: Row(
+                    children: [
+                      Container(
+                        height: 25,
+                        width: 25,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            border: Border.all(
+                              color: Color(0xFFEDEDED),
+                            ),
+                            color: yesOption.value == false
+                                ? Color(0xFFB7A06A)
+                                : Colors.transparent),
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        'No',
+                        style: TextStyle(
+                            color: yesOption.value == false
+                                ? Color(0xFFB7A06A)
+                                : Colors.transparent,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 12),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ));
+  }
+
+  Widget buildQuestion() {
+    return Container(
+      margin: EdgeInsets.only(top: 20),
+      child: Text(
+        'Would you like to hear from us? (Special Offers, Birthday Gifts, New Products and more) *',
+        style: TextStyle(
+            fontWeight: FontWeight.w400,
+            fontSize: 16,
+            color: AppColors.appPrimaryBlackColor),
       ),
     );
   }
@@ -562,6 +698,160 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
     );
   }
 
+  Widget buildAdvisorNameField() {
+    return Container(
+      margin: EdgeInsets.only(top: 20, right: 20),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Text(
+                'Advisor Name (if applicable)',
+                style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12,
+                    color: Color(0xFF666666)),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Container(
+            height: 45,
+            width: double.infinity, // Full width
+            child: TextField(
+              decoration: InputDecoration(
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget buildReceiptNumberField() {
+    return Container(
+      margin: EdgeInsets.only(top: 20, right: 20),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Text(
+                'Receipt Number',
+                style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12,
+                    color: Color(0xFF666666)),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Container(
+            height: 45,
+            width: double.infinity, // Full width
+            child: TextField(
+              decoration: InputDecoration(
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget buildPlaceOfPurchaseField() {
+    return Container(
+      margin: EdgeInsets.only(top: 20, right: 20),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Text(
+                'Place Of Purchase',
+                style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12,
+                    color: Color(0xFF666666)),
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              Text(
+                '*',
+                style: TextStyle(color: Colors.red),
+              )
+            ],
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Container(
+            height: 45,
+            width: double.infinity, // Full width
+            child: TextField(
+              decoration: InputDecoration(
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   Widget buildSelectProductField() {
     return Container(
       margin: EdgeInsets.only(top: 20, right: 20),
@@ -683,6 +973,72 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
                     margin: EdgeInsets.all(15),
                     child: Image.asset(
                       'assets/images/downIcon.png', // Adjust the image within the container
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget buildDateOfPurchaseField() {
+    return Container(
+      margin: EdgeInsets.only(top: 20, right: 20),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Text(
+                'Date of Purchase',
+                style: TextStyle(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12,
+                    color: Color(0xFF666666)),
+              ),
+              SizedBox(
+                width: 5,
+              ),
+              Text(
+                '*',
+                style: TextStyle(color: Colors.red),
+              )
+            ],
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Container(
+            height: 45,
+            width: double.infinity, // Full width
+            child: TextField(
+              decoration: InputDecoration(
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color(0xFFEDEDED),
+                  ),
+                ),
+                suffixIcon: Container(
+                  height: 10, // Specific height
+                  width: 10, // Specific width
+                  child: Container(
+                    margin: EdgeInsets.all(15),
+                    child: Image.asset(
+                      'assets/images/calenderIcon.png', // Adjust the image within the container
                     ),
                   ),
                 ),
@@ -871,22 +1227,5 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
         ],
       ),
     );
-  }
-
-  Widget buildSubmitButton() {
-    return Container(
-        margin: EdgeInsets.only(top: 40, right: 20),
-        width: MediaQuery.of(context).size.width,
-        height: 45,
-        decoration: BoxDecoration(
-          color: Color(0xFFB7A06A),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Center(
-          child: Text(
-            'Submit',
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-          ),
-        ));
   }
 }
