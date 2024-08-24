@@ -7,6 +7,7 @@ import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:opatra/UI/home/ask_our_experts.dart';
 import 'package:opatra/UI/home/product_detail.dart';
 import 'package:opatra/UI/home/register_your_own_product.dart';
+import 'package:opatra/UI/home/treatment.dart';
 import 'package:opatra/UI/home/warranty_claim.dart';
 import 'package:opatra/constant/AppColors.dart';
 
@@ -499,6 +500,7 @@ class _BottomBarHost extends State<BottomBarHost> {
       highlightColor: Colors.transparent,
       onTap: () {
         selectedIndex.value = 0;
+        Get.to(() => Treatment());
       },
       child: Container(
         decoration: BoxDecoration(

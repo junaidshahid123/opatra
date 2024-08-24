@@ -99,7 +99,7 @@ class _ContactUsState extends State<ContactUs> {
             child: TextField(
               decoration: InputDecoration(
                 contentPadding:
-                EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                    EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(
                     color: Color(0xFFEDEDED),
@@ -122,7 +122,6 @@ class _ContactUsState extends State<ContactUs> {
       ),
     );
   }
-
 
   Widget buildYourNameField() {
     return Container(
@@ -156,7 +155,7 @@ class _ContactUsState extends State<ContactUs> {
             child: TextField(
               decoration: InputDecoration(
                 contentPadding:
-                EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                    EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(
                     color: Color(0xFFEDEDED),
@@ -179,7 +178,6 @@ class _ContactUsState extends State<ContactUs> {
       ),
     );
   }
-
 
   Widget buildSubjectField() {
     return Container(
