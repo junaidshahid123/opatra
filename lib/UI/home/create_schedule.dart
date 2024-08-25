@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -49,7 +50,7 @@ class _CreateScheduleState extends State<CreateSchedule> {
             buildDays(),
             buildText(),
             buildTreatmentTime(),
-            buildTreatmentTimeField(),
+            TreatmentTimeField(),
             buildSaveButton()
           ],
         ),
@@ -547,3 +548,88 @@ class _CreateScheduleState extends State<CreateSchedule> {
     );
   }
 }
+
+
+class TreatmentTimeField extends StatefulWidget {
+  @override
+  _TreatmentTimeFieldState createState() => _TreatmentTimeFieldState();
+}
+
+class _TreatmentTimeFieldState extends State<TreatmentTimeField> {
+  TextEditingController _controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_formatInput);
+  }
+
+  void _formatInput() {
+    String text = _controller.text.replaceAll(':', '');
+    if (text.length >= 2) {
+      text = text.substring(0, 2) + ':' + text.substring(2);
+    }
+    _controller.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(top: 10),
+      child: Container(
+        height: 45,
+        width: double.infinity, // Full width
+        child: TextField(
+          style: TextStyle( color: Color(0xFF666666)),
+          controller: _controller,
+          decoration: InputDecoration(
+            hintText: "00:00",hintStyle: TextStyle(
+            color: Color(0xFF666666), // Set the hint text color here
+          ), // Hint for the clock
+            contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Color(0xFFEDEDED),
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Color(0xFFEDEDED),
+              ),
+            ),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Color(0xFFEDEDED),
+              ),
+            ),
+            suffixIcon: Container(
+              height: 10, // Specific height
+              width: 10, // Specific width
+              child: Container(
+                margin: EdgeInsets.all(15),
+                child: Image.asset(
+                  'assets/images/clockIcon.png', // Adjust the image within the container
+                ),
+              ),
+            ),
+          ),
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(4), // Limit to 4 digits (HHmm)
+          ],
+        ),
+      ),
+    );
+  }
+}
+

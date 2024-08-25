@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:intl/intl.dart';
+import 'package:opatra/UI/home/treatment1.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../constant/AppColors.dart';
 
@@ -131,7 +132,9 @@ class _CalenderScreenState extends State<CalenderScreen> {
 
   Widget buildStartTreatmentButton() {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        Get.to(() => Treatment1());
+      },
       child: Container(
           margin: EdgeInsets.only(top: 50, bottom: 20, left: 20, right: 20),
           width: MediaQuery.of(context).size.width,
