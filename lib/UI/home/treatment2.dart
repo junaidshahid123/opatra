@@ -4,16 +4,20 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:opatra/UI/home/treatment2.dart';
 import 'package:opatra/constant/AppColors.dart';
 
-class Treatment1 extends StatefulWidget {
+class Treatment2 extends StatefulWidget {
   @override
-  _Treatment1State createState() => _Treatment1State();
+  _Treatment2State createState() => _Treatment2State();
 }
 
-class _Treatment1State extends State<Treatment1> {
+class _Treatment2State extends State<Treatment2> {
+  RxBool isVideoPlaying = false.obs;
   final RxList<int> selectedIndices = <int>[].obs;
+  final String dummyTextShort =
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
+      'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. '
+      'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ';
 
   @override
   Widget build(BuildContext context) {
@@ -50,11 +54,10 @@ class _Treatment1State extends State<Treatment1> {
                 ),
                 child: Column(
                   children: [
-                    buildSelectYourTreatmentAreas(),
-                    buildList(),
-                    buildTime(),
+                    buildTimeAndVideoIcon(),
+                    buildDescription(),
                     Spacer(),
-                    buildContinueButton()
+                    buildNextButton()
                   ],
                 ),
               ),
@@ -66,81 +69,53 @@ class _Treatment1State extends State<Treatment1> {
     );
   }
 
-  Widget buildTime() {
+  Widget buildDescription() {
     return Container(
-      margin: EdgeInsets.only(top: 2),
+      margin: EdgeInsets.only(left: 20, right: 20, top: 20),
       child: Text(
-        '14:00',
+        dummyTextShort,
         style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.appPrimaryBlackColor),
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF797E86)),
+        textAlign: TextAlign.center,
       ),
     );
   }
 
-  Widget buildList() {
+  Widget buildTimeAndVideoIcon() {
     return Container(
-      height: 100,
-      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        ListView.builder(
-            scrollDirection: Axis.horizontal,
-            shrinkWrap: true,
-            itemCount: 4,
-            itemBuilder: (context, index) {
-              // Use GetX or Obx to wrap only the part that needs to be reactive
-              return Obx(
-                () {
-                  final bool isSelected = selectedIndices.contains(index);
-                  return InkWell(
-                    onTap: () {
-                      if (isSelected) {
-                        selectedIndices.remove(index);
-                      } else {
-                        selectedIndices.add(index);
-                      }
-                    },
-                    child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 10),
-                      width: 40,
-                      decoration: BoxDecoration(
-                        color:
-                            isSelected ? Color(0xFFB7A06A) : Colors.transparent,
-                        border: Border.all(
-                          color: isSelected ? Colors.transparent : Color(0xFFC9CBCF),
-                          width: 2,
-                        ),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                        child: Text(
-                          '${index + 1}',
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: isSelected ? Colors.white : Colors.black,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
+      margin: EdgeInsets.only(top: 15),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '14:00 Min',
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: AppColors.appPrimaryBlackColor),
+          ),
+          SizedBox(
+            width: 10,
+          ),
+          Obx(() => InkWell(
+                onTap: () {
+                  isVideoPlaying.value = !isVideoPlaying.value;
                 },
-              );
-            })
-      ]),
-    );
-  }
-
-  Widget buildSelectYourTreatmentAreas() {
-    return Container(
-      margin: EdgeInsets.only(top: 10),
-      child: Text(
-        'Please select your treatment\nareas',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 20,
-            color: AppColors.appPrimaryBlackColor),
+                child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        color: Color(0xFFFBF3D7)),
+                    height: 30,
+                    width: 30,
+                    child: Container(
+                        margin: EdgeInsets.all(5),
+                        child: isVideoPlaying.value == true
+                            ? Image.asset('assets/images/pauseIcon.png')
+                            : Image.asset('assets/images/playIcon.png'))),
+              ))
+        ],
       ),
     );
   }
@@ -168,13 +143,13 @@ class _Treatment1State extends State<Treatment1> {
     );
   }
 
-  Widget buildContinueButton() {
+  Widget buildNextButton() {
     return InkWell(
       onTap: () {
-        Get.to(() => Treatment2());
+        // Get.to(() => Treatment1());
       },
       child: Container(
-          margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+          margin: EdgeInsets.only( bottom: 20, left: 20, right: 20),
           width: MediaQuery.of(context).size.width,
           height: 45,
           decoration: BoxDecoration(
@@ -183,7 +158,7 @@ class _Treatment1State extends State<Treatment1> {
           ),
           child: Center(
             child: Text(
-              'Continue',
+              'Next',
               style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
             ),
           )),

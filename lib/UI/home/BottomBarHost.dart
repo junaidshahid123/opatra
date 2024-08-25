@@ -12,6 +12,7 @@ import 'package:opatra/UI/home/warranty_claim.dart';
 import 'package:opatra/constant/AppColors.dart';
 
 import 'contact_us.dart';
+import 'notifications.dart';
 
 class BottomBarHost extends StatefulWidget {
   const BottomBarHost({super.key});
@@ -741,20 +742,25 @@ class _BottomBarHost extends State<BottomBarHost> {
   }
 
   Widget buildNotificationOption() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          height: 50.sp,
-          width: 50.sp,
-          child: Image.asset('assets/images/ellipse.png'),
-        ),
-        Container(
-          height: 15,
-          width: 15,
-          child: Image.asset('assets/images/bellIcon.png'),
-        ),
-      ],
+    return InkWell(
+      onTap: () {
+        Get.to(() => Notifications());
+      },
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            height: 50.sp,
+            width: 50.sp,
+            child: Image.asset('assets/images/ellipse.png'),
+          ),
+          Container(
+            height: 15,
+            width: 15,
+            child: Image.asset('assets/images/bellIcon.png'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -975,7 +981,8 @@ class _BottomBarHost extends State<BottomBarHost> {
     return Container(
       height: 150,
       // color: AppColors.languageArBackgroundColor,
-      child: ListView.builder(
+      child:
+      ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: 10,
         itemBuilder: (context, index) {
