@@ -4,6 +4,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:opatra/UI/auth/login.dart';
+import 'package:opatra/UI/home/BottomBarHost.dart';
 import 'package:opatra/UI/home/treatment2.dart';
 import 'package:opatra/constant/AppColors.dart';
 
@@ -85,7 +87,7 @@ class _SignUpState extends State<SignUp> {
   Widget buildSignInButton() {
     return InkWell(
       onTap: () {
-        Get.to(() => Treatment2());
+        Get.to(() => BottomBarHost());
       },
       child: Container(
           margin: EdgeInsets.only(
@@ -122,12 +124,17 @@ class _SignUpState extends State<SignUp> {
           SizedBox(
             width: 5,
           ),
-          Text(
-            "Sign In",
-            style: TextStyle(
-                color: Color(0xFFB7A06A),
-                fontSize: 12,
-                fontWeight: FontWeight.w600),
+          InkWell(
+            onTap: (){
+              Get.to(()=>Login());
+            },
+            child: Text(
+              "Sign In",
+              style: TextStyle(
+                  color: Color(0xFFB7A06A),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600),
+            ),
           )
         ],
       ),

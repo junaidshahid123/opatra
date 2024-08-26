@@ -4,10 +4,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:opatra/UI/auth/forgot_password.dart';
 import 'package:opatra/UI/auth/signup.dart';
 import 'package:opatra/UI/home/treatment2.dart';
 import 'package:opatra/UI/home/warranty_claim.dart';
 import 'package:opatra/constant/AppColors.dart';
+
+import '../home/BottomBarHost.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -81,20 +84,25 @@ class _LoginState extends State<Login> {
   }
 
   Widget buildForgotPasswordText() {
-    return Container(
-      margin: EdgeInsets.only(top: 10),
-      child: Row(
-        children: [
-          Expanded(child: Container()),
-          Text(
-            'Forgot Password?',
-            style: TextStyle(
-              fontWeight: FontWeight.w500,
-              fontSize: 12,
-              color: Color(0xFFB7A06A),
+    return InkWell(
+      onTap: (){
+        Get.to(()=>ForgotPassword());
+      },
+      child: Container(
+        margin: EdgeInsets.only(top: 10),
+        child: Row(
+          children: [
+            Expanded(child: Container()),
+            Text(
+              'Forgot Password?',
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 12,
+                color: Color(0xFFB7A06A),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -102,7 +110,7 @@ class _LoginState extends State<Login> {
   Widget buildSignInButton() {
     return InkWell(
       onTap: () {
-        Get.to(() => Treatment2());
+        Get.to(() => BottomBarHost());
       },
       child: Container(
           margin: EdgeInsets.only(bottom: 20, top: 50),
