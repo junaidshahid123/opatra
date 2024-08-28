@@ -2,7 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_rx/get_rx.dart';
 import 'package:opatra/constant/AppColors.dart';
+
+import 'bag.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen({super.key});
@@ -12,6 +16,7 @@ class ProductDetailScreen extends StatefulWidget {
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
+  RxInt quantity = 1.obs;
   final PageController _pageController = PageController();
   int _currentPage = 0;
   bool isExpanded = false;
@@ -310,30 +315,99 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget buildAddToBagButton() {
-    return Container(
-      height: 60,
-      decoration: BoxDecoration(
-        color: Color(0xFFB7A06A),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      margin: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            'assets/images/bagIcon.png',
-            height: 20,
-            width: 20,
-          ),
-          SizedBox(
-            width: 10,
-          ),
-          Text(
-            'Add To Bag',
-            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-          )
-        ],
+    return InkWell(
+      onTap: (){
+        Get.to(()=>Bag());
+      },
+      child: Container(
+        margin: EdgeInsets.only(right: 20),
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                height: 45,
+                decoration: BoxDecoration(
+                  color: Color(0xFFB7A06A),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                margin: EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/bagIcon.png',
+                      height: 20,
+                      width: 20,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      'Add To Bag',
+                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 20,
+            ),
+            InkWell(
+              onTap: () {
+                if (quantity.value > 1) {
+                  quantity.value--;
+                }
+              },
+              child: Container(
+                  height: 45,
+                  width: 45,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: Color(0xFFFBF3D7)),
+                  child: Container(
+                      margin: EdgeInsets.all(15),
+                      child: Image.asset(
+                        'assets/images/minusIcon.png',
+                      ))),
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Obx(
+              () => Text(
+                quantity.value.toString(),
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.appPrimaryBlackColor),
+              ),
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            InkWell(
+              onTap: () {
+                quantity.value++;
+              },
+              child: Container(
+                  height: 45,
+                  width: 45,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: Color(0xFFFBF3D7)),
+                  child: Container(
+                      margin: EdgeInsets.all(15),
+                      child: Image.asset(
+                        'assets/images/addIcon.png',
+                      ))),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -344,6 +418,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       child: Row(
         children: [
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [

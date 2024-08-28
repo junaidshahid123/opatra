@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:opatra/UI/home/about_us.dart';
 import 'package:opatra/UI/home/ask_our_experts.dart';
 import 'package:opatra/UI/home/product_detail.dart';
 import 'package:opatra/UI/home/register_your_own_product.dart';
@@ -12,6 +13,7 @@ import 'package:opatra/UI/home/warranty_claim.dart';
 import 'package:opatra/constant/AppColors.dart';
 
 import 'contact_us.dart';
+import 'live_stream.dart';
 import 'notifications.dart';
 
 class BottomBarHost extends StatefulWidget {
@@ -416,6 +418,7 @@ class _BottomBarHost extends State<BottomBarHost> {
       highlightColor: Colors.transparent,
       onTap: () {
         selectedIndex.value = 3;
+        Get.to(() => AboutUs());
       },
       child: Container(
         margin: EdgeInsets.only(
@@ -541,6 +544,7 @@ class _BottomBarHost extends State<BottomBarHost> {
       highlightColor: Colors.transparent,
       onTap: () {
         selectedIndex.value = 1;
+        Get.to(() => LiveStream());
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),
@@ -981,8 +985,7 @@ class _BottomBarHost extends State<BottomBarHost> {
     return Container(
       height: 150,
       // color: AppColors.languageArBackgroundColor,
-      child:
-      ListView.builder(
+      child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: 10,
         itemBuilder: (context, index) {
