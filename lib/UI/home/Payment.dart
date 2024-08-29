@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:opatra/UI/home/warranty_claim.dart';
 import '../../constant/AppColors.dart';
 
 class Payment extends StatefulWidget {
@@ -14,18 +13,118 @@ class Payment extends StatefulWidget {
 }
 
 class _PaymentState extends State<Payment> {
+  RxBool payPal = true.obs;
+  RxBool klarna = false.obs;
   RxBool card = true.obs;
   RxBool wallet = false.obs;
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+  final List<String> _images = [
+    'assets/images/cardDetails.png',
+    'assets/images/cardDetails.png',
+    'assets/images/cardDetails.png',
+  ];
+
+  void _showDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          // Transparent background
+          insetPadding: EdgeInsets.only(left: 20, right: 20),
+          // Remove default padding around the dialog
+          child: Material(
+            type: MaterialType.transparency, // Transparent material
+            child: Container(
+              width:
+                  MediaQuery.of(context).size.width, // Full width of the screen
+              height: MediaQuery.of(context).size.height /
+                  2, // Half the height of the screen
+              decoration: BoxDecoration(
+                color: Colors.white, // White background
+                borderRadius: BorderRadius.circular(10), // Rounded corners
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(20), // Padding inside the container
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Image.asset(
+                      'assets/images/paymentTickIcon.png',
+                      width: 100, // Adjust the size as needed
+                      height: 100,
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      "Payment Successful",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        // Font weight of 600 for more emphasis
+                        color: AppColors
+                            .appPrimaryBlackColor, // Match color with the icon or theme
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "You have completed the treatment.",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color:
+                            Color(0xFF4E5256), // Text color as per your theme
+                      ),
+                      textAlign: TextAlign.center, // Center align the text
+                    ),
+                    SizedBox(height: 30),
+                    InkWell(
+                      onTap: () {
+                        Get.back();
+                      },
+                      child: Container(
+                        height: 50,
+                        width: MediaQuery.of(context).size.width / 4,
+                        decoration: BoxDecoration(
+                          color: Color(0xFFB7A06A),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'OK',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.appWhiteColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.appWhiteColor,
       body: SafeArea(
-        child: Column(
+          child: Obx(
+        () => Column(
           children: [
             buildAppBar(),
             buildCreditCardAndWalletOptions(),
+            card.value == true ? buildPreviewProductImages() : Container(),
+            card.value == true ? addNewCardButton() : Container(),
+            wallet.value == true ? payPalOption() : Container(),
+            wallet.value == true ? klarnaOption() : Container(),
             Spacer(),
             Container(
               height: MediaQuery.of(context).size.height / 3,
@@ -55,7 +154,7 @@ class _PaymentState extends State<Payment> {
             )
           ],
         ),
-      ),
+      )),
     );
   }
 
@@ -66,7 +165,7 @@ class _PaymentState extends State<Payment> {
             children: [
               buildCreditCardOption(),
               SizedBox(
-                width: 10,
+                width: 20,
               ),
               buildWalletOption()
             ],
@@ -82,7 +181,7 @@ class _PaymentState extends State<Payment> {
           wallet.value = false;
         },
         child: Container(
-          height: 40,
+          height: 50,
           decoration: BoxDecoration(
             color: card.value == true ? Color(0xFFB7A06A) : Colors.transparent,
             border: Border.all(
@@ -133,7 +232,7 @@ class _PaymentState extends State<Payment> {
           wallet.value = true;
         },
         child: Container(
-          height: 40,
+          height: 50,
           decoration: BoxDecoration(
             color:
                 wallet.value == true ? Color(0xFFB7A06A) : Colors.transparent,
@@ -332,7 +431,9 @@ class _PaymentState extends State<Payment> {
 
   Widget buildContinueButton() {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        _showDialog(context);
+      },
       child: Container(
           margin: EdgeInsets.only(bottom: 20),
           width: MediaQuery.of(context).size.width,
@@ -350,6 +451,245 @@ class _PaymentState extends State<Payment> {
                   color: Color(0xFFB7A06A)),
             ),
           )),
+    );
+  }
+
+  Widget buildPreviewProductImages() {
+    return Container(
+      margin: EdgeInsets.only(top: 20, left: 20),
+      // color: AppColors.appPrimaryBlackColor,
+      child: Column(
+        children: [
+          Container(
+            height: MediaQuery.of(context).size.height / 4.5,
+            width: MediaQuery.of(context).size.width,
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: _images.length,
+              onPageChanged: (int index) {
+                setState(() {
+                  _currentPage = index;
+                });
+              },
+              itemBuilder: (context, index) {
+                return Stack(
+                  children: [
+                    Container(
+                      margin: EdgeInsets.only(right: 20),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20)),
+                      child: Image.asset(
+                        'assets/images/cardContainer.png',
+                        width: MediaQuery.of(context).size.width,
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.all(20),
+                      child: Image.asset(
+                        _images[index],
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+          Container(
+            // margin: EdgeInsets.only(bottom: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(_images.length, (index) {
+                return AnimatedContainer(
+                  duration: Duration(milliseconds: 300),
+                  margin: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
+                  height: 10.0,
+                  width: _currentPage == index ? 20.0 : 8.0,
+                  decoration: BoxDecoration(
+                    color:
+                        _currentPage == index ? Color(0xFFB7A06A) : Colors.grey,
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                );
+              }),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget klarnaOption() {
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        payPal.value = false;
+        klarna.value = true;
+      },
+      child: Container(
+        margin: EdgeInsets.only(top: 20, right: 20, left: 20),
+        height: 45,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          border: Border.all(color: Color(0xFFB7A06A), width: 0.5),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Container(
+          margin: EdgeInsets.only(left: 20, right: 20),
+          child: Row(
+            children: [
+              Image.asset(
+                'assets/images/klarnaIcon.png',
+                height: 20,
+                width: 20,
+              ),
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.only(left: 20),
+                  child: Text(
+                    'Klarna',
+                    style: TextStyle(
+                      color: Color(0xFFB7A06A),
+                      fontWeight: FontWeight.w400,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                  height: 20,
+                  width: 20,
+                  decoration: BoxDecoration(
+                      color: klarna.value == true
+                          ? Color(0xFFB7A06A)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(
+                          color: klarna.value == true
+                              ? Colors.transparent
+                              : Color(0xFFB7A06A))),
+                  child: klarna.value == true
+                      ? Container(
+                          margin: EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                              color: Color(0xFFB7A06A),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                              border:
+                                  Border.all(color: AppColors.appWhiteColor)),
+                        )
+                      : Container()),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget payPalOption() {
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        payPal.value = true;
+        klarna.value = false;
+      },
+      child: Container(
+        margin: EdgeInsets.only(top: 20, right: 20, left: 20),
+        height: 45,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          border: Border.all(color: Color(0xFFB7A06A), width: 0.5),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Container(
+          margin: EdgeInsets.only(left: 20, right: 20),
+          child: Row(
+            children: [
+              Image.asset(
+                'assets/images/payPalIcon.png',
+                height: 20,
+                width: 20,
+              ),
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.only(left: 20),
+                  child: Text(
+                    'Paypal',
+                    style: TextStyle(
+                      color: Color(0xFFB7A06A),
+                      fontWeight: FontWeight.w400,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                  height: 20,
+                  width: 20,
+                  decoration: BoxDecoration(
+                      color: payPal.value == true
+                          ? Color(0xFFB7A06A)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(
+                          color: payPal.value == true
+                              ? Colors.transparent
+                              : Color(0xFFB7A06A))),
+                  child: payPal.value == true
+                      ? Container(
+                          margin: EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                              color: Color(0xFFB7A06A),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
+                              border:
+                                  Border.all(color: AppColors.appWhiteColor)),
+                        )
+                      : Container()),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget addNewCardButton() {
+    return Container(
+      margin: EdgeInsets.only(top: 20, right: 20, left: 20),
+      height: 45,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        border: Border.all(color: Color(0xFFFBF3D7)),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.only(left: 20),
+              child: Text(
+                'Add New Card',
+                style: TextStyle(
+                  color: Color(0xFFB7A06A),
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(right: 20),
+            child: Image.asset(
+              'assets/images/addSquareIcon.png',
+              width: 24, // Adjust the size as needed
+              height: 24,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

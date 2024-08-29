@@ -514,7 +514,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   duration: Duration(milliseconds: 300),
                   margin: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
                   height: 10.0,
-                  width: _currentPage == index ? 12.0 : 8.0,
+                  width: _currentPage == index ? 8.0 : 8.0,
                   decoration: BoxDecoration(
                     color:
                         _currentPage == index ? Color(0xFFB7A06A) : Colors.grey,
