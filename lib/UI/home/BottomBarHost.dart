@@ -11,7 +11,8 @@ import 'package:opatra/UI/home/register_your_own_product.dart';
 import 'package:opatra/UI/home/treatment.dart';
 import 'package:opatra/UI/home/warranty_claim.dart';
 import 'package:opatra/constant/AppColors.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../controllers/bottom_bar_host_controller.dart';
 import 'contact_us.dart';
 import 'live_stream.dart';
 import 'notifications.dart';
@@ -24,6 +25,9 @@ class BottomBarHost extends StatefulWidget {
 }
 
 class _BottomBarHost extends State<BottomBarHost> {
+  final BottomBarHostController controller =
+      Get.put(BottomBarHostController()); // Initialize the controller
+
   RxBool home = true.obs;
   RxBool product = true.obs;
   RxBool video = true.obs;
@@ -38,125 +42,141 @@ class _BottomBarHost extends State<BottomBarHost> {
     product.value = false;
     video.value = false;
     selectedIndex.value = 0;
+    _getUserName();
+  }
+
+  Future<String> _getUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userName') ??
+        'Guest'; // Default to 'Guest' if no value is found
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: buildDrawer(),
-      resizeToAvoidBottomInset: true,
-      backgroundColor: AppColors.appWhiteColor,
-      body: SafeArea(
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            Column(
-              children: [
-                buildAppBar(),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).size.height /
-                          4, // Adjust this value as needed
-                    ),
-                    child: Column(
-                      children: [
-                        Obx(
-                          () => home.value == true
-                              ? Container(
-                                  height:
-                                      MediaQuery.of(context).size.height / 2.2,
-                                  margin: EdgeInsets.only(top: 20),
-                                  width: MediaQuery.of(context).size.width,
-                                  child: CenteredExpandingPageView())
-                              : Container(),
+    return GetBuilder<BottomBarHostController>(
+        init: BottomBarHostController(),
+        builder: (BottomBarHostController) {
+          return Scaffold(
+            drawer: buildDrawer(),
+            resizeToAvoidBottomInset: true,
+            backgroundColor: AppColors.appWhiteColor,
+            body: SafeArea(
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  Column(
+                    children: [
+                      buildAppBar(),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: EdgeInsets.only(
+                            bottom: MediaQuery.of(context).size.height /
+                                4, // Adjust this value as needed
+                          ),
+                          child: Column(
+                            children: [
+                              Obx(
+                                () => home.value == true
+                                    ? Container(
+                                        height:
+                                            MediaQuery.of(context).size.height /
+                                                2.2,
+                                        margin: EdgeInsets.only(top: 20),
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                        child: CenteredExpandingPageView())
+                                    : Container(),
+                              ),
+                              Obx(
+                                () => home.value == true
+                                    ? buildHeadingTextForHome()
+                                    : Container(),
+                              ),
+                              Obx(() => home.value == true
+                                  ? buildHomeProductListView()
+                                  : video.value == true
+                                      ? buildProductListViewForVideos()
+                                      : buildProductListView()),
+                              Obx(
+                                () => video.value == true
+                                    ? buildSearchField()
+                                    : Container(),
+                              ),
+                              Obx(
+                                () => product.value == true
+                                    ? buildSearchField()
+                                    : Container(),
+                              ),
+                              Obx(
+                                () => product.value || video.value == true
+                                    ? buildCategories()
+                                    : Container(),
+                              ),
+                              Obx(
+                                () => product.value == true
+                                    ? Container(
+                                        margin:
+                                            EdgeInsets.only(left: 20, top: 20),
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              'Popular Products',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AppColors
+                                                      .appPrimaryBlackColor,
+                                                  fontSize: 20),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    : Container(),
+                              ),
+                              Obx(
+                                () => product.value == true
+                                    ? buildProductListViewPopular()
+                                    : Container(),
+                              ),
+                              Obx(
+                                () => product.value == true
+                                    ? Container(
+                                        margin:
+                                            EdgeInsets.only(left: 20, top: 20),
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              'Recent Products',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AppColors
+                                                      .appPrimaryBlackColor,
+                                                  fontSize: 20),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                    : Container(),
+                              ),
+                              Obx(
+                                () => product.value == true
+                                    ? buildProductListViewRecent()
+                                    : Container(),
+                              ),
+                              Obx(() => video.value == true
+                                  ? buildGridView()
+                                  : Container())
+                            ],
+                          ),
                         ),
-                        Obx(
-                          () => home.value == true
-                              ? buildHeadingTextForHome()
-                              : Container(),
-                        ),
-                        Obx(() => home.value == true
-                            ? buildHomeProductListView()
-                            : video.value == true
-                                ? buildProductListViewForVideos()
-                                : buildProductListView()),
-                        Obx(
-                          () => video.value == true
-                              ? buildSearchField()
-                              : Container(),
-                        ),
-                        Obx(
-                          () => product.value == true
-                              ? buildSearchField()
-                              : Container(),
-                        ),
-                        Obx(
-                          () => product.value || video.value == true
-                              ? buildCategories()
-                              : Container(),
-                        ),
-                        Obx(
-                          () => product.value == true
-                              ? Container(
-                                  margin: EdgeInsets.only(left: 20, top: 20),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        'Popular Products',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            color:
-                                                AppColors.appPrimaryBlackColor,
-                                            fontSize: 20),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : Container(),
-                        ),
-                        Obx(
-                          () => product.value == true
-                              ? buildProductListViewPopular()
-                              : Container(),
-                        ),
-                        Obx(
-                          () => product.value == true
-                              ? Container(
-                                  margin: EdgeInsets.only(left: 20, top: 20),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        'Recent Products',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            color:
-                                                AppColors.appPrimaryBlackColor,
-                                            fontSize: 20),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              : Container(),
-                        ),
-                        Obx(
-                          () => product.value == true
-                              ? buildProductListViewRecent()
-                              : Container(),
-                        ),
-                        Obx(() =>
-                            video.value == true ? buildGridView() : Container())
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  buildBottomBar(),
+                ],
+              ),
             ),
-            buildBottomBar(),
-          ],
-        ),
-      ),
-    );
+          );
+        });
   }
 
   Widget buildDrawer() {
@@ -771,7 +791,7 @@ class _BottomBarHost extends State<BottomBarHost> {
   Widget buildName() {
     return Obx(() => home.value == true
         ? Text(
-            'Hello Marta',
+            'Hello ${controller.userName}',
             style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
