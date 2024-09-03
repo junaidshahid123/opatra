@@ -9,6 +9,9 @@ import 'package:opatra/UI/home/BottomBarHost.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class SignUp extends StatefulWidget {
   @override
@@ -16,6 +19,8 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  String? parcelAddress;
+
   RxBool isLoading = false.obs;
   final _nameController = TextEditingController(),
       _passwordController = TextEditingController(),
@@ -151,6 +156,7 @@ class _SignUpState extends State<SignUp> {
                       child: Column(
                         children: [
                           buildWelcomeText(),
+                          buildAddLocationButton(),
                           buildUserNameField(),
                           buildLastNameField(),
                           buildEmailField(),
@@ -171,6 +177,39 @@ class _SignUpState extends State<SignUp> {
         ),
       ),
     );
+  }
+
+  Widget buildAddLocationButton() {
+    return Obx(() => InkWell(
+          onTap: () {
+            Get.to(() => GoogleMapScreen());
+          },
+          child: Container(
+              margin: EdgeInsets.only(
+                bottom: 20,
+              ),
+              width: MediaQuery.of(context).size.width,
+              height: 45,
+              decoration: BoxDecoration(
+                color: Color(0xFFB7A06A),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                  child: isLoading.value == true
+                      ? SizedBox(
+                          width: 20.0, // Adjust the width
+                          height: 20.0, // Adjust the height
+                          child: CircularProgressIndicator(
+                            strokeWidth: 5,
+                            color: AppColors.appWhiteColor,
+                          ),
+                        )
+                      : Text(
+                          'Add Location',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 16),
+                        ))),
+        ));
   }
 
   Widget buildSignInButton() {
@@ -617,6 +656,189 @@ class _SignUpState extends State<SignUp> {
           ],
         ),
       ],
+    );
+  }
+}
+
+
+
+class GoogleMapScreen extends StatefulWidget {
+  @override
+  _GoogleMapScreenState createState() => _GoogleMapScreenState();
+}
+
+class _GoogleMapScreenState extends State<GoogleMapScreen> {
+  late GoogleMapController _mapController;
+  LatLng _currentLocation = LatLng(37.7749, -122.4194); // Default to San Francisco
+  Set<Marker> _markers = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    setState(() {
+      _currentLocation = LatLng(position.latitude, position.longitude);
+      _markers.add(Marker(
+        markerId: MarkerId('current_location'),
+        position: _currentLocation,
+        infoWindow: InfoWindow(title: 'Current Location'),
+      ));
+    });
+    _mapController
+        .animateCamera(CameraUpdate.newLatLngZoom(_currentLocation, 14));
+  }
+
+  Future<void> _fetchPlaceDetails(String placeId) async {
+    final url =
+        "https://maps.googleapis.com/maps/api/place/details/json?place_id=$placeId&key=$kGoogleApiKey";
+
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final location = data['result']['geometry']['location'];
+      final lat = location['lat'];
+      final lng = location['lng'];
+      final newLocation = LatLng(lat, lng);
+      setState(() {
+        _markers.add(Marker(
+          markerId: MarkerId('searched_location'),
+          position: newLocation,
+          infoWindow: InfoWindow(title: data['result']['name']),
+        ));
+      });
+      _mapController
+          .animateCamera(CameraUpdate.newLatLngZoom(newLocation, 14));
+    } else {
+      // Handle error
+      print("Failed to load place details");
+    }
+  }
+
+  void _searchPlace() async {
+    final prediction = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AutocompleteScreen()),
+    );
+
+    if (prediction != null) {
+      final placeId = prediction['place_id'];
+      await _fetchPlaceDetails(placeId);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Select Location'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: _searchPlace,
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          GoogleMap(
+            onMapCreated: (GoogleMapController controller) {
+              _mapController = controller;
+              _getCurrentLocation(); // Ensure current location is fetched when map is created
+            },
+            initialCameraPosition: CameraPosition(
+              target: _currentLocation,
+              zoom: 10,
+            ),
+            markers: _markers,
+            myLocationEnabled: true,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+const kGoogleApiKey = ""; // Replace with your API key
+
+class AutocompleteScreen extends StatefulWidget {
+  @override
+  _AutocompleteScreenState createState() => _AutocompleteScreenState();
+}
+
+class _AutocompleteScreenState extends State<AutocompleteScreen> {
+  final TextEditingController _searchController = TextEditingController();
+  List<dynamic> _predictions = [];
+
+  Future<void> _fetchPredictions(String query) async {
+    final url =
+        "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$query&key=$kGoogleApiKey";
+
+    final response = await http.get(Uri.parse(url));
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        _predictions = data['predictions'];
+      });
+    } else {
+      // Handle error
+      print("Failed to load predictions");
+    }
+  }
+
+  void _onSearchChanged(String query) {
+    if (query.isNotEmpty) {
+      _fetchPredictions(query);
+    } else {
+      setState(() {
+        _predictions = [];
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Search Place'),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search for a place',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+              onChanged: _onSearchChanged,
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _predictions.length,
+              itemBuilder: (context, index) {
+                final prediction = _predictions[index];
+                return ListTile(
+                  title: Text(prediction['description']),
+                  onTap: () async {
+                    Navigator.pop(context, prediction);
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
