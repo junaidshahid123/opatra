@@ -29,26 +29,15 @@ class _OtpVerificationState extends State<OtpVerification> {
     isLoading.value = true;
     final String url = 'https://opatra.meetchallenge.com/api/verify-otp';
 
-    // Retrieve token from SharedPreferences
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token'); // Get the token from shared prefs
 
     Map<String, String> requestBody = {
       "email": widget.email,
       "otp": otp, // Send the OTP as part of the request body
     };
 
-    // Ensure the token exists before proceeding
-    if (token == null || token.isEmpty) {
-      isLoading.value = false;
-      Get.snackbar('Error', 'No token found. Please log in again.',
-          backgroundColor: Colors.red, colorText: Colors.white);
-      return;
-    }
 
     Map<String, String> headers = {
       "Accept": "application/json",
-      "Authorization": "Bearer $token", // Include the Bearer token in headers
     };
 
     try {
