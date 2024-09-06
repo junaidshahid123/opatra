@@ -64,7 +64,7 @@ class _SignUpState extends State<SignUp> {
         print('responseData=${responseData}');
 
         // Extract token, name, and email
-        var token = responseData['authorization']['token'] ?? "";
+        var token = responseData['token'] ?? "";
         var userName =
             responseData['user']['name'] ?? ""; // Fallback to empty string
         var userEmail =

@@ -1,18 +1,15 @@
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../controllers/bottom_bar_host_controller.dart';
 import '../home/BottomBarHost.dart';
-import 'new_password.dart';
 
 class OtpVerification extends StatefulWidget {
   const OtpVerification({super.key});
@@ -22,6 +19,8 @@ class OtpVerification extends StatefulWidget {
 }
 
 class _OtpVerificationState extends State<OtpVerification> {
+  final BottomBarHostController controller =
+      Get.put(BottomBarHostController()); // Initialize the controller
   RxBool isLoading = false.obs;
 
   Future<void> verifyOtp(String otp) async {
@@ -81,8 +80,7 @@ class _OtpVerificationState extends State<OtpVerification> {
 
         // Handle errors
         final Map<String, dynamic> responseData = json.decode(response.body);
-        String errorMessage =
-            responseData['message'] ?? 'Failed to verify OTP';
+        String errorMessage = responseData['message'] ?? 'Failed to verify OTP';
 
         if (responseData.containsKey('errors')) {
           final errors = responseData['errors'] as Map<String, dynamic>;
@@ -103,26 +101,31 @@ class _OtpVerificationState extends State<OtpVerification> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: AppColors.appWhiteColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            buildAppBar(),
-            Container(
-              child: Image.asset('assets/images/otpVerificationImage.png'),
+    return GetBuilder<BottomBarHostController>(
+        init: BottomBarHostController(),
+        builder: (BottomBarHostController) {
+          return Scaffold(
+            resizeToAvoidBottomInset: false,
+            backgroundColor: AppColors.appWhiteColor,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  buildAppBar(),
+                  Container(
+                    child:
+                        Image.asset('assets/images/otpVerificationImage.png'),
+                  ),
+                  buildEnterOtpText(),
+                  buildOtpField(),
+                  buildTimer(),
+                  buildDidntReceivedCode(),
+                  Spacer(),
+                  buildSubmitButton(),
+                ],
+              ),
             ),
-            buildEnterOtpText(),
-            buildOtpField(),
-            buildTimer(),
-            buildDidntReceivedCode(),
-            Spacer(),
-            buildSubmitButton(),
-          ],
-        ),
-      ),
-    );
+          );
+        });
   }
 
   Widget buildTimer() {
@@ -148,10 +151,12 @@ class _OtpVerificationState extends State<OtpVerification> {
       width: MediaQuery.of(context).size.width,
       margin: EdgeInsets.only(top: 20, right: 20, left: 20),
       child: OtpTextField(
-        margin: EdgeInsets.only(left: 5, right: 5), // Reduced the margin between fields
+        margin: EdgeInsets.only(left: 5, right: 5),
+        // Reduced the margin between fields
         fieldWidth: 40,
         fieldHeight: 40,
-        numberOfFields: 6, // Number of OTP fields
+        numberOfFields: 6,
+        // Number of OTP fields
         borderColor: Color(0xFF989898),
         showFieldAsBox: true,
         textStyle: TextStyle(
@@ -197,7 +202,9 @@ class _OtpVerificationState extends State<OtpVerification> {
                     color: Color(0xFF323943)),
               ),
               Text(
-                'abc123@gmail.com',
+                controller.userEmail.value.isNotEmpty
+                    ? controller.userEmail.value
+                    : 'abc123@gmail.com',
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
@@ -252,35 +259,35 @@ class _OtpVerificationState extends State<OtpVerification> {
   }
 
   Widget buildSubmitButton() {
-    return
-      Obx((()=>InkWell(
-        onTap: () {
-          Get.to(()=>NewPassword());
-        },
-        child: Container(
-            margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
-            width: MediaQuery.of(context).size.width,
-            height: 45,
-            decoration: BoxDecoration(
-              color: Color(0xFFB7A06A),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-                child: isLoading.value == true
-                    ? SizedBox(
-                  width: 20.0, // Adjust the width
-                  height: 20.0, // Adjust the height
-                  child: CircularProgressIndicator(
-                    strokeWidth: 5,
-                    color: AppColors.appWhiteColor,
-                  ),
-                )
-                    : Text(
-                  'Submit',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w600, fontSize: 16),
-                ))),
-      )));
+    return Obx((() => InkWell(
+          onTap: () {
+            // verifyOtp();
+            // Get.to(() => NewPassword());
+          },
+          child: Container(
+              margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+              width: MediaQuery.of(context).size.width,
+              height: 45,
+              decoration: BoxDecoration(
+                color: Color(0xFFB7A06A),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                  child: isLoading.value == true
+                      ? SizedBox(
+                          width: 20.0, // Adjust the width
+                          height: 20.0, // Adjust the height
+                          child: CircularProgressIndicator(
+                            strokeWidth: 5,
+                            color: AppColors.appWhiteColor,
+                          ),
+                        )
+                      : Text(
+                          'Submit',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 16),
+                        ))),
+        )));
   }
 
   Widget buildAppBar() {
@@ -303,7 +310,7 @@ class _OtpVerificationState extends State<OtpVerification> {
 
   Widget buildName() {
     return const Text(
-      'Forgot Password',
+      'Verify Otp',
       style: TextStyle(
           fontSize: 20, fontWeight: FontWeight.w500, color: Color(0xFF263238)),
     );
