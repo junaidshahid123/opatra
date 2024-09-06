@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 
+import 'otp_verification.dart';
+
 class SignUp extends StatefulWidget {
   @override
   _SignUpState createState() => _SignUpState();
@@ -59,20 +61,22 @@ class _SignUpState extends State<SignUp> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-        print('token=${responseData['data']['token']}');
+        print('responseData=${responseData}');
 
-        var token = responseData['data']['token'] ?? "";
-        var userName = responseData['data']['user']['name'] ??
-            ""; // Fallback to empty string
-        var userEmail = responseData['data']['user']['email'] ??
-            ""; // Fallback to empty string
+        // Extract token, name, and email
+        var token = responseData['authorization']['token'] ?? "";
+        var userName =
+            responseData['user']['name'] ?? ""; // Fallback to empty string
+        var userEmail =
+            responseData['user']['email'] ?? ""; // Fallback to empty string
+
+        // Store data in shared preferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token);
-        await prefs.setString('userEmail', userEmail);
         await prefs.setString('userName', userName);
-        Get.snackbar('Success', 'User registered successfully!',
-            backgroundColor: Color(0xFFB7A06A), colorText: Colors.white);
-        Get.offAll(BottomBarHost());
+        await prefs.setString('userEmail', userEmail);
+
+        Get.offAll(OtpVerification());
       } else {
         // Handle errors
         final Map<String, dynamic> responseData = json.decode(response.body);
@@ -156,7 +160,7 @@ class _SignUpState extends State<SignUp> {
                       child: Column(
                         children: [
                           buildWelcomeText(),
-                          buildAddLocationButton(),
+                          // buildAddLocationButton(),
                           buildUserNameField(),
                           buildLastNameField(),
                           buildEmailField(),
@@ -274,9 +278,10 @@ class _SignUpState extends State<SignUp> {
                   backgroundColor: Colors.red, colorText: Colors.white);
               return;
             }
+
             registerUser();
             // If all checks pass, proceed to the next screen or perform the action
-            // Get.to(() => BottomBarHost());
+            // Get.to(() => OtpVerification());
           },
           child: Container(
               margin: EdgeInsets.only(
@@ -660,8 +665,6 @@ class _SignUpState extends State<SignUp> {
   }
 }
 
-
-
 class GoogleMapScreen extends StatefulWidget {
   @override
   _GoogleMapScreenState createState() => _GoogleMapScreenState();
@@ -669,7 +672,8 @@ class GoogleMapScreen extends StatefulWidget {
 
 class _GoogleMapScreenState extends State<GoogleMapScreen> {
   late GoogleMapController _mapController;
-  LatLng _currentLocation = LatLng(37.7749, -122.4194); // Default to San Francisco
+  LatLng _currentLocation =
+      LatLng(37.7749, -122.4194); // Default to San Francisco
   Set<Marker> _markers = {};
 
   @override
@@ -711,8 +715,7 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
           infoWindow: InfoWindow(title: data['result']['name']),
         ));
       });
-      _mapController
-          .animateCamera(CameraUpdate.newLatLngZoom(newLocation, 14));
+      _mapController.animateCamera(CameraUpdate.newLatLngZoom(newLocation, 14));
     } else {
       // Handle error
       print("Failed to load place details");

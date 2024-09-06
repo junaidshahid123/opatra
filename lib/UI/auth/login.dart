@@ -1,15 +1,14 @@
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:opatra/UI/auth/forgot_password.dart';
 import 'package:opatra/UI/auth/signup.dart';
-import 'package:opatra/UI/home/treatment2.dart';
-import 'package:opatra/UI/home/warranty_claim.dart';
+import 'package:http/http.dart' as http;
 import 'package:opatra/constant/AppColors.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../home/BottomBarHost.dart';
 
 class Login extends StatefulWidget {
@@ -19,6 +18,86 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   final RxList<int> selectedIndices = <int>[].obs;
+  RxBool isLoading = false.obs;
+  final _emailController = TextEditingController(),
+      _passwordController = TextEditingController();
+
+  Future<void> loginUser() async {
+    isLoading.value = true;
+    final String url = 'https://opatra.meetchallenge.com/api/login';
+
+    Map<String, String> requestBody = {
+      "email": _emailController.text,
+      "password": _passwordController.text,
+    };
+
+    Map<String, String> headers = {
+      "Accept": "application/json",
+    };
+
+    try {
+      final client = http.Client();
+      final http.Response response = await client.post(
+        Uri.parse(url),
+        headers: headers,
+        body: requestBody,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        isLoading.value = false; // Stop loading spinner
+
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        print('responseData========${responseData}');
+
+        // Extract token, name, and email
+        var token = responseData['authorization']['token'] ?? "";
+        var userName = responseData['user']['name'] ?? ""; // Fallback to empty string
+        var userEmail = responseData['user']['email'] ?? ""; // Fallback to empty string
+
+        // Store data in shared preferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', token);
+        await prefs.setString('userName', userName);
+        await prefs.setString('userEmail', userEmail);
+
+        Get.snackbar('Success', 'User Login successfully!',
+            backgroundColor: Color(0xFFB7A06A), colorText: Colors.white);
+        Get.offAll(BottomBarHost());
+      }
+      else {
+        isLoading.value = false; // Stop loading spinner
+
+        // Handle errors
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        String errorMessage =
+            responseData['message'] ?? 'Failed to register user';
+
+        if (responseData.containsKey('errors')) {
+          final errors = responseData['errors'] as Map<String, dynamic>;
+          errors.forEach((key, value) {
+            errorMessage += '\n${value.join(', ')}';
+          });
+        }
+
+        Get.snackbar('Error', errorMessage,
+            backgroundColor: Colors.red, colorText: Colors.white);
+      }
+    } catch (e) {
+      isLoading.value = false; // Stop loading spinner
+      Get.snackbar('Error', 'An error occurred: $e',
+          backgroundColor: Colors.red, colorText: Colors.white);
+    }
+  }
+
+  bool isValidEmail(String email) {
+    // Regular expression for validating an email
+    final RegExp emailRegExp = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+
+    // Return whether the email matches the regex
+    return emailRegExp.hasMatch(email);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,8 +164,8 @@ class _LoginState extends State<Login> {
 
   Widget buildForgotPasswordText() {
     return InkWell(
-      onTap: (){
-        Get.to(()=>ForgotPassword());
+      onTap: () {
+        Get.to(() => ForgotPassword());
       },
       child: Container(
         margin: EdgeInsets.only(top: 10),
@@ -108,25 +187,58 @@ class _LoginState extends State<Login> {
   }
 
   Widget buildSignInButton() {
-    return InkWell(
-      onTap: () {
-        Get.to(() => BottomBarHost());
-      },
-      child: Container(
-          margin: EdgeInsets.only(bottom: 20, top: 50),
-          width: MediaQuery.of(context).size.width,
-          height: 45,
-          decoration: BoxDecoration(
-            color: Color(0xFFB7A06A),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Center(
-            child: Text(
-              'Sign In',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-            ),
-          )),
-    );
+    return Obx(() => InkWell(
+          onTap: () {
+            // Check if the email field is empty
+            if (_emailController.text.isEmpty) {
+              Get.snackbar('Alert', 'Please Enter Email',
+                  backgroundColor: Colors.red, colorText: Colors.white);
+              return; // Return early to avoid further checks
+            }
+            // Validate the email format
+            if (!isValidEmail(_emailController.text)) {
+              Get.snackbar('Alert', 'Please Enter a Valid Email',
+                  backgroundColor: Colors.red, colorText: Colors.white);
+              return; // Return early if the email is invalid
+            }
+            // Check if the password field is empty
+            if (_passwordController.text.isEmpty) {
+              Get.snackbar('Alert', 'Please Enter Password',
+                  backgroundColor: Colors.red, colorText: Colors.white);
+              return; // Return early to avoid further checks
+            }
+            // Check if the password field is empty
+            if (_passwordController.text.length < 8) {
+              Get.snackbar('Alert', 'Password must be at least 8 characters',
+                  backgroundColor: Colors.red, colorText: Colors.white);
+              return; // Return early to avoid further checks
+            }
+            loginUser();
+          },
+          child: Container(
+              margin: EdgeInsets.only(bottom: 20, top: 50),
+              width: MediaQuery.of(context).size.width,
+              height: 45,
+              decoration: BoxDecoration(
+                color: Color(0xFFB7A06A),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                  child: isLoading.value == true
+                      ? SizedBox(
+                          width: 20.0, // Adjust the width
+                          height: 20.0, // Adjust the height
+                          child: CircularProgressIndicator(
+                            strokeWidth: 5,
+                            color: AppColors.appWhiteColor,
+                          ),
+                        )
+                      : Text(
+                          'Sign In',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 16),
+                        ))),
+        ));
   }
 
   Widget buildDontHaveAnAccount() {
@@ -167,6 +279,9 @@ class _LoginState extends State<Login> {
       height: 45,
       margin: EdgeInsets.only(top: 20),
       child: TextField(
+        cursorColor: AppColors.appPrimaryBlackColor,
+        style: TextStyle(color: AppColors.appPrimaryBlackColor),
+        controller: _passwordController,
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(
@@ -210,6 +325,9 @@ class _LoginState extends State<Login> {
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
       height: 45,
       child: TextField(
+        cursorColor: AppColors.appPrimaryBlackColor,
+        style: TextStyle(color: AppColors.appPrimaryBlackColor),
+        controller: _emailController,
         decoration: InputDecoration(
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(
