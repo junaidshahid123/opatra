@@ -12,7 +12,9 @@ import '../../controllers/bottom_bar_host_controller.dart';
 import '../home/BottomBarHost.dart';
 
 class OtpVerification extends StatefulWidget {
-  const OtpVerification({super.key});
+  final String email;
+
+  const OtpVerification({super.key, required this.email});
 
   @override
   State<OtpVerification> createState() => _OtpVerificationState();
@@ -32,6 +34,7 @@ class _OtpVerificationState extends State<OtpVerification> {
     String? token = prefs.getString('token'); // Get the token from shared prefs
 
     Map<String, String> requestBody = {
+      "email": widget.email,
       "otp": otp, // Send the OTP as part of the request body
     };
 
@@ -55,6 +58,7 @@ class _OtpVerificationState extends State<OtpVerification> {
         headers: headers,
         body: requestBody,
       );
+      print('requestBody====${requestBody}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         isLoading.value = false; // Stop loading spinner

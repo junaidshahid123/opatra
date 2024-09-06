@@ -76,7 +76,7 @@ class _SignUpState extends State<SignUp> {
         await prefs.setString('userName', userName);
         await prefs.setString('userEmail', userEmail);
 
-        Get.offAll(OtpVerification());
+        Get.offAll(OtpVerification(email: _emailController.text,));
       } else {
         // Handle errors
         final Map<String, dynamic> responseData = json.decode(response.body);

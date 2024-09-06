@@ -73,7 +73,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             backgroundColor: Color(0xFFB7A06A), colorText: Colors.white);
 
         // Navigate to NewPassword screen
-        Get.offAll(OtpVerification());
+        Get.offAll(OtpVerification(email: _emailController.text,));
       } else {
         isLoading.value = false; // Stop loading spinner
 
