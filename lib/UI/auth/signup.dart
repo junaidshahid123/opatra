@@ -5,14 +5,11 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:opatra/UI/auth/login.dart';
-import 'package:opatra/UI/home/BottomBarHost.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
-
 import 'otp_verification.dart';
 
 class SignUp extends StatefulWidget {
@@ -76,7 +73,7 @@ class _SignUpState extends State<SignUp> {
         await prefs.setString('userName', userName);
         await prefs.setString('userEmail', userEmail);
 
-        Get.offAll(OtpVerification(email: _emailController.text,));
+        Get.offAll(OtpVerification(email: _emailController.text,isFromSignUp: true,));
       } else {
         // Handle errors
         final Map<String, dynamic> responseData = json.decode(response.body);
@@ -293,7 +290,8 @@ class _SignUpState extends State<SignUp> {
                 color: Color(0xFFB7A06A),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Center(
+              child:
+              Center(
                   child: isLoading.value == true
                       ? SizedBox(
                           width: 20.0, // Adjust the width

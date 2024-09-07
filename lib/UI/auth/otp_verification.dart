@@ -5,16 +5,17 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:opatra/UI/auth/new_password.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../controllers/bottom_bar_host_controller.dart';
 import '../home/BottomBarHost.dart';
 
 class OtpVerification extends StatefulWidget {
   final String email;
+  final bool isFromSignUp;
 
-  const OtpVerification({super.key, required this.email});
+  OtpVerification({super.key, required this.email, required this.isFromSignUp});
 
   @override
   State<OtpVerification> createState() => _OtpVerificationState();
@@ -29,12 +30,10 @@ class _OtpVerificationState extends State<OtpVerification> {
     isLoading.value = true;
     final String url = 'https://opatra.meetchallenge.com/api/verify-otp';
 
-
     Map<String, String> requestBody = {
       "email": widget.email,
       "otp": otp, // Send the OTP as part of the request body
     };
-
 
     Map<String, String> headers = {
       "Accept": "application/json",
@@ -67,7 +66,12 @@ class _OtpVerificationState extends State<OtpVerification> {
 
         Get.snackbar('Success', 'Otp Verified successfully!',
             backgroundColor: Color(0xFFB7A06A), colorText: Colors.white);
-        Get.offAll(BottomBarHost());
+        if (widget.isFromSignUp == true) {
+          Get.offAll(BottomBarHost());
+        }
+        if (widget.isFromSignUp == false) {
+          Get.offAll(NewPassword());
+        }
       } else {
         isLoading.value = false; // Stop loading spinner
 

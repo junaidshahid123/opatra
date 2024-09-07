@@ -10,6 +10,7 @@ import 'package:opatra/UI/auth/otp_verification.dart';
 import 'package:opatra/constant/AppColors.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});
@@ -68,12 +69,15 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
         final Map<String, dynamic> responseData = json.decode(response.body);
         String message = responseData['message'] ?? 'OTP sent successfully!';
+        // Store data in shared preferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('email', _emailController.text);
 
         Get.snackbar('Success', message,
             backgroundColor: Color(0xFFB7A06A), colorText: Colors.white);
 
         // Navigate to NewPassword screen
-        Get.offAll(OtpVerification(email: _emailController.text,));
+        Get.offAll(OtpVerification(email: _emailController.text,isFromSignUp: false,));
       } else {
         isLoading.value = false; // Stop loading spinner
 
@@ -242,7 +246,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               color: Color(0xFFB7A06A),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Center(
+            child:
+            Center(
                 child: isLoading.value == true
                     ? SizedBox(
                         width: 20.0, // Adjust the width
