@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -31,6 +30,8 @@ class BottomBarHost extends StatefulWidget {
 class _BottomBarHost extends State<BottomBarHost> {
   final BottomBarHostController controller =
       Get.put(BottomBarHostController()); // Initialize the controller
+  final PageController _controller = PageController(viewportFraction: 0.8);
+  int _currentIndex = 0;
 
   RxBool home = true.obs;
   RxBool product = true.obs;
@@ -119,104 +120,102 @@ class _BottomBarHost extends State<BottomBarHost> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return
-         Obx(()=> Dialog(
-           backgroundColor: Colors.transparent,
-           insetPadding: EdgeInsets.only(left: 20, right: 20),
-           child: Material(
-             type: MaterialType.transparency,
-             child: Container(
-               width: MediaQuery.of(context).size.width,
-               height: MediaQuery.of(context).size.height /
-                   2.5, // Adjusted height for new content
-               decoration: BoxDecoration(
-                 color: Colors.white,
-                 borderRadius: BorderRadius.circular(10),
-               ),
-               child: Padding(
-                 padding: EdgeInsets.all(20),
-                 child: Column(
-                   mainAxisAlignment: MainAxisAlignment.center,
-                   crossAxisAlignment: CrossAxisAlignment.center,
-                   children: <Widget>[
-                     Text(
-                       "Are you sure you want to Log Out?",
-                       style: TextStyle(
-                         fontSize: 20,
-                         fontWeight: FontWeight.w600,
-                         color: AppColors.appPrimaryBlackColor,
-                       ),
-                       textAlign: TextAlign.center,
-                     ),
-                     SizedBox(height: 30),
-                     Row(
-                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                       children: [
-                         // No button
-                         InkWell(
-                           onTap: () {
-                             Get.back(); // Close the dialog
-                             selectedIndex.value = -1;
-                           },
-                           child: Container(
-                             height: 50,
-                             width: MediaQuery.of(context).size.width / 4,
-                             decoration: BoxDecoration(
-                               color: Colors.grey, // Grey color for "No" button
-                               borderRadius: BorderRadius.circular(10),
-                             ),
-                             child: Center(
-                               child: Text(
-                                 'No',
-                                 style: TextStyle(
-                                   fontWeight: FontWeight.w600,
-                                   color: AppColors.appWhiteColor,
-                                 ),
-                               ),
-                             ),
-                           ),
-                         ),
-                         // Yes button
-                         InkWell(
-                           onTap: () {
-                             // Add your logout functionality here
-                             logOut();
-
-                           },
-                           child: Container(
-                             height: 50,
-                             width: MediaQuery.of(context).size.width / 4,
-                             decoration: BoxDecoration(
-                               color: Color(0xFFB7A06A),
-                               // Custom color for "Yes" button
-                               borderRadius: BorderRadius.circular(10),
-                             ),
-                             child:
-                             Center(
-                                 child: isLoading.value == true
-                                     ? SizedBox(
-                                   width: 20.0, // Adjust the width
-                                   height: 20.0, // Adjust the height
-                                   child: CircularProgressIndicator(
-                                     strokeWidth: 5,
-                                     color: AppColors.appWhiteColor,
-                                   ),
-                                 )
-                                     : Text(
-                                   'Yes',
-                                   style: TextStyle(
-                                       fontWeight: FontWeight.w600, fontSize: 16),
-                                 ))
-                           ),
-                         ),
-                       ],
-                     ),
-                   ],
-                 ),
-               ),
-             ),
-           ),
-         ));
+        return Obx(() => Dialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: EdgeInsets.only(left: 20, right: 20),
+              child: Material(
+                type: MaterialType.transparency,
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height /
+                      2.5, // Adjusted height for new content
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          "Are you sure you want to Log Out?",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.appPrimaryBlackColor,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 30),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            // No button
+                            InkWell(
+                              onTap: () {
+                                Get.back(); // Close the dialog
+                                selectedIndex.value = -1;
+                              },
+                              child: Container(
+                                height: 50,
+                                width: MediaQuery.of(context).size.width / 4,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey,
+                                  // Grey color for "No" button
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'No',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.appWhiteColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            // Yes button
+                            InkWell(
+                              onTap: () {
+                                // Add your logout functionality here
+                                logOut();
+                              },
+                              child: Container(
+                                  height: 50,
+                                  width: MediaQuery.of(context).size.width / 4,
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFB7A06A),
+                                    // Custom color for "Yes" button
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Center(
+                                      child: isLoading.value == true
+                                          ? SizedBox(
+                                              width: 20.0, // Adjust the width
+                                              height: 20.0, // Adjust the height
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 5,
+                                                color: AppColors.appWhiteColor,
+                                              ),
+                                            )
+                                          : Text(
+                                              'Yes',
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 16),
+                                            ))),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ));
       },
     );
   }
@@ -245,18 +244,185 @@ class _BottomBarHost extends State<BottomBarHost> {
                           ),
                           child: Column(
                             children: [
-                              Obx(
-                                () => home.value == true
-                                    ? Container(
-                                        height:
-                                            MediaQuery.of(context).size.height /
-                                                2.2,
-                                        margin: EdgeInsets.only(top: 20),
-                                        width:
-                                            MediaQuery.of(context).size.width,
-                                        child: CenteredExpandingPageView())
-                                    : Container(),
-                              ),
+                              controller.mdLatestProducts == null
+                                  ? Center(
+                                      child: CircularProgressIndicator(
+                                        color: AppColors.appPrimaryBlackColor,
+                                      ),
+                                    )
+                                  : Obx(
+                                      () => home.value == true
+                                          ? Container(
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  2.2,
+                                              margin: EdgeInsets.only(top: 20),
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
+                                              child: PageView.builder(
+                                                controller: _controller,
+                                                itemCount: controller
+                                                    .mdLatestProducts!
+                                                    .products
+                                                    .length,
+                                                onPageChanged: (int index) {
+                                                  setState(() {
+                                                    _currentIndex = index;
+                                                  });
+                                                },
+                                                itemBuilder: (context, index) {
+                                                  bool isCurrent =
+                                                      index == _currentIndex;
+                                                  return AnimatedContainer(
+                                                    duration: Duration(
+                                                        milliseconds: 300),
+                                                    curve: Curves.easeInOut,
+                                                    margin:
+                                                        EdgeInsets.symmetric(
+                                                      horizontal:
+                                                          isCurrent ? 10 : 20,
+                                                      vertical:
+                                                          isCurrent ? 5 : 20,
+                                                    ),
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.95,
+                                                    decoration: BoxDecoration(
+                                                      color: isCurrent
+                                                          ? Colors.blue
+                                                          : Colors.grey,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                      boxShadow: isCurrent
+                                                          ? [
+                                                              BoxShadow(
+                                                                  color: Colors
+                                                                      .black26,
+                                                                  blurRadius:
+                                                                      10)
+                                                            ]
+                                                          : [],
+                                                    ),
+                                                    child: ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                      // Clip the image to the container's rounded corners
+                                                      child: Stack(
+                                                        children: [
+                                                          controller
+                                                                          .mdLatestProducts!
+                                                                          .products[
+                                                                              index]
+                                                                          .image !=
+                                                                      null &&
+                                                                  controller
+                                                                          .mdLatestProducts!
+                                                                          .products[
+                                                                              index]
+                                                                          .image!
+                                                                          .src !=
+                                                                      null
+                                                              ? Image.network(
+                                                                  controller
+                                                                      .mdLatestProducts!
+                                                                      .products[
+                                                                          index]
+                                                                      .image!
+                                                                      .src!,
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                  // Ensure the image covers the entire container
+                                                                  height: double
+                                                                      .infinity,
+                                                                  // Make the image take up the full container height
+                                                                  width: double
+                                                                      .infinity, // Make the image take up the full container width
+                                                                )
+                                                              : Image.asset(
+                                                                  'assets/images/skinCareDummy.png',
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                  // Fallback image should also cover the container
+                                                                  height: double
+                                                                      .infinity,
+                                                                  width: double
+                                                                      .infinity,
+                                                                ),
+                                                          Positioned(
+                                                            top: 20,
+                                                            left: 20,
+                                                            child: Column(
+                                                              children: [
+                                                                Text(
+                                                                  controller
+                                                                      .mdLatestProducts!
+                                                                      .products[
+                                                                          index]
+                                                                      .title,
+                                                                  style: TextStyle(
+                                                                      color: AppColors
+                                                                          .appPrimaryBlackColor,
+                                                                      fontSize:
+                                                                          20,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600),
+                                                                ),
+                                                                Text(
+                                                                  controller
+                                                                      .mdLatestProducts!
+                                                                      .products[
+                                                                          index]
+                                                                      .vendor,
+                                                                  style: TextStyle(
+                                                                      color: AppColors
+                                                                          .appPrimaryBlackColor,
+                                                                      fontSize:
+                                                                          20,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w600),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                          // Positioned(
+                                                          //   bottom: 20,
+                                                          //   left: 20,
+                                                          //   child: Column(
+                                                          //     children: [
+                                                          //       Text(
+                                                          //         controller
+                                                          //             .mdLatestProducts!
+                                                          //             .products[
+                                                          //         index].variants[index].price,
+                                                          //         style: TextStyle(
+                                                          //             color: AppColors
+                                                          //                 .appPrimaryBlackColor,
+                                                          //             fontSize:
+                                                          //             20,
+                                                          //             fontWeight:
+                                                          //             FontWeight
+                                                          //                 .w600),
+                                                          //       ),
+                                                          //
+                                                          //     ],
+                                                          //   ),
+                                                          // )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              ))
+                                          : Container(),
+                                    ),
                               Obx(
                                 () => home.value == true
                                     ? buildHeadingTextForHome()
@@ -1222,21 +1388,23 @@ class _BottomBarHost extends State<BottomBarHost> {
   Widget buildHomeProductListView() {
     return Container(
       height: 150,
-      // color: AppColors.languageArBackgroundColor,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: 10,
+        itemCount: controller.mdCategories?.smartCollections?.length ?? 0,
         itemBuilder: (context, index) {
+          // Extract SmartCollections data from the controller
+          final smartCollection =
+              controller.mdCategories!.smartCollections![index];
+
           return InkWell(
             onTap: () {
+              // Navigate to ProductDetailScreen
               Get.to(() => ProductDetailScreen());
             },
             child: Container(
-              // height: 200,
               width: 150,
               margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               decoration: BoxDecoration(
-                // color: AppColors.appPrimaryBlackColor,
                 border: Border.all(color: Color(0xFFFBF3D7), width: 1),
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -1244,40 +1412,45 @@ class _BottomBarHost extends State<BottomBarHost> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Spacer(),
-                  Image.asset('assets/images/skinCareDummy.png',
-                      height: 50, width: 50, fit: BoxFit.cover),
+                  // Load image from SmartCollections data
+                  smartCollection.image != null &&
+                          smartCollection.image!.src != null
+                      ? Image.network(
+                          smartCollection.image!.src!,
+                          height: 50,
+                          width: 50,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset(
+                          'assets/images/skinCareDummy.png', // Fallback image
+                          height: 50,
+                          width: 50,
+                          fit: BoxFit.cover,
+                        ),
                   SizedBox(height: 10),
-                  Container(
-                    margin: EdgeInsets.only(left: 20),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              'COLLAGEN MASK',
-                              style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.appPrimaryBlackColor),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 5),
-                        Row(
-                          children: [
-                            Text(
-                              '\$374.00 USD',
-                              style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.appPrimaryBlackColor),
-                            ),
-                          ],
-                        ),
-                      ],
+                  // Display the title of the product category
+                  Text(
+                    smartCollection.title ?? 'Unknown Title',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.appPrimaryBlackColor,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                  ),
+                  SizedBox(height: 5),
+                  // Display additional information like price (if available)
+                  Text(
+                    '\$${smartCollection.id ?? '0.00'} USD',
+                    // Example placeholder for price
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.appPrimaryBlackColor,
                     ),
                   ),
-                  Spacer()
+                  Spacer(),
                 ],
               ),
             ),
