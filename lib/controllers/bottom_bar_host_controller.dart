@@ -50,6 +50,7 @@ class BottomBarHostController extends GetxController {
         print('Product Categories: $data');
         mdCategories = MDCategories.fromJson(data);
         print('mdCategories: $mdCategories');
+        update();
 
         // You can further process the data here
       } else {

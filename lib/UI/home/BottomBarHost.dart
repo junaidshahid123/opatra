@@ -1386,78 +1386,82 @@ class _BottomBarHost extends State<BottomBarHost> {
   }
 
   Widget buildHomeProductListView() {
-    return Container(
-      height: 150,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: controller.mdCategories?.smartCollections?.length ?? 0,
-        itemBuilder: (context, index) {
-          // Extract SmartCollections data from the controller
-          final smartCollection =
-              controller.mdCategories!.smartCollections![index];
+    return controller.mdCategories == null
+        ? Center(
+            child: CircularProgressIndicator(color: AppColors.appPrimaryBlackColor,),
+          )
+        : Container(
+            height: 150,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: controller.mdCategories?.smartCollections?.length ?? 0,
+              itemBuilder: (context, index) {
+                // Extract SmartCollections data from the controller
+                final smartCollection =
+                    controller.mdCategories!.smartCollections![index];
 
-          return InkWell(
-            onTap: () {
-              // Navigate to ProductDetailScreen
-              Get.to(() => ProductDetailScreen());
-            },
-            child: Container(
-              width: 150,
-              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              decoration: BoxDecoration(
-                border: Border.all(color: Color(0xFFFBF3D7), width: 1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Spacer(),
-                  // Load image from SmartCollections data
-                  smartCollection.image != null &&
-                          smartCollection.image!.src != null
-                      ? Image.network(
-                          smartCollection.image!.src!,
-                          height: 50,
-                          width: 50,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.asset(
-                          'assets/images/skinCareDummy.png', // Fallback image
-                          height: 50,
-                          width: 50,
-                          fit: BoxFit.cover,
+                return InkWell(
+                  onTap: () {
+                    // Navigate to ProductDetailScreen
+                    Get.to(() => ProductDetailScreen());
+                  },
+                  child: Container(
+                    width: 150,
+                    margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Color(0xFFFBF3D7), width: 1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Spacer(),
+                        // Load image from SmartCollections data
+                        smartCollection.image != null &&
+                                smartCollection.image!.src != null
+                            ? Image.network(
+                                smartCollection.image!.src!,
+                                height: 50,
+                                width: 50,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.asset(
+                                'assets/images/skinCareDummy.png', // Fallback image
+                                height: 50,
+                                width: 50,
+                                fit: BoxFit.cover,
+                              ),
+                        SizedBox(height: 10),
+                        // Display the title of the product category
+                        Text(
+                          smartCollection.title ?? 'Unknown Title',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.appPrimaryBlackColor,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
                         ),
-                  SizedBox(height: 10),
-                  // Display the title of the product category
-                  Text(
-                    smartCollection.title ?? 'Unknown Title',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.appPrimaryBlackColor,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                  ),
-                  SizedBox(height: 5),
-                  // Display additional information like price (if available)
-                  Text(
-                    '\$${smartCollection.id ?? '0.00'} USD',
-                    // Example placeholder for price
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.appPrimaryBlackColor,
+                        SizedBox(height: 5),
+                        // Display additional information like price (if available)
+                        Text(
+                          '\$${smartCollection.id ?? '0.00'} USD',
+                          // Example placeholder for price
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.appPrimaryBlackColor,
+                          ),
+                        ),
+                        Spacer(),
+                      ],
                     ),
                   ),
-                  Spacer(),
-                ],
-              ),
+                );
+              },
             ),
           );
-        },
-      ),
-    );
   }
 
   Widget buildProductListView() {
