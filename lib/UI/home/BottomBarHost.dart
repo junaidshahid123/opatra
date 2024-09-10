@@ -1386,7 +1386,7 @@ class _BottomBarHost extends State<BottomBarHost> {
   }
 
   Widget buildHomeProductListView() {
-    return controller.mdCategories == null
+    return controller.mdProducts == null
         ? Center(
             child: CircularProgressIndicator(
               color: AppColors.appPrimaryBlackColor,
@@ -1396,17 +1396,15 @@ class _BottomBarHost extends State<BottomBarHost> {
             height: 150,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: controller.mdCategories?.smartCollections?.length ?? 0,
+              itemCount: controller.mdProducts!.products!.length ?? 0,
               itemBuilder: (context, index) {
                 // Extract SmartCollections data from the controller
-                final smartCollection =
-                    controller.mdCategories!.smartCollections![index];
+                final smartCollection = controller.mdProducts!.products![index];
 
                 return InkWell(
                   onTap: () {
                     // Navigate to ProductDetailScreen
-                    int? id =
-                        controller.mdCategories!.smartCollections![index].id;
+                    int? id = controller.mdProducts!.products![index].id;
                     print('id=====${id}');
                     Get.to(() => ProductDetailScreen(
                           productId: id!,

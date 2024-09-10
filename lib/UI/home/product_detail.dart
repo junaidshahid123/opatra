@@ -26,7 +26,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   int _currentPage = 0;
   bool isExpanded = false;
   bool isLongText = false; // To check if the text is more than 6 lines
-  final int maxLines = 4;  // Maximum number of lines before showing "Read more"
+  final int maxLines = 4; // Maximum number of lines before showing "Read more"
   final String dummyText =
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
       'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. '
@@ -44,7 +44,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. '
       'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ';
 
-
   @override
   void initState() {
     // TODO: implement initState
@@ -56,12 +55,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     });
   }
 
-
-
   void checkIfTextExceedsMaxLines() {
     // Ensure bodyHtml is not null
-    String? bodyHtml = controller.mdProductCategoryDetail?.smartCollection
-        ?.bodyHtml;
+    String? bodyHtml =
+        controller.mdProductCategoryDetail?.smartCollection?.bodyHtml;
 
     if (bodyHtml == null || bodyHtml.isEmpty) {
       return; // If bodyHtml is null or empty, return early
@@ -77,10 +74,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
 
     // Measure the available width for the text (subtracting padding)
-    textPainter.layout(maxWidth: MediaQuery
-        .of(context)
-        .size
-        .width - 40);
+    textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 40);
 
     // Check if the text exceeds maxLines
     if (textPainter.didExceedMaxLines) {
@@ -89,7 +83,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -352,15 +345,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-
   Widget buildDescription() {
-    String bodyHtml = controller.mdProductCategoryDetail?.smartCollection?.bodyHtml ?? "";
+    String bodyHtml =
+        controller.mdProductCategoryDetail?.smartCollection?.bodyHtml ?? "";
 
     // Determine whether to display full text or short version
-    final String shortDescription = bodyHtml.length > 300
-        ? bodyHtml.substring(0, 300) + '...'
-        : bodyHtml;
-
+    final String shortDescription =
+        bodyHtml.length > 300 ? bodyHtml.substring(0, 300) + '...' : bodyHtml;
     return Container(
       margin: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20),
       child: Column(
@@ -392,7 +383,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       ),
     );
   }
-
 
   Widget buildAddToBagButton() {
     return InkWell(
