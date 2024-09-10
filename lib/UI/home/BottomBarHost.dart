@@ -1388,7 +1388,9 @@ class _BottomBarHost extends State<BottomBarHost> {
   Widget buildHomeProductListView() {
     return controller.mdCategories == null
         ? Center(
-            child: CircularProgressIndicator(color: AppColors.appPrimaryBlackColor,),
+            child: CircularProgressIndicator(
+              color: AppColors.appPrimaryBlackColor,
+            ),
           )
         : Container(
             height: 150,
@@ -1403,7 +1405,12 @@ class _BottomBarHost extends State<BottomBarHost> {
                 return InkWell(
                   onTap: () {
                     // Navigate to ProductDetailScreen
-                    Get.to(() => ProductDetailScreen());
+                    int? id =
+                        controller.mdCategories!.smartCollections![index].id;
+                    print('id=====${id}');
+                    Get.to(() => ProductDetailScreen(
+                          productId: id!,
+                        ));
                   },
                   child: Container(
                     width: 150,

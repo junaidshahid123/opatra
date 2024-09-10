@@ -2,24 +2,31 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:opatra/constant/AppColors.dart';
-
+import '../../controllers/product_detail_controller.dart';
 import 'bag.dart';
 
 class ProductDetailScreen extends StatefulWidget {
-  const ProductDetailScreen({super.key});
+  final int productId; // Example value you want to pass
+
+  const ProductDetailScreen({super.key, required this.productId});
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
+  final ProductDetailController controller =
+      Get.put(ProductDetailController()); // Initialize the controller
   RxInt quantity = 1.obs;
   final PageController _pageController = PageController();
   int _currentPage = 0;
   bool isExpanded = false;
+  bool isLongText = false; // To check if the text is more than 6 lines
+  final int maxLines = 4;  // Maximum number of lines before showing "Read more"
   final String dummyText =
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
       'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. '
@@ -37,35 +44,96 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. '
       'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ';
 
-  final List<String> _images = [
-    'assets/images/skinCareDummy.png',
-    'assets/images/skinCareDummy.png',
-    'assets/images/skinCareDummy.png',
-  ];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    controller.fetchImages(widget.productId);
+    controller.fetchProductDetail(widget.productId);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      checkIfTextExceedsMaxLines();
+    });
+  }
+
+
+
+  void checkIfTextExceedsMaxLines() {
+    // Ensure bodyHtml is not null
+    String? bodyHtml = controller.mdProductCategoryDetail?.smartCollection
+        ?.bodyHtml;
+
+    if (bodyHtml == null || bodyHtml.isEmpty) {
+      return; // If bodyHtml is null or empty, return early
+    }
+
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: bodyHtml,
+        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+      ),
+      maxLines: maxLines,
+      textDirection: TextDirection.ltr,
+    );
+
+    // Measure the available width for the text (subtracting padding)
+    textPainter.layout(maxWidth: MediaQuery
+        .of(context)
+        .size
+        .width - 40);
+
+    // Check if the text exceeds maxLines
+    if (textPainter.didExceedMaxLines) {
+      setState(() {
+        isLongText = true;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.appWhiteColor,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              buildAppBar(),
-              buildPreviewProductImages(),
-              buildProductName(),
-              buildDescription(),
-              buildAddToBagButton(),
-              buildVideoList(),
-              buildBeforeYouStart(),
-              buildApplication(),
-              buildTreatmentRegimen(),
-              buildReviews()
-            ],
-          ),
-        ),
-      ),
-    );
+    return GetBuilder<ProductDetailController>(
+        init: ProductDetailController(),
+        builder: (ProductDetailController) {
+          return Scaffold(
+            backgroundColor: AppColors.appWhiteColor,
+            body: SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    buildAppBar(),
+                    controller.mdProductCategoryDetail == null
+                        ? Center(
+                            child: CircularProgressIndicator(
+                              color: AppColors.appPrimaryBlackColor,
+                            ),
+                          )
+                        : Column(
+                            children: [
+                              controller.mdProductDetailImages == null
+                                  ? Center(
+                                      child: CircularProgressIndicator(
+                                        color: AppColors.appPrimaryBlackColor,
+                                      ),
+                                    )
+                                  : buildPreviewProductImages(),
+                              buildProductName(),
+                              buildDescription(),
+                              buildAddToBagButton(),
+                              buildVideoList(),
+                              buildBeforeYouStart(),
+                              buildApplication(),
+                              buildTreatmentRegimen(),
+                              buildReviews()
+                            ],
+                          )
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
   }
 
   Widget buildReviews() {
@@ -284,40 +352,52 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
+
   Widget buildDescription() {
+    String bodyHtml = controller.mdProductCategoryDetail?.smartCollection?.bodyHtml ?? "";
+
+    // Determine whether to display full text or short version
+    final String shortDescription = bodyHtml.length > 300
+        ? bodyHtml.substring(0, 300) + '...'
+        : bodyHtml;
+
     return Container(
       margin: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            isExpanded ? dummyText : dummyText.substring(0, 300) + '...',
-            style: TextStyle(
-                fontSize: 13,
-                color: Color(0xFF797E86),
-                fontWeight: FontWeight.w500),
-          ),
-          SizedBox(height: 10),
-          InkWell(
-            onTap: () {
-              setState(() {
-                isExpanded = !isExpanded;
-              });
-            },
-            child: Text(
-              isExpanded ? 'Read less' : 'Read more',
-              style: TextStyle(color: Color(0xFFB7A06A), fontSize: 16),
+          HtmlWidget(
+            isExpanded ? bodyHtml : shortDescription,
+            textStyle: TextStyle(
+              fontSize: 13,
+              color: Color(0xFF797E86),
+              fontWeight: FontWeight.w500,
             ),
           ),
+          SizedBox(height: 10),
+          // Only show "Read more" if the text exceeds 6 lines
+          if (isLongText)
+            InkWell(
+              onTap: () {
+                setState(() {
+                  isExpanded = !isExpanded;
+                });
+              },
+              child: Text(
+                isExpanded ? 'Read less' : 'Read more',
+                style: TextStyle(color: Color(0xFFB7A06A), fontSize: 16),
+              ),
+            ),
         ],
       ),
     );
   }
 
+
   Widget buildAddToBagButton() {
     return InkWell(
-      onTap: (){
-        Get.to(()=>Bag());
+      onTap: () {
+        Get.to(() => Bag());
       },
       child: Container(
         margin: EdgeInsets.only(right: 20),
@@ -348,7 +428,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                     Text(
                       'Add To Bag',
-                      style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                      style:
+                          TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                     )
                   ],
                 ),
@@ -423,7 +504,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               Row(
                 children: [
                   Text(
-                    'COLLAGEN MASK',
+                    controller.mdProductCategoryDetail!.smartCollection!.title!,
                     style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
@@ -491,15 +572,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             height: MediaQuery.of(context).size.height / 3,
             child: PageView.builder(
               controller: _pageController,
-              itemCount: _images.length,
+              itemCount: controller.mdProductDetailImages!.images!.length,
               onPageChanged: (int index) {
                 setState(() {
                   _currentPage = index;
                 });
               },
               itemBuilder: (context, index) {
-                return Image.asset(
-                  _images[index],
+                return Image.network(
+                  controller.mdProductDetailImages!.images![index].src!,
                   fit: BoxFit.cover,
                 );
               },
@@ -509,7 +590,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             // margin: EdgeInsets.only(bottom: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(_images.length, (index) {
+              children: List.generate(
+                  controller.mdProductDetailImages!.images!.length, (index) {
                 return AnimatedContainer(
                   duration: Duration(milliseconds: 300),
                   margin: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
