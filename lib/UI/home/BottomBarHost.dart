@@ -1648,8 +1648,14 @@ class _BottomBarHost extends State<BottomBarHost> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Spacer(),
-                      Image.asset('assets/images/skinCareDummy.png',
-                          height: 50, width: 50, fit: BoxFit.cover),
+                      // Image.asset('assets/images/skinCareDummy.png',
+                      //     height: 50, width: 50, fit: BoxFit.cover),
+                      Image.network(
+                          controller.mdProductsByCategory!.products![index]
+                              .image!.src!,
+                          height: 50,
+                          width: 50,
+                          fit: BoxFit.cover),
                       SizedBox(height: 10),
                       Container(
                         margin: EdgeInsets.only(left: 20),
