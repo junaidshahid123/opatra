@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/MDCategories.dart';
 import '../models/MDLatestProducts.dart';
 import '../models/MDProducts.dart';
+import '../models/MDProductsByCategory.dart';
 
 class BottomBarHostController extends GetxController {
   var userName = ''.obs; // RxString to hold the userName
@@ -13,16 +14,65 @@ class BottomBarHostController extends GetxController {
   MDCategories? mdCategories;
   MDLatestProducts? mdLatestProducts;
   MDProducts? mdProducts;
+  MDProductsByCategory? mdProductsByCategory;
+  RxBool isLoading = false.obs;
 
   @override
   void onInit() {
     super.onInit();
     _loadUserName(); // Load userName when the controller is initialized
     _loadUserEmail();
-    fetchAllProducts();
     fetchLatestProducts();
+    fetchAllProducts();
     fetchProductCategories();
     update();
+  }
+
+  Future<void> fetchProductByCategory(int id) async {
+    isLoading.value = true;
+    final url = Uri.parse(
+        'https://opatra.meetchallenge.com/api/category/${id}/products');
+    // Retrieve token from SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token'); // Get the token from shared prefs
+    // Ensure the token exists before proceeding
+    if (token == null || token.isEmpty) {
+      Get.snackbar('Error', 'No token found. Please log in again.',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return;
+    }
+
+    Map<String, String> headers = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $token", // Include the Bearer token in headers
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        isLoading.value = false;
+
+        // Successfully received data
+        final data = jsonDecode(response.body);
+        print('mdProductsByCategory: $data');
+        mdProductsByCategory = MDProductsByCategory.fromJson(data);
+        print('mdProductsByCategory: $mdProductsByCategory');
+        update();
+
+        // You can further process the data here
+      } else {
+        // Handle errors
+        isLoading.value = false;
+
+        print(
+            'Failed to load products by categories. Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      isLoading.value = false;
+
+      print('Error: $e');
+    }
   }
 
   Future<void> fetchProductCategories() async {
@@ -53,6 +103,7 @@ class BottomBarHostController extends GetxController {
         print('Product Categories: $data');
         mdCategories = MDCategories.fromJson(data);
         print('mdCategories: $mdCategories');
+        fetchProductByCategory(mdCategories!.smartCollections![0].id!);
         update();
 
         // You can further process the data here

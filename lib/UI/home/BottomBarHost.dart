@@ -1029,7 +1029,7 @@ class _BottomBarHost extends State<BottomBarHost> {
       height: 50,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: 10,
+        itemCount: controller.mdCategories!.smartCollections!.length,
         itemBuilder: (context, index) {
           // Adjusting width to account for left and right margins
           double containerWidth = MediaQuery.of(context).size.width - 40;
@@ -1039,11 +1039,13 @@ class _BottomBarHost extends State<BottomBarHost> {
             highlightColor: Colors.transparent,
             onTap: () {
               selectedCategory.value = index;
+              controller.fetchProductByCategory(
+                  controller.mdCategories!.smartCollections![index].id!);
             },
             child: Obx(
               () => Container(
                   margin: EdgeInsets.only(left: 20, right: 5, top: 20),
-                  width: 60,
+                  // width: 60,
                   decoration: BoxDecoration(
                       border: Border.all(
                           color: selectedCategory.value == index
@@ -1054,14 +1056,17 @@ class _BottomBarHost extends State<BottomBarHost> {
                           ? Color(0xFFB7A06A)
                           : Colors.transparent),
                   child: Center(
-                      child: Text(
-                    'All',
-                    style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
-                        color: selectedCategory.value == index
-                            ? AppColors.appWhiteColor
-                            : AppColors.appPrimaryBlackColor),
+                      child: Container(
+                    margin: EdgeInsets.all(5),
+                    child: Text(
+                      controller.mdCategories!.smartCollections![index].title!,
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          color: selectedCategory.value == index
+                              ? AppColors.appWhiteColor
+                              : AppColors.appPrimaryBlackColor),
+                    ),
                   ))),
             ),
           );
@@ -1616,66 +1621,83 @@ class _BottomBarHost extends State<BottomBarHost> {
   }
 
   Widget buildProductListViewPopular() {
-    return Container(
-      height: 150,
-      // color: AppColors.languageArBackgroundColor,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          return Container(
-            // height: 200,
-            width: 150,
-            margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            decoration: BoxDecoration(
-              // color: AppColors.appPrimaryBlackColor,
-              border: Border.all(color: Color(0xFFFBF3D7), width: 1),
-              borderRadius: BorderRadius.circular(10),
+    return controller.mdProductsByCategory == null ||
+            controller.isLoading.value == true
+        ? Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFFB7A06A),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Spacer(),
-                Image.asset('assets/images/skinCareDummy.png',
-                    height: 50, width: 50, fit: BoxFit.cover),
-                SizedBox(height: 10),
-                Container(
-                  margin: EdgeInsets.only(left: 20),
+          )
+        : Container(
+            height: 150,
+            // color: AppColors.languageArBackgroundColor,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: controller.mdProductsByCategory!.products!.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  // height: 200,
+                  width: 150,
+                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  decoration: BoxDecoration(
+                    // color: AppColors.appPrimaryBlackColor,
+                    border: Border.all(color: Color(0xFFFBF3D7), width: 1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Row(
-                        children: [
-                          Text(
-                            'COLLAGEN MASK',
-                            style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.appPrimaryBlackColor),
-                          ),
-                        ],
+                      Spacer(),
+                      Image.asset('assets/images/skinCareDummy.png',
+                          height: 50, width: 50, fit: BoxFit.cover),
+                      SizedBox(height: 10),
+                      Container(
+                        margin: EdgeInsets.only(left: 20),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  controller.mdProductsByCategory!
+                                              .products![index].title!.length >
+                                          10
+                                      ? controller.mdProductsByCategory!
+                                          .products![index].title!
+                                          .substring(0, 4)
+                                      : controller.mdProductsByCategory!
+                                          .products![index].title!,
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.appPrimaryBlackColor),
+                                  maxLines: 1, // Ensures it's a single line
+                                  overflow: TextOverflow
+                                      .ellipsis, // Adds "..." if the text exceeds the width
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 5),
+                            Row(
+                              children: [
+                                Text(
+                                  'Price',
+                                  style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.appPrimaryBlackColor),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                      SizedBox(height: 5),
-                      Row(
-                        children: [
-                          Text(
-                            '\$374.00 USD',
-                            style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.appPrimaryBlackColor),
-                          ),
-                        ],
-                      ),
+                      Spacer()
                     ],
                   ),
-                ),
-                Spacer()
-              ],
+                );
+              },
             ),
           );
-        },
-      ),
-    );
   }
 
   Widget buildProductListViewRecent() {
