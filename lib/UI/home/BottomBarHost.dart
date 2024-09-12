@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ import 'package:opatra/UI/home/warranty_claim.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../controllers/bottom_bar_host_controller.dart';
+import '../../models/MDProductsByCategory.dart';
 import 'contact_us.dart';
 import 'live_stream.dart';
 import 'notifications.dart';
@@ -32,13 +34,16 @@ class _BottomBarHost extends State<BottomBarHost> {
       Get.put(BottomBarHostController()); // Initialize the controller
   final PageController _controller = PageController(viewportFraction: 0.8);
   int _currentIndex = 0;
-
   RxBool home = true.obs;
   RxBool product = true.obs;
   RxBool video = true.obs;
   RxInt selectedCategory = 0.obs;
   RxInt selectedIndex = 0.obs;
   RxBool isLoading = false.obs;
+  TextEditingController searchTextController = TextEditingController();
+
+// Declare a Timer variable to manage the debounce timing
+  Timer? _debounce;
 
   Future<void> logOut() async {
     isLoading.value = true;
@@ -222,6 +227,11 @@ class _BottomBarHost extends State<BottomBarHost> {
 
   @override
   Widget build(BuildContext context) {
+    List<MDProductsByCategory> productCategories =
+        controller.mdProductsByCategory != null
+            ? [controller.mdProductsByCategory!]
+            : [];
+
     return GetBuilder<BottomBarHostController>(
         init: BottomBarHostController(),
         builder: (BottomBarHostController) {
@@ -433,11 +443,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                                   : video.value == true
                                       ? buildProductListViewForVideos()
                                       : buildProductListView()),
-                              Obx(
-                                () => video.value == true
-                                    ? buildSearchField()
-                                    : Container(),
-                              ),
+
                               Obx(
                                 () => product.value == true
                                     ? buildSearchField()
@@ -448,59 +454,113 @@ class _BottomBarHost extends State<BottomBarHost> {
                                     ? buildCategories()
                                     : Container(),
                               ),
-                              Obx(
-                                () => product.value == true
-                                    ? Container(
-                                        margin:
-                                            EdgeInsets.only(left: 20, top: 20),
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                              'Popular Products',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  color: AppColors
-                                                      .appPrimaryBlackColor,
-                                                  fontSize: 20),
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    : Container(),
-                              ),
-                              Obx(
-                                () => product.value == true
-                                    ? buildProductListViewPopular()
-                                    : Container(),
-                              ),
-                              Obx(
-                                () => product.value == true
-                                    ? Container(
-                                        margin:
-                                            EdgeInsets.only(left: 20, top: 20),
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                              'Recent Products',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  color: AppColors
-                                                      .appPrimaryBlackColor,
-                                                  fontSize: 20),
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    : Container(),
-                              ),
-                              Obx(
-                                () => product.value == true
-                                    ? buildProductListViewRecent()
-                                    : Container(),
-                              ),
-                              Obx(() => video.value == true
-                                  ? buildGridView()
-                                  : Container())
+                              // Obx(
+                              //   () => product.value == true
+                              //       ? Container(
+                              //           margin:
+                              //               EdgeInsets.only(left: 20, top: 20),
+                              //           child: Row(
+                              //             children: [
+                              //               Text(
+                              //                 'Popular Products',
+                              //                 style: TextStyle(
+                              //                     fontWeight: FontWeight.w600,
+                              //                     color: AppColors
+                              //                         .appPrimaryBlackColor,
+                              //                     fontSize: 20),
+                              //               ),
+                              //             ],
+                              //           ),
+                              //         )
+                              //       : Container(),
+                              // ),
+
+                              product.value
+                                  ? Obx(() {
+                                      // Check if the controller is loading
+                                      if (controller.isLoading.value) {
+                                        return Center(
+                                            child: CircularProgressIndicator());
+                                      }
+
+                                      // Check if there is a search query and products should be displayed
+                                      if (controller
+                                          .filteredProducts.isNotEmpty) {
+                                        // Display filtered products
+                                        return buildProductGridViewPopularA(
+                                            controller.filteredProducts);
+                                      } else if (controller
+                                          .filteredProducts.isEmpty) {
+                                        // No products found with the query, show message for 5 seconds
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          Timer(Duration(seconds: 5), () {
+                                            // Clear the search query in the TextField
+                                            controller.searchQuery.value = '';
+                                            searchTextController.clear();
+                                            // Assuming you have a searchQuery variable in the controller
+                                            FocusScope.of(context)
+                                                .unfocus(); // Close the keyboard
+
+                                            // Reset the filtered products to the popular products
+                                            controller.filteredProducts.value =
+                                                controller.mdProductsByCategory
+                                                        ?.products ??
+                                                    [];
+
+                                            // Trigger UI update by refreshing the popular products
+                                            controller.isLoading.value =
+                                                false; // Ensure loading is false
+                                          });
+                                        });
+
+                                        return Center(
+                                          child: Text(
+                                            maxLines: 2,
+                                            'No products found with this alphabetic query. Try Another.',
+                                            style: TextStyle(
+                                                color: AppColors
+                                                    .appPrimaryBlackColor),
+                                          ),
+                                        );
+                                      } else {
+                                        // If product.value is false or the timer has completed, show popular products
+                                        return buildProductGridViewPopular();
+                                      }
+                                    })
+                                  : Container(),
+                              // Placeholder when product.value is false
+
+                              // Placeholder when product.value is false
+
+                              // Obx(
+                              //   () => product.value == true
+                              //       ? Container(
+                              //           margin:
+                              //               EdgeInsets.only(left: 20, top: 20),
+                              //           child: Row(
+                              //             children: [
+                              //               Text(
+                              //                 'Recent Products',
+                              //                 style: TextStyle(
+                              //                     fontWeight: FontWeight.w600,
+                              //                     color: AppColors
+                              //                         .appPrimaryBlackColor,
+                              //                     fontSize: 20),
+                              //               ),
+                              //             ],
+                              //           ),
+                              //         )
+                              //       : Container(),
+                              // ),
+                              // Obx(
+                              //   () => product.value == true
+                              //       ? buildProductListViewRecent()
+                              //       : Container(),
+                              // ),
+                              // Obx(() => video.value == true
+                              //     ? buildGridView()
+                              //     : Container())
                             ],
                           ),
                         ),
@@ -1085,6 +1145,8 @@ class _BottomBarHost extends State<BottomBarHost> {
       height: 60,
       width: MediaQuery.of(context).size.width,
       child: TextField(
+        controller: searchTextController,
+        style: TextStyle(color: AppColors.appPrimaryBlackColor),
         decoration: InputDecoration(
           hintText: 'Search Here',
           hintStyle: TextStyle(color: Colors.grey),
@@ -1104,6 +1166,19 @@ class _BottomBarHost extends State<BottomBarHost> {
           filled: true,
           fillColor: AppColors.appWhiteColor,
         ),
+        onChanged: (query) {
+          // Cancel any existing timer
+          if (_debounce?.isActive ?? false) _debounce?.cancel();
+
+          // Start a new timer
+          _debounce = Timer(const Duration(seconds: 3), () {
+            // Close the keyboard
+            FocusScope.of(context).unfocus();
+
+            // Filter products based on the query
+            controller.filterProducts(query);
+          });
+        },
       ),
     );
   }
@@ -1620,7 +1695,7 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildProductListViewPopular() {
+  Widget buildProductGridViewPopularA(RxList<ProductsA> filteredProducts) {
     return controller.mdProductsByCategory == null ||
             controller.isLoading.value == true
         ? Center(
@@ -1629,18 +1704,22 @@ class _BottomBarHost extends State<BottomBarHost> {
             ),
           )
         : Container(
-            height: 150,
-            // color: AppColors.languageArBackgroundColor,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
+            height: 300, // Adjust based on your layout requirements
+            child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                // Increase the number of items per row for smaller items
+                crossAxisSpacing: 8,
+                // Reduce spacing between columns
+                mainAxisSpacing: 8,
+                // Reduce spacing between rows
+                childAspectRatio: 1.5, // Adjust for smaller items
+              ),
               itemCount: controller.mdProductsByCategory!.products!.length,
               itemBuilder: (context, index) {
                 return Container(
-                  // height: 200,
-                  width: 150,
-                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  margin: EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    // color: AppColors.appPrimaryBlackColor,
                     border: Border.all(color: Color(0xFFFBF3D7), width: 1),
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -1648,56 +1727,130 @@ class _BottomBarHost extends State<BottomBarHost> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Spacer(),
-                      // Image.asset('assets/images/skinCareDummy.png',
-                      //     height: 50, width: 50, fit: BoxFit.cover),
                       Image.network(
-                          controller.mdProductsByCategory!.products![index]
-                              .image!.src!,
-                          height: 50,
-                          width: 50,
-                          fit: BoxFit.cover),
-                      SizedBox(height: 10),
+                        controller
+                            .mdProductsByCategory!.products![index].image!.src!,
+                        height: 50, // Smaller image size
+                        width: 50,
+                        fit: BoxFit.cover,
+                      ),
+                      SizedBox(height: 8),
                       Container(
-                        margin: EdgeInsets.only(left: 20),
+                        margin: EdgeInsets.symmetric(horizontal: 5),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              children: [
-                                Text(
-                                  controller.mdProductsByCategory!
-                                              .products![index].title!.length >
-                                          10
-                                      ? controller.mdProductsByCategory!
+                            Text(
+                              controller.mdProductsByCategory!.products![index]
+                                          .title!.length >
+                                      10
+                                  ? controller.mdProductsByCategory!
                                           .products![index].title!
-                                          .substring(0, 4)
-                                      : controller.mdProductsByCategory!
-                                          .products![index].title!,
-                                  style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.appPrimaryBlackColor),
-                                  maxLines: 1, // Ensures it's a single line
-                                  overflow: TextOverflow
-                                      .ellipsis, // Adds "..." if the text exceeds the width
-                                ),
-                              ],
+                                          .substring(0, 10) +
+                                      '...'
+                                  : controller.mdProductsByCategory!
+                                      .products![index].title!,
+                              style: TextStyle(
+                                  fontSize: 11, // Smaller font size
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.appPrimaryBlackColor),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            SizedBox(height: 5),
-                            Row(
-                              children: [
-                                Text(
-                                  'Price',
-                                  style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w500,
-                                      color: AppColors.appPrimaryBlackColor),
-                                ),
-                              ],
+                            SizedBox(height: 4),
+                            Text(
+                              'Price',
+                              style: TextStyle(
+                                  fontSize: 9, // Smaller font size
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.appPrimaryBlackColor),
                             ),
                           ],
                         ),
                       ),
-                      Spacer()
+                      Spacer(),
+                    ],
+                  ),
+                );
+              },
+            ),
+          );
+  }
+
+  Widget buildProductGridViewPopular() {
+    return controller.mdProductsByCategory == null ||
+            controller.isLoading.value == true
+        ? Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFFB7A06A),
+            ),
+          )
+        : Container(
+            height: 300, // Adjust based on your layout requirements
+            child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                // Increase the number of items per row for smaller items
+                crossAxisSpacing: 8,
+                // Reduce spacing between columns
+                mainAxisSpacing: 8,
+                // Reduce spacing between rows
+                childAspectRatio: 1.5, // Adjust for smaller items
+              ),
+              itemCount: controller.mdProductsByCategory!.products!.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  margin: EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Color(0xFFFBF3D7), width: 1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Spacer(),
+                      Image.network(
+                        controller
+                            .mdProductsByCategory!.products![index].image!.src!,
+                        height: 50, // Smaller image size
+                        width: 50,
+                        fit: BoxFit.cover,
+                      ),
+                      SizedBox(height: 8),
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 5),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              controller.mdProductsByCategory!.products![index]
+                                          .title!.length >
+                                      10
+                                  ? controller.mdProductsByCategory!
+                                          .products![index].title!
+                                          .substring(0, 10) +
+                                      '...'
+                                  : controller.mdProductsByCategory!
+                                      .products![index].title!,
+                              style: TextStyle(
+                                  fontSize: 11, // Smaller font size
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.appPrimaryBlackColor),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Price',
+                              style: TextStyle(
+                                  fontSize: 9, // Smaller font size
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.appPrimaryBlackColor),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Spacer(),
                     ],
                   ),
                 );

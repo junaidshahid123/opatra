@@ -1,13 +1,13 @@
 class MDProductsByCategory {
-  List<Products>? products;
+  List<ProductsA>? products;
 
   MDProductsByCategory({this.products});
 
   MDProductsByCategory.fromJson(Map<String, dynamic> json) {
     if (json['products'] != null) {
-      products = <Products>[];
+      products = <ProductsA>[];
       json['products'].forEach((v) {
-        products!.add(new Products.fromJson(v));
+        products!.add(new ProductsA.fromJson(v));
       });
     }
   }
@@ -21,7 +21,7 @@ class MDProductsByCategory {
   }
 }
 
-class Products {
+class ProductsA {
   int? id;
   String? title;
   String? bodyHtml;
@@ -40,26 +40,26 @@ class Products {
   List<Images>? images;
   Images? image;
 
-  Products(
+  ProductsA(
       {this.id,
-        this.title,
-        this.bodyHtml,
-        this.vendor,
-        this.productType,
-        this.createdAt,
-        this.handle,
-        this.updatedAt,
-        this.publishedAt,
-        this.templateSuffix,
-        this.publishedScope,
-        this.tags,
-        this.status,
-        this.adminGraphqlApiId,
-        this.options,
-        this.images,
-        this.image});
+      this.title,
+      this.bodyHtml,
+      this.vendor,
+      this.productType,
+      this.createdAt,
+      this.handle,
+      this.updatedAt,
+      this.publishedAt,
+      this.templateSuffix,
+      this.publishedScope,
+      this.tags,
+      this.status,
+      this.adminGraphqlApiId,
+      this.options,
+      this.images,
+      this.image});
 
-  Products.fromJson(Map<String, dynamic> json) {
+  ProductsA.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     title = json['title'];
     bodyHtml = json['body_html'];
@@ -157,15 +157,15 @@ class Images {
 
   Images(
       {this.id,
-        this.alt,
-        this.position,
-        this.productId,
-        this.createdAt,
-        this.updatedAt,
-        this.adminGraphqlApiId,
-        this.width,
-        this.height,
-        this.src});
+      this.alt,
+      this.position,
+      this.productId,
+      this.createdAt,
+      this.updatedAt,
+      this.adminGraphqlApiId,
+      this.width,
+      this.height,
+      this.src});
 
   Images.fromJson(Map<String, dynamic> json) {
     id = json['id'];

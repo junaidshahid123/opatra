@@ -16,6 +16,10 @@ class BottomBarHostController extends GetxController {
   MDProducts? mdProducts;
   MDProductsByCategory? mdProductsByCategory;
   RxBool isLoading = false.obs;
+  RxBool noResultsFound = false.obs; // State for no results found
+  RxList<ProductsA> filteredProducts =
+      <ProductsA>[].obs; // List of filtered products
+  RxString searchQuery = ''.obs; // Observable search query
 
   @override
   void onInit() {
@@ -25,17 +29,45 @@ class BottomBarHostController extends GetxController {
     fetchLatestProducts();
     fetchAllProducts();
     fetchProductCategories();
-    update();
   }
+
+  void updateSearchQuery(String query) {
+    searchQuery.value = query;
+    filterProducts(query);
+  }
+
+  void filterProducts(String query) async {
+    isLoading.value = true; // Start loading
+    await Future.delayed(Duration(milliseconds: 500)); // Simulate delay
+
+    // If controller.mdProductsByCategory is a single object
+    var allProducts = mdProductsByCategory?.products ?? [];
+
+    if (query.isEmpty) {
+      filteredProducts.value = allProducts;
+      noResultsFound.value = false;
+    } else {
+      var results = allProducts
+          .where((product) =>
+              product.title != null &&
+              product.title!.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+
+      filteredProducts.value = results;
+      noResultsFound.value = results.isEmpty;
+    }
+
+    isLoading.value = false; // Stop loading
+  }
+
 
   Future<void> fetchProductByCategory(int id) async {
     isLoading.value = true;
     final url = Uri.parse(
         'https://opatra.meetchallenge.com/api/category/${id}/products');
-    // Retrieve token from SharedPreferences
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
-    // Ensure the token exists before proceeding
     if (token == null || token.isEmpty) {
       Get.snackbar('Error', 'No token found. Please log in again.',
           backgroundColor: Colors.red, colorText: Colors.white);
@@ -52,25 +84,19 @@ class BottomBarHostController extends GetxController {
 
       if (response.statusCode == 200) {
         isLoading.value = false;
-
-        // Successfully received data
         final data = jsonDecode(response.body);
         print('mdProductsByCategory: $data');
         mdProductsByCategory = MDProductsByCategory.fromJson(data);
         print('mdProductsByCategory: $mdProductsByCategory');
         update();
-
-        // You can further process the data here
+        filterProducts(searchQuery.value); // Filter with current query
       } else {
-        // Handle errors
         isLoading.value = false;
-
         print(
             'Failed to load products by categories. Status Code: ${response.statusCode}');
       }
     } catch (e) {
       isLoading.value = false;
-
       print('Error: $e');
     }
   }
@@ -79,10 +105,8 @@ class BottomBarHostController extends GetxController {
     final url =
         Uri.parse('https://opatra.meetchallenge.com/api/product-category');
 
-    // Retrieve token from SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
-    // Ensure the token exists before proceeding
     if (token == null || token.isEmpty) {
       Get.snackbar('Error', 'No token found. Please log in again.',
           backgroundColor: Colors.red, colorText: Colors.white);
@@ -98,17 +122,16 @@ class BottomBarHostController extends GetxController {
       final response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
-        // Successfully received data
         final data = jsonDecode(response.body);
         print('Product Categories: $data');
         mdCategories = MDCategories.fromJson(data);
         print('mdCategories: $mdCategories');
-        fetchProductByCategory(mdCategories!.smartCollections![0].id!);
+        if (mdCategories != null &&
+            mdCategories!.smartCollections!.isNotEmpty) {
+          fetchProductByCategory(mdCategories!.smartCollections![0].id!);
+        }
         update();
-
-        // You can further process the data here
       } else {
-        // Handle errors
         print(
             'Failed to load product categories. Status Code: ${response.statusCode}');
       }
@@ -120,10 +143,8 @@ class BottomBarHostController extends GetxController {
   Future<void> fetchAllProducts() async {
     final url = Uri.parse('https://opatra.meetchallenge.com/api/products');
 
-    // Retrieve token from SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
-    // Ensure the token exists before proceeding
     if (token == null || token.isEmpty) {
       Get.snackbar('Error', 'No token found. Please log in again.',
           backgroundColor: Colors.red, colorText: Colors.white);
@@ -139,16 +160,13 @@ class BottomBarHostController extends GetxController {
       final response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
-        // Successfully received data
         final data = jsonDecode(response.body);
         print('mdProducts: $data');
         mdProducts = MDProducts.fromJson(data);
         print('mdProducts: $mdProducts');
         update();
-
-        // You can further process the data here
+        filterProducts(searchQuery.value); // Filter with current query
       } else {
-        // Handle errors
         print('Failed to load products. Status Code: ${response.statusCode}');
       }
     } catch (e) {
@@ -160,10 +178,8 @@ class BottomBarHostController extends GetxController {
     final url =
         Uri.parse('https://opatra.meetchallenge.com/api/latest-products');
 
-    // Retrieve token from SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
-    // Ensure the token exists before proceeding
     if (token == null || token.isEmpty) {
       Get.snackbar('Error', 'No token found. Please log in again.',
           backgroundColor: Colors.red, colorText: Colors.white);
@@ -179,16 +195,12 @@ class BottomBarHostController extends GetxController {
       final response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
-        // Successfully received data
         final data = jsonDecode(response.body);
         print('Product mdLatestProducts: $data');
         mdLatestProducts = MDLatestProducts.fromJson(data);
         print('mdLatestProducts: $mdLatestProducts');
         update();
-
-        // You can further process the data here
       } else {
-        // Handle errors
         print(
             'Failed to load latest products. Status Code: ${response.statusCode}');
       }
