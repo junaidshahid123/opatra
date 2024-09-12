@@ -489,7 +489,8 @@ class _BottomBarHost extends State<BottomBarHost> {
                                         // Display filtered products
                                         return buildProductGridViewPopularA(
                                             controller.filteredProducts);
-                                      } else if (controller
+                                      }
+                                      else if (controller
                                           .filteredProducts.isEmpty) {
                                         // No products found with the query, show message for 5 seconds
                                         WidgetsBinding.instance
@@ -523,7 +524,12 @@ class _BottomBarHost extends State<BottomBarHost> {
                                                     .appPrimaryBlackColor),
                                           ),
                                         );
-                                      } else {
+                                      }
+                                      else if(controller.isLoading.value == false){
+                                        return buildProductGridViewPopular();
+
+                                      }
+                                      else {
                                         // If product.value is false or the timer has completed, show popular products
                                         return buildProductGridViewPopular();
                                       }
