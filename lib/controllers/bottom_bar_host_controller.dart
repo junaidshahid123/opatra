@@ -16,10 +16,15 @@ class BottomBarHostController extends GetxController {
   MDProducts? mdProducts;
   MDProductsByCategory? mdProductsByCategory;
   RxBool isLoading = false.obs;
+  RxBool isCurrencyDropDown = false.obs;
+  RxBool usd = false.obs;
+  RxBool pound = false.obs;
+  RxBool euro = false.obs;
   RxBool noResultsFound = false.obs; // State for no results found
   RxList<ProductsA> filteredProducts =
       <ProductsA>[].obs; // List of filtered products
   RxString searchQuery = ''.obs; // Observable search query
+  RxString selectedCurrency = ''.obs; // Observable search query
 
   @override
   void onInit() {
@@ -60,8 +65,8 @@ class BottomBarHostController extends GetxController {
     isLoading.value = false; // Stop loading
   }
 
-
   Future<void> fetchProductByCategory(int id) async {
+    searchQuery.value = '';
     isLoading.value = true;
     final url = Uri.parse(
         'https://opatra.meetchallenge.com/api/category/${id}/products');
@@ -89,7 +94,7 @@ class BottomBarHostController extends GetxController {
         mdProductsByCategory = MDProductsByCategory.fromJson(data);
         print('mdProductsByCategory: $mdProductsByCategory');
         update();
-        filterProducts(searchQuery.value); // Filter with current query
+        // filterProducts(searchQuery.value); // Filter with current query
       } else {
         isLoading.value = false;
         print(
@@ -129,6 +134,7 @@ class BottomBarHostController extends GetxController {
         if (mdCategories != null &&
             mdCategories!.smartCollections!.isNotEmpty) {
           fetchProductByCategory(mdCategories!.smartCollections![0].id!);
+          update();
         }
         update();
       } else {

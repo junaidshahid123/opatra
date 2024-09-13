@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -227,358 +228,308 @@ class _BottomBarHost extends State<BottomBarHost> {
 
   @override
   Widget build(BuildContext context) {
-    List<MDProductsByCategory> productCategories =
-        controller.mdProductsByCategory != null
-            ? [controller.mdProductsByCategory!]
-            : [];
-
     return GetBuilder<BottomBarHostController>(
         init: BottomBarHostController(),
         builder: (BottomBarHostController) {
           return Scaffold(
             drawer: buildDrawer(),
+            onDrawerChanged: (isOpened) {
+              controller.isCurrencyDropDown.value = false;
+            },
             resizeToAvoidBottomInset: true,
             backgroundColor: AppColors.appWhiteColor,
             body: SafeArea(
-              child: Stack(
-                alignment: Alignment.bottomCenter,
-                children: [
-                  Column(
-                    children: [
-                      buildAppBar(),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          padding: EdgeInsets.only(
-                            bottom: MediaQuery.of(context).size.height /
-                                4, // Adjust this value as needed
-                          ),
-                          child: Column(
-                            children: [
-                              controller.mdLatestProducts == null
-                                  ? Center(
-                                      child: CircularProgressIndicator(
-                                        color: AppColors.appPrimaryBlackColor,
-                                      ),
-                                    )
-                                  : Obx(
-                                      () => home.value == true
-                                          ? Container(
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  2.2,
-                                              margin: EdgeInsets.only(top: 20),
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              child: PageView.builder(
-                                                controller: _controller,
-                                                itemCount: controller
-                                                    .mdLatestProducts!
-                                                    .products
-                                                    .length,
-                                                onPageChanged: (int index) {
-                                                  setState(() {
-                                                    _currentIndex = index;
-                                                  });
-                                                },
-                                                itemBuilder: (context, index) {
-                                                  bool isCurrent =
-                                                      index == _currentIndex;
-                                                  return AnimatedContainer(
-                                                    duration: Duration(
-                                                        milliseconds: 300),
-                                                    curve: Curves.easeInOut,
-                                                    margin:
-                                                        EdgeInsets.symmetric(
-                                                      horizontal:
-                                                          isCurrent ? 10 : 20,
-                                                      vertical:
-                                                          isCurrent ? 5 : 20,
-                                                    ),
-                                                    width:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.95,
-                                                    decoration: BoxDecoration(
-                                                      color: isCurrent
-                                                          ? Colors.blue
-                                                          : Colors.grey,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              20),
-                                                      boxShadow: isCurrent
-                                                          ? [
-                                                              BoxShadow(
-                                                                  color: Colors
-                                                                      .black26,
-                                                                  blurRadius:
-                                                                      10)
-                                                            ]
-                                                          : [],
-                                                    ),
-                                                    child: ClipRRect(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              20),
-                                                      // Clip the image to the container's rounded corners
-                                                      child: Stack(
-                                                        children: [
-                                                          controller
-                                                                          .mdLatestProducts!
-                                                                          .products[
-                                                                              index]
-                                                                          .image !=
-                                                                      null &&
-                                                                  controller
-                                                                          .mdLatestProducts!
-                                                                          .products[
-                                                                              index]
-                                                                          .image!
-                                                                          .src !=
-                                                                      null
-                                                              ? Image.network(
-                                                                  controller
-                                                                      .mdLatestProducts!
-                                                                      .products[
-                                                                          index]
-                                                                      .image!
-                                                                      .src!,
-                                                                  fit: BoxFit
-                                                                      .cover,
-                                                                  // Ensure the image covers the entire container
-                                                                  height: double
-                                                                      .infinity,
-                                                                  // Make the image take up the full container height
-                                                                  width: double
-                                                                      .infinity, // Make the image take up the full container width
-                                                                )
-                                                              : Image.asset(
-                                                                  'assets/images/skinCareDummy.png',
-                                                                  fit: BoxFit
-                                                                      .cover,
-                                                                  // Fallback image should also cover the container
-                                                                  height: double
-                                                                      .infinity,
-                                                                  width: double
-                                                                      .infinity,
-                                                                ),
-                                                          Positioned(
-                                                            top: 20,
-                                                            left: 20,
-                                                            child: Column(
-                                                              children: [
-                                                                Text(
-                                                                  controller
-                                                                      .mdLatestProducts!
-                                                                      .products[
-                                                                          index]
-                                                                      .title,
-                                                                  style: TextStyle(
-                                                                      color: AppColors
-                                                                          .appPrimaryBlackColor,
-                                                                      fontSize:
-                                                                          20,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w600),
-                                                                ),
-                                                                Text(
-                                                                  controller
-                                                                      .mdLatestProducts!
-                                                                      .products[
-                                                                          index]
-                                                                      .vendor,
-                                                                  style: TextStyle(
-                                                                      color: AppColors
-                                                                          .appPrimaryBlackColor,
-                                                                      fontSize:
-                                                                          20,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w600),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                          // Positioned(
-                                                          //   bottom: 20,
-                                                          //   left: 20,
-                                                          //   child: Column(
-                                                          //     children: [
-                                                          //       Text(
-                                                          //         controller
-                                                          //             .mdLatestProducts!
-                                                          //             .products[
-                                                          //         index].variants[index].price,
-                                                          //         style: TextStyle(
-                                                          //             color: AppColors
-                                                          //                 .appPrimaryBlackColor,
-                                                          //             fontSize:
-                                                          //             20,
-                                                          //             fontWeight:
-                                                          //             FontWeight
-                                                          //                 .w600),
-                                                          //       ),
-                                                          //
-                                                          //     ],
-                                                          //   ),
-                                                          // )
-                                                        ],
+              child: InkWell(
+                splashColor: Colors.transparent,
+                highlightColor: Colors.transparent,
+                onTap: () {
+                  controller.isCurrencyDropDown.value = false;
+                },
+                child: Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    Column(
+                      children: [
+                        buildAppBar(),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding: EdgeInsets.only(
+                              bottom: MediaQuery.of(context).size.height /
+                                  4, // Adjust this value as needed
+                            ),
+                            child: Column(
+                              children: [
+                                Obx(() => home.value == true
+                                    ? buildCurrencyOption()
+                                    : Container()),
+                                controller.mdLatestProducts == null
+                                    ? Center(
+                                        child: CircularProgressIndicator(
+                                          color: AppColors.appPrimaryBlackColor,
+                                        ),
+                                      )
+                                    : Obx(
+                                        () => home.value == true
+                                            ? Container(
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .height /
+                                                    2.2,
+                                                margin:
+                                                    EdgeInsets.only(top: 20),
+                                                width: MediaQuery.of(context)
+                                                    .size
+                                                    .width,
+                                                child: PageView.builder(
+                                                  controller: _controller,
+                                                  itemCount: controller
+                                                      .mdLatestProducts!
+                                                      .products
+                                                      .length,
+                                                  onPageChanged: (int index) {
+                                                    setState(() {
+                                                      _currentIndex = index;
+                                                    });
+                                                  },
+                                                  itemBuilder:
+                                                      (context, index) {
+                                                    bool isCurrent =
+                                                        index == _currentIndex;
+                                                    return AnimatedContainer(
+                                                      duration: Duration(
+                                                          milliseconds: 300),
+                                                      curve: Curves.easeInOut,
+                                                      margin:
+                                                          EdgeInsets.symmetric(
+                                                        horizontal:
+                                                            isCurrent ? 10 : 20,
+                                                        vertical:
+                                                            isCurrent ? 5 : 20,
                                                       ),
-                                                    ),
-                                                  );
-                                                },
-                                              ))
-                                          : Container(),
-                                    ),
-                              Obx(
-                                () => home.value == true
-                                    ? buildHeadingTextForHome()
-                                    : Container(),
-                              ),
-                              Obx(() => home.value == true
-                                  ? buildHomeProductListView()
-                                  : video.value == true
-                                      ? buildProductListViewForVideos()
-                                      : buildProductListView()),
+                                                      width:
+                                                          MediaQuery.of(context)
+                                                                  .size
+                                                                  .width *
+                                                              0.95,
+                                                      decoration: BoxDecoration(
+                                                        color: isCurrent
+                                                            ? Colors.blue
+                                                            : Colors.grey,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(20),
+                                                        boxShadow: isCurrent
+                                                            ? [
+                                                                BoxShadow(
+                                                                    color: Colors
+                                                                        .black26,
+                                                                    blurRadius:
+                                                                        10)
+                                                              ]
+                                                            : [],
+                                                      ),
+                                                      child: ClipRRect(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(20),
+                                                        // Clip the image to the container's rounded corners
+                                                        child: Stack(
+                                                          children: [
+                                                            controller
+                                                                            .mdLatestProducts!
+                                                                            .products[
+                                                                                index]
+                                                                            .image !=
+                                                                        null &&
+                                                                    controller
+                                                                            .mdLatestProducts!
+                                                                            .products[index]
+                                                                            .image!
+                                                                            .src !=
+                                                                        null
+                                                                ? Image.network(
+                                                                    controller
+                                                                        .mdLatestProducts!
+                                                                        .products[
+                                                                            index]
+                                                                        .image!
+                                                                        .src!,
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                    // Ensure the image covers the entire container
+                                                                    height: double
+                                                                        .infinity,
+                                                                    // Make the image take up the full container height
+                                                                    width: double
+                                                                        .infinity, // Make the image take up the full container width
+                                                                  )
+                                                                : Image.asset(
+                                                                    'assets/images/skinCareDummy.png',
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                    // Fallback image should also cover the container
+                                                                    height: double
+                                                                        .infinity,
+                                                                    width: double
+                                                                        .infinity,
+                                                                  ),
+                                                            Positioned(
+                                                              top: 20,
+                                                              left: 20,
+                                                              child: Column(
+                                                                children: [
+                                                                  Text(
+                                                                    controller
+                                                                        .mdLatestProducts!
+                                                                        .products[
+                                                                            index]
+                                                                        .title,
+                                                                    style: TextStyle(
+                                                                        color: AppColors
+                                                                            .appPrimaryBlackColor,
+                                                                        fontSize:
+                                                                            20,
+                                                                        fontWeight:
+                                                                            FontWeight.w600),
+                                                                  ),
+                                                                  Text(
+                                                                    controller
+                                                                        .mdLatestProducts!
+                                                                        .products[
+                                                                            index]
+                                                                        .vendor,
+                                                                    style: TextStyle(
+                                                                        color: AppColors
+                                                                            .appPrimaryBlackColor,
+                                                                        fontSize:
+                                                                            20,
+                                                                        fontWeight:
+                                                                            FontWeight.w600),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                ))
+                                            : Container(),
+                                      ),
+                                Obx(
+                                  () => home.value == true
+                                      ? buildHeadingTextForHome()
+                                      : Container(),
+                                ),
+                                Obx(() => home.value == true
+                                    ? buildHomeProductListView()
+                                    : video.value == true
+                                        ? buildProductListViewForVideos()
+                                        : buildProductListView()),
+                                Obx(
+                                  () => product.value == true
+                                      ? buildSearchField()
+                                      : Container(),
+                                ),
+                                Obx(
+                                  () => product.value || video.value == true
+                                      ? buildCategories()
+                                      : Container(),
+                                ),
+                                Obx(() => product.value
+                                    ? Obx(() {
+                                        // Initially show the default popular products
+                                        if (controller.searchQuery.isEmpty &&
+                                            controller
+                                                .filteredProducts.isEmpty) {
+                                          // Populate filteredProducts with popular products if empty
+                                          controller.filteredProducts.value =
+                                              controller.mdProductsByCategory
+                                                      ?.products ??
+                                                  [];
+                                          // Show the popular products grid view
+                                          return buildProductGridViewPopular();
+                                        }
 
-                              Obx(
-                                () => product.value == true
-                                    ? buildSearchField()
-                                    : Container(),
-                              ),
-                              Obx(
-                                () => product.value || video.value == true
-                                    ? buildCategories()
-                                    : Container(),
-                              ),
-                              // Obx(
-                              //   () => product.value == true
-                              //       ? Container(
-                              //           margin:
-                              //               EdgeInsets.only(left: 20, top: 20),
-                              //           child: Row(
-                              //             children: [
-                              //               Text(
-                              //                 'Popular Products',
-                              //                 style: TextStyle(
-                              //                     fontWeight: FontWeight.w600,
-                              //                     color: AppColors
-                              //                         .appPrimaryBlackColor,
-                              //                     fontSize: 20),
-                              //               ),
-                              //             ],
-                              //           ),
-                              //         )
-                              //       : Container(),
-                              // ),
+                                        // If the controller is loading, show a progress indicator
+                                        if (controller.isLoading.value) {
+                                          return Center(
+                                              child:
+                                                  CircularProgressIndicator());
+                                        }
 
-                              product.value
-                                  ? Obx(() {
-                                      // Check if the controller is loading
-                                      if (controller.isLoading.value) {
-                                        return Center(
-                                            child: CircularProgressIndicator());
-                                      }
+                                        // Check if there are filtered products after the search query
+                                        if (controller
+                                            .filteredProducts.isNotEmpty) {
+                                          // Display filtered products based on the search query
+                                          return buildProductGridViewPopularA(
+                                              controller.filteredProducts);
+                                        }
 
-                                      // Check if there is a search query and products should be displayed
-                                      if (controller
-                                          .filteredProducts.isNotEmpty) {
-                                        // Display filtered products
-                                        return buildProductGridViewPopularA(
-                                            controller.filteredProducts);
-                                      }
-                                      else if (controller
-                                          .filteredProducts.isEmpty) {
-                                        // No products found with the query, show message for 5 seconds
-                                        WidgetsBinding.instance
-                                            .addPostFrameCallback((_) {
-                                          Timer(Duration(seconds: 5), () {
-                                            // Clear the search query in the TextField
-                                            controller.searchQuery.value = '';
-                                            searchTextController.clear();
-                                            // Assuming you have a searchQuery variable in the controller
-                                            FocusScope.of(context)
-                                                .unfocus(); // Close the keyboard
+                                        // If there are no matching products for the search query
+                                        else if (controller
+                                                .filteredProducts.isEmpty &&
+                                            controller.searchQuery.isNotEmpty) {
+                                          // No products found, show a message for 5 seconds
+                                          WidgetsBinding.instance
+                                              .addPostFrameCallback((_) {
+                                            Timer(Duration(seconds: 5), () {
+                                              // Clear the search query and reset the products to popular products
+                                              controller.searchQuery.value = '';
+                                              searchTextController.clear();
+                                              FocusScope.of(context).unfocus();
 
-                                            // Reset the filtered products to the popular products
-                                            controller.filteredProducts.value =
-                                                controller.mdProductsByCategory
-                                                        ?.products ??
-                                                    [];
+                                              // Reset the filtered products to the popular products
+                                              controller.filteredProducts
+                                                  .value = controller
+                                                      .mdProductsByCategory
+                                                      ?.products ??
+                                                  [];
 
-                                            // Trigger UI update by refreshing the popular products
-                                            controller.isLoading.value =
-                                                false; // Ensure loading is false
+                                              // Ensure loading is false
+                                              controller.isLoading.value =
+                                                  false;
+                                            });
                                           });
-                                        });
 
-                                        return Center(
-                                          child: Text(
-                                            maxLines: 2,
-                                            'No products found with this alphabetic query. Try Another.',
-                                            style: TextStyle(
-                                                color: AppColors
-                                                    .appPrimaryBlackColor),
-                                          ),
-                                        );
-                                      }
-                                      else if(controller.isLoading.value == false){
+                                          // Show the "No products found" message
+                                          return Center(
+                                            child: Text(
+                                              maxLines: 2,
+                                              'No products found with this alphabetic query. Try Another.',
+                                              style: TextStyle(
+                                                  color: AppColors
+                                                      .appPrimaryBlackColor),
+                                            ),
+                                          );
+                                        }
+
+                                        // Default to showing popular products if none of the conditions are met
                                         return buildProductGridViewPopular();
-
-                                      }
-                                      else {
-                                        // If product.value is false or the timer has completed, show popular products
-                                        return buildProductGridViewPopular();
-                                      }
-                                    })
-                                  : Container(),
-                              // Placeholder when product.value is false
-
-                              // Placeholder when product.value is false
-
-                              // Obx(
-                              //   () => product.value == true
-                              //       ? Container(
-                              //           margin:
-                              //               EdgeInsets.only(left: 20, top: 20),
-                              //           child: Row(
-                              //             children: [
-                              //               Text(
-                              //                 'Recent Products',
-                              //                 style: TextStyle(
-                              //                     fontWeight: FontWeight.w600,
-                              //                     color: AppColors
-                              //                         .appPrimaryBlackColor,
-                              //                     fontSize: 20),
-                              //               ),
-                              //             ],
-                              //           ),
-                              //         )
-                              //       : Container(),
-                              // ),
-                              // Obx(
-                              //   () => product.value == true
-                              //       ? buildProductListViewRecent()
-                              //       : Container(),
-                              // ),
-                              // Obx(() => video.value == true
-                              //     ? buildGridView()
-                              //     : Container())
-                            ],
+                                      })
+                                    : Container())
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  buildBottomBar(),
-                ],
+                      ],
+                    ),
+                    buildBottomBar(),
+                  ],
+                ),
               ),
             ),
           );
         });
+  }
+
+  Widget buildCurrencyDropDown() {
+    return Container(
+      height: 45,
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(color: AppColors.appPrimaryBlackColor),
+    );
   }
 
   Widget buildDrawer() {
@@ -1104,6 +1055,7 @@ class _BottomBarHost extends State<BottomBarHost> {
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
             onTap: () {
+              searchTextController.clear();
               selectedCategory.value = index;
               controller.fetchProductByCategory(
                   controller.mdCategories!.smartCollections![index].id!);
@@ -1190,20 +1142,25 @@ class _BottomBarHost extends State<BottomBarHost> {
   }
 
   Widget buildAppBar() {
-    return Container(
-      margin: EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 30,
-      ),
-      child: Row(
-        children: [
-          buildSideBarOption(context),
-          Spacer(),
-          buildName(),
-          Spacer(),
-          buildNotificationOption()
-        ],
+    return InkWell(
+      onTap: () {
+        controller.isCurrencyDropDown.value = false;
+      },
+      child: Container(
+        margin: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 30,
+        ),
+        child: Row(
+          children: [
+            buildSideBarOption(context),
+            Spacer(),
+            buildName(),
+            Spacer(),
+            buildNotificationOption()
+          ],
+        ),
       ),
     );
   }
@@ -1214,6 +1171,7 @@ class _BottomBarHost extends State<BottomBarHost> {
         return GestureDetector(
           onTap: () {
             Scaffold.of(context).openDrawer();
+            controller.isCurrencyDropDown.value = false;
           },
           child: Stack(
             alignment: Alignment.center,
@@ -1284,25 +1242,190 @@ class _BottomBarHost extends State<BottomBarHost> {
               ));
   }
 
+  Widget buildCurrencyOption() {
+    return Obx(() => Column(
+          children: [
+            InkWell(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              onTap: () {
+                controller.isCurrencyDropDown.value = true;
+              },
+              child: Container(
+                margin: EdgeInsets.only(left: 20, right: 20),
+                decoration: BoxDecoration(
+                  borderRadius: controller.isCurrencyDropDown.value == false
+                      ? BorderRadius.circular(10)
+                      : BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          topRight: Radius.circular(10)),
+                  color: Color(0xFFB7A06A),
+                ),
+                height: 45,
+                width: MediaQuery.of(context).size.width / 2,
+                child: Center(
+                  child: Text(
+                    controller.selectedCurrency.value.isNotEmpty
+                        ? controller.selectedCurrency.value
+                        : 'Select Currency',
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.appWhiteColor),
+                  ),
+                ),
+              ),
+            ),
+            controller.isCurrencyDropDown.value == true
+                ? Column(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Color(0xFFB7A06A)),
+                            borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(10),
+                                bottomRight: Radius.circular(10)),
+                            color: AppColors.appWhiteColor),
+                        height: 150,
+                        width: MediaQuery.of(context).size.width / 2,
+                        child: Column(
+                          children: [
+                            Spacer(),
+                            InkWell(
+                              onTap: () {
+                                controller.usd.value = true;
+                                controller.euro.value = false;
+                                controller.pound.value = false;
+                                controller.isCurrencyDropDown.value = false;
+                                controller.selectedCurrency.value = 'US Dollar';
+                              },
+                              child: Container(
+                                height: 30,
+                                width: MediaQuery.of(context).size.width / 3,
+                                decoration: BoxDecoration(
+                                  border: controller.usd.value == true
+                                      ? Border.all(color: Colors.transparent)
+                                      : Border.all(color: Color(0xFFB7A06A)),
+                                  borderRadius: BorderRadius.circular(5),
+                                  color: controller.usd.value == true
+                                      ? Color(0xFFB7A06A)
+                                      : Colors.transparent,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'US Dollar',
+                                    style: TextStyle(
+                                      color: controller.usd.value == true
+                                          ? AppColors.appWhiteColor
+                                          : Color(0xFFB7A06A),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Spacer(),
+                            InkWell(
+                              onTap: () {
+                                controller.usd.value = false;
+                                controller.euro.value = true;
+                                controller.pound.value = false;
+                                controller.isCurrencyDropDown.value = false;
+                                controller.selectedCurrency.value = 'Euro';
+                              },
+                              child: Container(
+                                height: 30,
+                                width: MediaQuery.of(context).size.width / 3,
+                                decoration: BoxDecoration(
+                                  border: controller.euro.value == true
+                                      ? Border.all(color: Colors.transparent)
+                                      : Border.all(color: Color(0xFFB7A06A)),
+                                  borderRadius: BorderRadius.circular(5),
+                                  color: controller.euro.value == true
+                                      ? Color(0xFFB7A06A)
+                                      : Colors.transparent,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Euro',
+                                    style: TextStyle(
+                                      color: controller.euro.value == true
+                                          ? AppColors.appWhiteColor
+                                          : Color(0xFFB7A06A),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Spacer(),
+                            InkWell(
+                              onTap: () {
+                                controller.usd.value = false;
+                                controller.euro.value = false;
+                                controller.pound.value = true;
+                                controller.isCurrencyDropDown.value = false;
+                                controller.selectedCurrency.value = 'Pound';
+                              },
+                              child: Container(
+                                height: 30,
+                                width: MediaQuery.of(context).size.width / 3,
+                                decoration: BoxDecoration(
+                                  border: controller.pound.value == true
+                                      ? Border.all(color: Colors.transparent)
+                                      : Border.all(color: Color(0xFFB7A06A)),
+                                  borderRadius: BorderRadius.circular(5),
+                                  color: controller.pound.value == true
+                                      ? Color(0xFFB7A06A)
+                                      : Colors.transparent,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Pound',
+                                    style: TextStyle(
+                                      color: controller.pound.value == true
+                                          ? AppColors.appWhiteColor
+                                          : Color(0xFFB7A06A),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Spacer(),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                : Container()
+          ],
+        ));
+  }
+
   Widget buildBottomBar() {
-    return Container(
-      margin: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Color(0xFFB7A06A),
-      ),
-      height: 60,
-      width: MediaQuery.of(context).size.width,
-      child: Row(
-        children: [
-          Spacer(),
-          buildHomeOption(),
-          Spacer(),
-          buildProductOption(),
-          Spacer(),
-          buildVideoOption(),
-          Spacer(),
-        ],
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        controller.isCurrencyDropDown.value = false;
+      },
+      child: Container(
+        margin: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Color(0xFFB7A06A),
+        ),
+        height: 60,
+        width: MediaQuery.of(context).size.width,
+        child: Row(
+          children: [
+            Spacer(),
+            buildHomeOption(),
+            Spacer(),
+            buildProductOption(),
+            Spacer(),
+            buildVideoOption(),
+            Spacer(),
+          ],
+        ),
       ),
     );
   }
