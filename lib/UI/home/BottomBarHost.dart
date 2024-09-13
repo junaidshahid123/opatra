@@ -105,6 +105,172 @@ class _BottomBarHost extends State<BottomBarHost> {
     }
   }
 
+  void _showDialogForCurrency(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Material(
+            type: MaterialType.transparency,
+            child: StatefulBuilder(
+              builder: (context, setState) {
+                return Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height / 2.5,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(top: 20),
+                        child: Text(
+                          'Select Currency',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFFB7A06A),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          // Distribute space evenly
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  controller.usd.value = true;
+                                  controller.euro.value = false;
+                                  controller.pound.value = false;
+                                  controller.isCurrencyDropDown.value = false;
+                                  controller.selectedCurrency.value =
+                                      'US Dollar';
+                                });
+                                Get.back();
+                              },
+                              child: Container(
+                                height: 60, // Oval shape height
+                                width: MediaQuery.of(context).size.width /
+                                    1.5, // Smaller width
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.rectangle,
+                                  border: controller.usd.value == true
+                                      ? Border.all(color: Colors.transparent)
+                                      : Border.all(color: Color(0xFFB7A06A)),
+                                  borderRadius: BorderRadius.circular(30),
+                                  // Oval shape
+                                  color: controller.usd.value == true
+                                      ? Color(0xFFB7A06A)
+                                      : Colors.transparent,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'US Dollar',
+                                    style: TextStyle(
+                                      color: controller.usd.value == true
+                                          ? AppColors.appWhiteColor
+                                          : Color(0xFFB7A06A),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  controller.usd.value = false;
+                                  controller.euro.value = true;
+                                  controller.pound.value = false;
+                                  controller.isCurrencyDropDown.value = false;
+                                  controller.selectedCurrency.value = 'Euro';
+                                });
+                                Get.back();
+                              },
+                              child: Container(
+                                height: 60, // Oval shape height
+                                width: MediaQuery.of(context).size.width /
+                                    1.5, // Smaller width
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.rectangle,
+                                  border: controller.euro.value == true
+                                      ? Border.all(color: Colors.transparent)
+                                      : Border.all(color: Color(0xFFB7A06A)),
+                                  borderRadius: BorderRadius.circular(30),
+                                  // Oval shape
+                                  color: controller.euro.value == true
+                                      ? Color(0xFFB7A06A)
+                                      : Colors.transparent,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Euro',
+                                    style: TextStyle(
+                                      color: controller.euro.value == true
+                                          ? AppColors.appWhiteColor
+                                          : Color(0xFFB7A06A),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () {
+                                setState(() {
+                                  controller.usd.value = false;
+                                  controller.euro.value = false;
+                                  controller.pound.value = true;
+                                  controller.isCurrencyDropDown.value = false;
+                                  controller.selectedCurrency.value = 'Pound';
+                                });
+                                Get.back();
+                              },
+                              child: Container(
+                                height: 60, // Oval shape height
+                                width: MediaQuery.of(context).size.width /
+                                    1.5, // Smaller width
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.rectangle,
+                                  border: controller.pound.value == true
+                                      ? Border.all(color: Colors.transparent)
+                                      : Border.all(color: Color(0xFFB7A06A)),
+                                  borderRadius: BorderRadius.circular(30),
+                                  // Oval shape
+                                  color: controller.pound.value == true
+                                      ? Color(0xFFB7A06A)
+                                      : Colors.transparent,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Pound',
+                                    style: TextStyle(
+                                      color: controller.pound.value == true
+                                          ? AppColors.appWhiteColor
+                                          : Color(0xFFB7A06A),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     // TODO: implement initState
@@ -1249,7 +1415,7 @@ class _BottomBarHost extends State<BottomBarHost> {
               splashColor: Colors.transparent,
               highlightColor: Colors.transparent,
               onTap: () {
-                controller.isCurrencyDropDown.value = true;
+                _showDialogForCurrency(context);
               },
               child: Container(
                 margin: EdgeInsets.only(left: 20, right: 20),
@@ -1276,126 +1442,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                 ),
               ),
             ),
-            controller.isCurrencyDropDown.value == true
-                ? Column(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Color(0xFFB7A06A)),
-                            borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(10),
-                                bottomRight: Radius.circular(10)),
-                            color: AppColors.appWhiteColor),
-                        height: 150,
-                        width: MediaQuery.of(context).size.width / 2,
-                        child: Column(
-                          children: [
-                            Spacer(),
-                            InkWell(
-                              onTap: () {
-                                controller.usd.value = true;
-                                controller.euro.value = false;
-                                controller.pound.value = false;
-                                controller.isCurrencyDropDown.value = false;
-                                controller.selectedCurrency.value = 'US Dollar';
-                              },
-                              child: Container(
-                                height: 30,
-                                width: MediaQuery.of(context).size.width / 3,
-                                decoration: BoxDecoration(
-                                  border: controller.usd.value == true
-                                      ? Border.all(color: Colors.transparent)
-                                      : Border.all(color: Color(0xFFB7A06A)),
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: controller.usd.value == true
-                                      ? Color(0xFFB7A06A)
-                                      : Colors.transparent,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    'US Dollar',
-                                    style: TextStyle(
-                                      color: controller.usd.value == true
-                                          ? AppColors.appWhiteColor
-                                          : Color(0xFFB7A06A),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Spacer(),
-                            InkWell(
-                              onTap: () {
-                                controller.usd.value = false;
-                                controller.euro.value = true;
-                                controller.pound.value = false;
-                                controller.isCurrencyDropDown.value = false;
-                                controller.selectedCurrency.value = 'Euro';
-                              },
-                              child: Container(
-                                height: 30,
-                                width: MediaQuery.of(context).size.width / 3,
-                                decoration: BoxDecoration(
-                                  border: controller.euro.value == true
-                                      ? Border.all(color: Colors.transparent)
-                                      : Border.all(color: Color(0xFFB7A06A)),
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: controller.euro.value == true
-                                      ? Color(0xFFB7A06A)
-                                      : Colors.transparent,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    'Euro',
-                                    style: TextStyle(
-                                      color: controller.euro.value == true
-                                          ? AppColors.appWhiteColor
-                                          : Color(0xFFB7A06A),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Spacer(),
-                            InkWell(
-                              onTap: () {
-                                controller.usd.value = false;
-                                controller.euro.value = false;
-                                controller.pound.value = true;
-                                controller.isCurrencyDropDown.value = false;
-                                controller.selectedCurrency.value = 'Pound';
-                              },
-                              child: Container(
-                                height: 30,
-                                width: MediaQuery.of(context).size.width / 3,
-                                decoration: BoxDecoration(
-                                  border: controller.pound.value == true
-                                      ? Border.all(color: Colors.transparent)
-                                      : Border.all(color: Color(0xFFB7A06A)),
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: controller.pound.value == true
-                                      ? Color(0xFFB7A06A)
-                                      : Colors.transparent,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    'Pound',
-                                    style: TextStyle(
-                                      color: controller.pound.value == true
-                                          ? AppColors.appWhiteColor
-                                          : Color(0xFFB7A06A),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Spacer(),
-                          ],
-                        ),
-                      ),
-                    ],
-                  )
-                : Container()
+
           ],
         ));
   }
