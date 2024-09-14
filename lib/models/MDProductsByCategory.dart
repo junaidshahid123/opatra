@@ -1,3 +1,5 @@
+import 'MDLatestProducts.dart';
+
 class MDProductsByCategory {
   List<ProductsA>? products;
 
@@ -36,6 +38,7 @@ class ProductsA {
   String? tags;
   String? status;
   String? adminGraphqlApiId;
+  List<Variants>? variants;
   List<Options>? options;
   List<Images>? images;
   Images? image;

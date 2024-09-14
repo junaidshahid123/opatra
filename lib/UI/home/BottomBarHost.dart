@@ -423,9 +423,6 @@ class _BottomBarHost extends State<BottomBarHost> {
                             ),
                             child: Column(
                               children: [
-                                Obx(() => home.value == true
-                                    ? buildCurrencyOption()
-                                    : Container()),
                                 controller.mdLatestProducts == null
                                     ? Center(
                                         child: CircularProgressIndicator(
@@ -727,6 +724,7 @@ class _BottomBarHost extends State<BottomBarHost> {
             children: [
               Column(
                 children: [
+                  buildCurrencyOption(),
                   buildTreatmentOption(),
                   buildLiveStreamOption(),
                   buildAskOurExpertsOption(),
@@ -836,8 +834,49 @@ class _BottomBarHost extends State<BottomBarHost> {
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
-        selectedIndex.value = 7;
+        selectedIndex.value = 8;
         _showLogoutDialog(context);
+      },
+      child: Container(
+        margin: EdgeInsets.only(top: 20),
+        decoration: BoxDecoration(
+            border: Border.all(
+                color: selectedIndex.value == 8
+                    ? Colors.transparent
+                    : Color(0xFFFBF3D7)),
+            color: selectedIndex.value == 8
+                ? Color(0xFFB7A06A)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(10)),
+        height: 45,
+        width: MediaQuery.of(context).size.width,
+        child: Container(
+          margin: EdgeInsets.only(left: 20),
+          child: Row(
+            children: [
+              Text(
+                'Log Out',
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: selectedIndex.value == 8
+                        ? AppColors.appWhiteColor
+                        : Color(0xFFB7A06A)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildWarrantyClaimsOption() {
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        selectedIndex.value = 7;
+        Get.to(() => WarrantyClaim());
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),
@@ -857,7 +896,7 @@ class _BottomBarHost extends State<BottomBarHost> {
           child: Row(
             children: [
               Text(
-                'Log Out',
+                'Warranty Claims',
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -872,13 +911,13 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildWarrantyClaimsOption() {
+  Widget buildRegisterYourProductOption() {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
         selectedIndex.value = 6;
-        Get.to(() => WarrantyClaim());
+        Get.to(() => RegisterYourOwnProduct());
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),
@@ -898,7 +937,7 @@ class _BottomBarHost extends State<BottomBarHost> {
           child: Row(
             children: [
               Text(
-                'Warranty Claims',
+                'Register Your Product',
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -913,16 +952,18 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildRegisterYourProductOption() {
+  Widget buildContactUsOption() {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
         selectedIndex.value = 5;
-        Get.to(() => RegisterYourOwnProduct());
+        Get.to(() => ContactUs());
       },
       child: Container(
-        margin: EdgeInsets.only(top: 20),
+        margin: EdgeInsets.only(
+          top: 20,
+        ),
         decoration: BoxDecoration(
             border: Border.all(
                 color: selectedIndex.value == 5
@@ -939,7 +980,7 @@ class _BottomBarHost extends State<BottomBarHost> {
           child: Row(
             children: [
               Text(
-                'Register Your Product',
+                'Contact Us',
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -954,13 +995,13 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildContactUsOption() {
+  Widget buildAboutUsOption() {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
         selectedIndex.value = 4;
-        Get.to(() => ContactUs());
+        Get.to(() => AboutUs());
       },
       child: Container(
         margin: EdgeInsets.only(
@@ -978,49 +1019,6 @@ class _BottomBarHost extends State<BottomBarHost> {
         height: 45,
         width: MediaQuery.of(context).size.width,
         child: Container(
-          margin: EdgeInsets.only(left: 20),
-          child: Row(
-            children: [
-              Text(
-                'Contact Us',
-                style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: selectedIndex.value == 4
-                        ? AppColors.appWhiteColor
-                        : Color(0xFFB7A06A)),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildAboutUsOption() {
-    return InkWell(
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      onTap: () {
-        selectedIndex.value = 3;
-        Get.to(() => AboutUs());
-      },
-      child: Container(
-        margin: EdgeInsets.only(
-          top: 20,
-        ),
-        decoration: BoxDecoration(
-            border: Border.all(
-                color: selectedIndex.value == 3
-                    ? Colors.transparent
-                    : Color(0xFFFBF3D7)),
-            color: selectedIndex.value == 3
-                ? Color(0xFFB7A06A)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(10)),
-        height: 45,
-        width: MediaQuery.of(context).size.width,
-        child: Container(
           margin: EdgeInsets.only(
             left: 20,
           ),
@@ -1031,7 +1029,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: selectedIndex.value == 3
+                    color: selectedIndex.value == 4
                         ? AppColors.appWhiteColor
                         : Color(0xFFB7A06A)),
               ),
@@ -1047,8 +1045,147 @@ class _BottomBarHost extends State<BottomBarHost> {
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
-        selectedIndex.value = 2;
+        selectedIndex.value = 3;
         Get.to(() => AskOurExperts());
+      },
+      child: Container(
+        margin: EdgeInsets.only(top: 20),
+        decoration: BoxDecoration(
+            border: Border.all(
+                color: selectedIndex.value == 3
+                    ? Colors.transparent
+                    : Color(0xFFFBF3D7)),
+            color: selectedIndex.value == 3
+                ? Color(0xFFB7A06A)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(10)),
+        height: 45,
+        width: MediaQuery.of(context).size.width,
+        child: Container(
+          margin: EdgeInsets.only(left: 20),
+          child: Row(
+            children: [
+              Text(
+                'Ask Our Experts',
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: selectedIndex.value == 3
+                        ? AppColors.appWhiteColor
+                        : Color(0xFFB7A06A)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildCurrencyOption() {
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        selectedIndex.value = 0;
+        _showDialogForCurrency(context);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+            border: Border.all(
+                color: selectedIndex.value == 0
+                    ? Colors.transparent
+                    : Color(0xFFFBF3D7)),
+            color: selectedIndex.value == 0
+                ? Color(0xFFB7A06A)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(10)),
+        height: 45,
+        width: MediaQuery.of(context).size.width,
+        child: Container(
+          margin: EdgeInsets.only(left: 20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                controller.selectedCurrency.value.isNotEmpty
+                    ? controller.selectedCurrency.value
+                    : 'Select Currency',
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: selectedIndex.value == 0
+                        ? AppColors.appWhiteColor
+                        : Color(0xFFB7A06A)),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              controller.selectedCurrency.value.isNotEmpty
+                  ? Text(
+                      '(Tap To Change)',
+                      style: TextStyle(
+                          color: selectedIndex.value == 0
+                              ? AppColors.appWhiteColor
+                              : Color(0xFFB7A06A),
+                          fontSize: 12),
+                    )
+                  : Container()
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildTreatmentOption() {
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        selectedIndex.value = 1;
+        Get.to(() => Treatment());
+      },
+      child: Container(
+        margin: EdgeInsets.only(top: 20),
+        decoration: BoxDecoration(
+            border: Border.all(
+                color: selectedIndex.value == 1
+                    ? Colors.transparent
+                    : Color(0xFFFBF3D7)),
+            color: selectedIndex.value == 1
+                ? Color(0xFFB7A06A)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(10)),
+        height: 45,
+        width: MediaQuery.of(context).size.width,
+        child: Container(
+          margin: EdgeInsets.only(left: 20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                'Treatment',
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: selectedIndex.value == 1
+                        ? AppColors.appWhiteColor
+                        : Color(0xFFB7A06A)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildLiveStreamOption() {
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        selectedIndex.value = 2;
+        Get.to(() => LiveStream());
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),
@@ -1068,92 +1205,11 @@ class _BottomBarHost extends State<BottomBarHost> {
           child: Row(
             children: [
               Text(
-                'Ask Our Experts',
-                style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: selectedIndex.value == 2
-                        ? AppColors.appWhiteColor
-                        : Color(0xFFB7A06A)),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildTreatmentOption() {
-    return InkWell(
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      onTap: () {
-        selectedIndex.value = 0;
-        Get.to(() => Treatment());
-      },
-      child: Container(
-        decoration: BoxDecoration(
-            border: Border.all(
-                color: selectedIndex.value == 0
-                    ? Colors.transparent
-                    : Color(0xFFFBF3D7)),
-            color: selectedIndex.value == 0
-                ? Color(0xFFB7A06A)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(10)),
-        height: 45,
-        width: MediaQuery.of(context).size.width,
-        child: Container(
-          margin: EdgeInsets.only(left: 20),
-          child: Row(
-            children: [
-              Text(
-                'Treatment',
-                style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: selectedIndex.value == 0
-                        ? AppColors.appWhiteColor
-                        : Color(0xFFB7A06A)),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildLiveStreamOption() {
-    return InkWell(
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      onTap: () {
-        selectedIndex.value = 1;
-        Get.to(() => LiveStream());
-      },
-      child: Container(
-        margin: EdgeInsets.only(top: 20),
-        decoration: BoxDecoration(
-            border: Border.all(
-                color: selectedIndex.value == 1
-                    ? Colors.transparent
-                    : Color(0xFFFBF3D7)),
-            color: selectedIndex.value == 1
-                ? Color(0xFFB7A06A)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(10)),
-        height: 45,
-        width: MediaQuery.of(context).size.width,
-        child: Container(
-          margin: EdgeInsets.only(left: 20),
-          child: Row(
-            children: [
-              Text(
                 'Live Stream',
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: selectedIndex.value == 1
+                    color: selectedIndex.value == 2
                         ? AppColors.appWhiteColor
                         : Color(0xFFB7A06A)),
               ),
@@ -1406,7 +1462,7 @@ class _BottomBarHost extends State<BottomBarHost> {
               ));
   }
 
-  Widget buildCurrencyOption() {
+  Widget buildCurrencyOptionA() {
     return Obx(() => Column(
           children: [
             InkWell(
@@ -1703,15 +1759,38 @@ class _BottomBarHost extends State<BottomBarHost> {
                         ),
                         SizedBox(height: 5),
                         // Display additional information like price (if available)
-                        Text(
-                          '\$${smartCollection.variants![0].price ?? '0.00'} USD',
-                          // Example placeholder for price
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.appPrimaryBlackColor,
-                          ),
-                        ),
+                        Obx(() {
+                          // Check if the index exists before accessing variants
+                          int usDollarIndex = 6;
+                          int euroIndex = 4;
+                          int poundIndex = 0;
+
+                          // Check if the required variant exists; otherwise, use the Pound variant
+                          String price = controller.selectedCurrency.value ==
+                                  'US Dollar'
+                              ? (smartCollection.variants != null &&
+                                      smartCollection.variants!.length >
+                                          usDollarIndex
+                                  ? '\$${smartCollection.variants![usDollarIndex].price ?? '0.00'} USD'
+                                  : '\$${smartCollection.variants![poundIndex].price ?? '0.00'} Pound')
+                              : controller.selectedCurrency.value == 'Euro'
+                                  ? (smartCollection.variants != null &&
+                                          smartCollection.variants!.length >
+                                              euroIndex
+                                      ? '\$${smartCollection.variants![euroIndex].price ?? '0.00'} Euro'
+                                      : '\$${smartCollection.variants![poundIndex].price ?? '0.00'} Pound')
+                                  : '\$${smartCollection.variants![poundIndex].price ?? '0.00'} Pound';
+
+                          return Text(
+                            price,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.appPrimaryBlackColor,
+                            ),
+                          );
+                        }),
+
                         Spacer(),
                       ],
                     ),

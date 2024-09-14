@@ -34,6 +34,7 @@ class BottomBarHostController extends GetxController {
     fetchLatestProducts();
     fetchAllProducts();
     fetchProductCategories();
+    selectedCurrency.value='Pound';
   }
 
   void updateSearchQuery(String query) {
