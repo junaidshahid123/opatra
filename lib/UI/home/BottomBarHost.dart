@@ -110,16 +110,16 @@ class _BottomBarHost extends State<BottomBarHost> {
       context: context,
       builder: (BuildContext context) {
         return Dialog(
-          backgroundColor: Colors.transparent,
+          backgroundColor: Color(0xFFB7A06A),
           child: Material(
             type: MaterialType.transparency,
             child: StatefulBuilder(
               builder: (context, setState) {
                 return Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height / 2.5,
+                  width: MediaQuery.of(context).size.width / 4,
+                  height: MediaQuery.of(context).size.height / 4,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Color(0xFFB7A06A),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Column(
@@ -131,16 +131,14 @@ class _BottomBarHost extends State<BottomBarHost> {
                         child: Text(
                           'Select Currency',
                           style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFB7A06A),
-                          ),
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.appWhiteColor),
                         ),
                       ),
                       Expanded(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          // Distribute space evenly
                           children: [
                             InkWell(
                               onTap: () {
@@ -155,18 +153,18 @@ class _BottomBarHost extends State<BottomBarHost> {
                                 Get.back();
                               },
                               child: Container(
-                                height: 60, // Oval shape height
-                                width: MediaQuery.of(context).size.width /
-                                    1.5, // Smaller width
+                                height: 40, // Oval shape height
+                                width: MediaQuery.of(context).size.width / 4,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.rectangle,
                                   border: controller.usd.value == true
                                       ? Border.all(color: Colors.transparent)
-                                      : Border.all(color: Color(0xFFB7A06A)),
-                                  borderRadius: BorderRadius.circular(30),
-                                  // Oval shape
+                                      : Border.all(
+                                          color: AppColors.appWhiteColor),
+                                  borderRadius: BorderRadius.circular(20),
+                                  // Slightly more circular
                                   color: controller.usd.value == true
-                                      ? Color(0xFFB7A06A)
+                                      ? AppColors.appWhiteColor
                                       : Colors.transparent,
                                 ),
                                 child: Center(
@@ -174,8 +172,8 @@ class _BottomBarHost extends State<BottomBarHost> {
                                     'US Dollar',
                                     style: TextStyle(
                                       color: controller.usd.value == true
-                                          ? AppColors.appWhiteColor
-                                          : Color(0xFFB7A06A),
+                                          ? Color(0xFFB7A06A)
+                                          : AppColors.appWhiteColor,
                                     ),
                                   ),
                                 ),
@@ -193,18 +191,18 @@ class _BottomBarHost extends State<BottomBarHost> {
                                 Get.back();
                               },
                               child: Container(
-                                height: 60, // Oval shape height
-                                width: MediaQuery.of(context).size.width /
-                                    1.5, // Smaller width
+                                height: 40, // Oval shape height
+                                width: MediaQuery.of(context).size.width / 4,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.rectangle,
                                   border: controller.euro.value == true
                                       ? Border.all(color: Colors.transparent)
-                                      : Border.all(color: Color(0xFFB7A06A)),
-                                  borderRadius: BorderRadius.circular(30),
-                                  // Oval shape
+                                      : Border.all(
+                                          color: AppColors.appWhiteColor),
+                                  borderRadius: BorderRadius.circular(20),
+                                  // Slightly more circular
                                   color: controller.euro.value == true
-                                      ? Color(0xFFB7A06A)
+                                      ? AppColors.appWhiteColor
                                       : Colors.transparent,
                                 ),
                                 child: Center(
@@ -212,8 +210,8 @@ class _BottomBarHost extends State<BottomBarHost> {
                                     'Euro',
                                     style: TextStyle(
                                       color: controller.euro.value == true
-                                          ? AppColors.appWhiteColor
-                                          : Color(0xFFB7A06A),
+                                          ? Color(0xFFB7A06A)
+                                          : AppColors.appWhiteColor,
                                     ),
                                   ),
                                 ),
@@ -231,18 +229,18 @@ class _BottomBarHost extends State<BottomBarHost> {
                                 Get.back();
                               },
                               child: Container(
-                                height: 60, // Oval shape height
-                                width: MediaQuery.of(context).size.width /
-                                    1.5, // Smaller width
+                                height: 40, // Oval shape height
+                                width: MediaQuery.of(context).size.width / 4,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.rectangle,
                                   border: controller.pound.value == true
                                       ? Border.all(color: Colors.transparent)
-                                      : Border.all(color: Color(0xFFB7A06A)),
-                                  borderRadius: BorderRadius.circular(30),
-                                  // Oval shape
+                                      : Border.all(
+                                          color: AppColors.appWhiteColor),
+                                  borderRadius: BorderRadius.circular(20),
+                                  // Slightly more circular
                                   color: controller.pound.value == true
-                                      ? Color(0xFFB7A06A)
+                                      ? AppColors.appWhiteColor
                                       : Colors.transparent,
                                 ),
                                 child: Center(
@@ -250,8 +248,8 @@ class _BottomBarHost extends State<BottomBarHost> {
                                     'Pound',
                                     style: TextStyle(
                                       color: controller.pound.value == true
-                                          ? AppColors.appWhiteColor
-                                          : Color(0xFFB7A06A),
+                                          ? Color(0xFFB7A06A)
+                                          : AppColors.appWhiteColor,
                                     ),
                                   ),
                                 ),
@@ -1442,7 +1440,6 @@ class _BottomBarHost extends State<BottomBarHost> {
                 ),
               ),
             ),
-
           ],
         ));
   }
@@ -1707,7 +1704,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                         SizedBox(height: 5),
                         // Display additional information like price (if available)
                         Text(
-                          '\$${smartCollection.id ?? '0.00'} USD',
+                          '\$${smartCollection.variants![0].price ?? '0.00'} USD',
                           // Example placeholder for price
                           style: TextStyle(
                             fontSize: 10,
