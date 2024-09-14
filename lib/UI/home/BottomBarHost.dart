@@ -16,7 +16,10 @@ import 'package:opatra/UI/home/treatment.dart';
 import 'package:opatra/UI/home/warranty_claim.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:video_player/video_player.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../controllers/bottom_bar_host_controller.dart';
+import '../../models/MDAllVideos.dart';
 import '../../models/MDProductsByCategory.dart';
 import 'contact_us.dart';
 import 'live_stream.dart';
@@ -589,7 +592,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                                         ? buildProductListViewForVideos()
                                         : buildProductListView()),
                                 Obx(
-                                  () => product.value == true
+                                  () => product.value || video.value == true
                                       ? buildSearchField()
                                       : Container(),
                                 ),
@@ -669,6 +672,12 @@ class _BottomBarHost extends State<BottomBarHost> {
                                         // Default to showing popular products if none of the conditions are met
                                         return buildProductGridViewPopular();
                                       })
+                                    : Container()),
+                                // Obx(() => video.value == true
+                                //     ? buildGridView(controller.mdAllVideos!)
+                                //     : Container())
+                                Obx(() => video.value == true
+                                    ? VideoGridWidget(videos: controller.mdAllVideos!,)
                                     : Container())
                               ],
                             ),
@@ -1220,7 +1229,7 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildGridView() {
+  Widget buildGridView(List<Video> videos) {
     return SingleChildScrollView(
       child: Container(
         margin: EdgeInsets.only(left: 20, right: 20, top: 20),
@@ -1228,7 +1237,6 @@ class _BottomBarHost extends State<BottomBarHost> {
         width: MediaQuery.of(context).size.width, // Maintain width
         child: GridView.builder(
           shrinkWrap: true,
-          // Makes the GridView content take up only as much space as needed
           physics: NeverScrollableScrollPhysics(),
           // Disable GridView's own scrolling
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -1237,22 +1245,49 @@ class _BottomBarHost extends State<BottomBarHost> {
             mainAxisSpacing: 20.0, // Space between rows
             childAspectRatio: 1.2, // Adjust aspect ratio if needed
           ),
-          itemCount: 10,
-          // Number of items in the grid
+          itemCount: videos.length,
+          // Use the length of the videos list
           itemBuilder: (context, index) {
-            return Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: AppColors.appGrayColor,
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Image.asset('assets/images/skinCareDummy.png',
-                      fit: BoxFit.fill),
-                  Image.asset('assets/images/videoIcon.png',
-                      height: 30, width: 30),
-                ],
+            final video = videos[index]; // Get video object from the list
+
+            return GestureDetector(
+              onTap: () {
+                // Handle video tap (e.g., navigate to a video player)
+                print('Tapped on video: ${video.videoUrl}');
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: AppColors.appGrayColor,
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Access 'thumbnail' using dot notation
+                    video.thumbnail != null
+                        ? Image.network(
+                            video.thumbnail!,
+                            fit: BoxFit.fill,
+                            width:
+                                double.infinity, // Ensure it takes full width
+                            height:
+                                double.infinity, // Ensure it takes full height
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(Icons
+                                  .error); // Show error icon if image fails to load
+                            },
+                          )
+                        : Container(
+                            color: Colors
+                                .grey, // Default background if thumbnail is missing
+                          ),
+                    Image.asset(
+                      'assets/images/videoIcon.png',
+                      height: 30,
+                      width: 30,
+                    ), // Play icon overlay
+                  ],
+                ),
               ),
             );
           },
@@ -2174,6 +2209,116 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 }
+
+
+
+
+
+
+
+class VideoGridWidget extends StatefulWidget {
+  final List<Video> videos;
+
+  VideoGridWidget({required this.videos});
+
+  @override
+  _VideoGridWidgetState createState() => _VideoGridWidgetState();
+}
+
+class _VideoGridWidgetState extends State<VideoGridWidget> {
+  YoutubePlayerController? _controller;
+  String? _currentVideoId;
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Container(
+        margin: EdgeInsets.only(left: 20, right: 20, top: 20),
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        child: GridView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 20.0,
+            mainAxisSpacing: 20.0,
+            childAspectRatio: 1.2,
+          ),
+          itemCount: widget.videos.length,
+          itemBuilder: (context, index) {
+            final video = widget.videos[index];
+            final youtubeId = YoutubePlayer.convertUrlToId(video.videoUrl!);
+
+            return GestureDetector(
+              onTap: () {
+                if (youtubeId != null) {
+                  setState(() {
+                    _currentVideoId = youtubeId;
+                    _controller = YoutubePlayerController(
+                      initialVideoId: youtubeId,
+                      flags: YoutubePlayerFlags(
+                        autoPlay: true,
+                        mute: false,
+                      ),
+                    );
+                  });
+
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (context) {
+                      return YoutubePlayer(
+                        controller: _controller!,
+                        showVideoProgressIndicator: true,
+                        onReady: () {
+                          _controller!.play();
+                        },
+                      );
+                    },
+                  );
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.grey,
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    video.thumbnail != null
+                        ? Image.network(
+                      video.thumbnail!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(Icons.error);
+                      },
+                    )
+                        : Container(color: Colors.grey),
+                    Icon(
+                      Icons.play_circle_filled,
+                      color: Colors.white,
+                      size: 50,
+                    ), // Play icon overlay
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
 
 class CenteredExpandingPageView extends StatefulWidget {
   @override

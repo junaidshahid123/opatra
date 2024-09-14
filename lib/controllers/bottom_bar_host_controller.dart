@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/MDAllVideos.dart';
 import '../models/MDCategories.dart';
 import '../models/MDLatestProducts.dart';
 import '../models/MDProducts.dart';
@@ -12,6 +13,7 @@ class BottomBarHostController extends GetxController {
   var userName = ''.obs; // RxString to hold the userName
   var userEmail = ''.obs; // RxString to hold the userEmail
   MDCategories? mdCategories;
+  List<Video>? mdAllVideos;
   MDLatestProducts? mdLatestProducts;
   MDProducts? mdProducts;
   MDProductsByCategory? mdProductsByCategory;
@@ -35,6 +37,7 @@ class BottomBarHostController extends GetxController {
     fetchAllProducts();
     fetchProductCategories();
     selectedCurrency.value='Pound';
+    fetchAllVideos();
   }
 
   void updateSearchQuery(String query) {
@@ -107,6 +110,39 @@ class BottomBarHostController extends GetxController {
     }
   }
 
+  Future<void> fetchAllVideos() async {
+    final url = Uri.parse('https://opatra.meetchallenge.com/api/video');
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      Get.snackbar('Error', 'No token found. Please log in again.',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return;
+    }
+
+    Map<String, String> headers = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $token", // Include the Bearer token in headers
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Videos: $data');
+        final allVideos = MDAllVideos.fromJson(data); // Parse JSON data
+          mdAllVideos = allVideos.data;
+          print('mdAllVideos=========${mdAllVideos}');// Set the fetched video list
+      } else {
+        print(
+            'Failed to load mdAllVideos. Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
   Future<void> fetchProductCategories() async {
     final url =
         Uri.parse('https://opatra.meetchallenge.com/api/product-category');
