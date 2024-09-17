@@ -35,7 +35,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
   Future<void> forgotPassword() async {
     isLoading.value = true;
-    final String url = 'https://opatra.meetchallenge.com/api/forgot-password';
+    final String url = 'https://opatra.fai-tech.online/api/forgot-password';
 
     // Retrieve token from SharedPreferences
     // SharedPreferences prefs = await SharedPreferences.getInstance();

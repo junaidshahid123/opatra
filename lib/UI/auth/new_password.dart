@@ -22,7 +22,7 @@ class _NewPasswordState extends State<NewPassword> {
 
   Future<void> changePassword() async {
     isLoading.value = true;
-    final String url = 'https://opatra.meetchallenge.com/api/new-password';
+    final String url = 'https://opatra.fai-tech.online/api/new-password';
     // Retrieve token from SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? email = prefs.getString('email'); // Get the token from shared prefs

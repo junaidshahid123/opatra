@@ -30,7 +30,7 @@ class _SignUpState extends State<SignUp> {
 
   Future<void> registerUser() async {
     isLoading.value = true;
-    final String url = 'https://opatra.meetchallenge.com/api/register';
+    final String url = 'https://opatra.fai-tech.online/api/register';
 
     Map<String, String> requestBody = {
       "name": _nameController.text,

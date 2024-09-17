@@ -3,17 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/MDAllVideoCategories.dart';
 import '../models/MDAllVideos.dart';
 import '../models/MDCategories.dart';
 import '../models/MDLatestProducts.dart';
 import '../models/MDProducts.dart';
 import '../models/MDProductsByCategory.dart';
+import '../models/MDVideosByCategory.dart';
 
 class BottomBarHostController extends GetxController {
   var userName = ''.obs; // RxString to hold the userName
   var userEmail = ''.obs; // RxString to hold the userEmail
   MDCategories? mdCategories;
+  MDAllVideoCategories? mdAllVideoCategories;
+  MDVideosByCategory? mdVideosByCategory;
   List<Video>? mdAllVideos;
+  List<MDVideosByCategory>? mdAllVideosByCategory;
   MDLatestProducts? mdLatestProducts;
   MDProducts? mdProducts;
   MDProductsByCategory? mdProductsByCategory;
@@ -36,8 +41,8 @@ class BottomBarHostController extends GetxController {
     fetchLatestProducts();
     fetchAllProducts();
     fetchProductCategories();
-    selectedCurrency.value='Pound';
-    fetchAllVideos();
+    selectedCurrency.value = 'Pound';
+    fetchVideoCategories();
   }
 
   void updateSearchQuery(String query) {
@@ -69,11 +74,52 @@ class BottomBarHostController extends GetxController {
     isLoading.value = false; // Stop loading
   }
 
+  Future<void> fetchVideoByCategory(int id) async {
+    searchQuery.value = '';
+    isLoading.value = true;
+    final url =
+        Uri.parse('https://opatra.fai-tech.online/api/video-category/${id}');
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token'); // Get the token from shared prefs
+    if (token == null || token.isEmpty) {
+      Get.snackbar('Error', 'No token found. Please log in again.',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return;
+    }
+
+    Map<String, String> headers = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $token", // Include the Bearer token in headers
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        isLoading.value = false;
+        final data = jsonDecode(response.body);
+        print('mdVideosByCategory: $data');
+        mdVideosByCategory = MDVideosByCategory.fromJson(data);
+        print('mdVideosByCategory: $mdVideosByCategory');
+        update();
+        // filterProducts(searchQuery.value); // Filter with current query
+      } else {
+        isLoading.value = false;
+        print(
+            'Failed to load mdVideosByCategory. Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      isLoading.value = false;
+      print('Error: $e');
+    }
+  }
+
   Future<void> fetchProductByCategory(int id) async {
     searchQuery.value = '';
     isLoading.value = true;
-    final url = Uri.parse(
-        'https://opatra.meetchallenge.com/api/category/${id}/products');
+    final url =
+        Uri.parse('https://opatra.fai-tech.online/api/category/${id}/products');
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
@@ -110,8 +156,8 @@ class BottomBarHostController extends GetxController {
     }
   }
 
-  Future<void> fetchAllVideos() async {
-    final url = Uri.parse('https://opatra.meetchallenge.com/api/video');
+  Future<void> fetchAllBanners() async {
+    final url = Uri.parse('https://opatra.fai-tech.online/api/video');
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -133,8 +179,9 @@ class BottomBarHostController extends GetxController {
         final data = jsonDecode(response.body);
         print('Videos: $data');
         final allVideos = MDAllVideos.fromJson(data); // Parse JSON data
-          mdAllVideos = allVideos.data;
-          print('mdAllVideos=========${mdAllVideos}');// Set the fetched video list
+        mdAllVideos = allVideos.data;
+        print(
+            'mdAllVideos=========${mdAllVideos}'); // Set the fetched video list
       } else {
         print(
             'Failed to load mdAllVideos. Status Code: ${response.statusCode}');
@@ -143,9 +190,45 @@ class BottomBarHostController extends GetxController {
       print('Error: $e');
     }
   }
+
+  Future<void> fetchAllVideos() async {
+    final url = Uri.parse('https://opatra.fai-tech.online/api/video');
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      Get.snackbar('Error', 'No token found. Please log in again.',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return;
+    }
+
+    Map<String, String> headers = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $token", // Include the Bearer token in headers
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Videos: $data');
+        final allVideos = MDAllVideos.fromJson(data); // Parse JSON data
+        mdAllVideos = allVideos.data;
+        print(
+            'mdAllVideos=========${mdAllVideos}'); // Set the fetched video list
+      } else {
+        print(
+            'Failed to load mdAllVideos. Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   Future<void> fetchProductCategories() async {
     final url =
-        Uri.parse('https://opatra.meetchallenge.com/api/product-category');
+        Uri.parse('https://opatra.fai-tech.online/api/product-category');
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
@@ -183,8 +266,45 @@ class BottomBarHostController extends GetxController {
     }
   }
 
+  Future<void> fetchVideoCategories() async {
+    final url = Uri.parse('https://opatra.fai-tech.online/api/video-category');
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token'); // Get the token from shared prefs
+    if (token == null || token.isEmpty) {
+      Get.snackbar('Error', 'No token found. Please log in again.',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return;
+    }
+
+    Map<String, String> headers = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $token", // Include the Bearer token in headers
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Video Categories: $data');
+        mdAllVideoCategories = MDAllVideoCategories.fromJson(data);
+        print('mdAllVideoCategories: $mdAllVideoCategories');
+        if (mdAllVideoCategories != null) {
+          fetchVideoByCategory(mdAllVideoCategories!.data![0].id!);
+          update();
+        }
+      } else {
+        print(
+            'Failed to load mdAllVideoCategories. Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   Future<void> fetchAllProducts() async {
-    final url = Uri.parse('https://opatra.meetchallenge.com/api/products');
+    final url = Uri.parse('https://opatra.fai-tech.online/api/products');
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
@@ -218,8 +338,7 @@ class BottomBarHostController extends GetxController {
   }
 
   Future<void> fetchLatestProducts() async {
-    final url =
-        Uri.parse('https://opatra.meetchallenge.com/api/latest-products');
+    final url = Uri.parse('https://opatra.fai-tech.online/api/latest-products');
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs

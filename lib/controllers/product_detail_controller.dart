@@ -21,7 +21,7 @@ class ProductDetailController extends GetxController {
   Future<void> fetchImages(int id) async {
     print('id======${id}');
     final url = Uri.parse(
-        'https://opatra.meetchallenge.com/api/product/${id}/images');
+        'https://opatra.fai-tech.online/api/product/${id}/images');
 
     // Retrieve token from SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -62,7 +62,7 @@ class ProductDetailController extends GetxController {
 
   Future<void> fetchProductDetail(int id) async {
     final url = Uri.parse(
-        'https://opatra.meetchallenge.com/api/product-category/${id}');
+        'https://opatra.fai-tech.online/api/product-category/${id}');
 
     // Retrieve token from SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();

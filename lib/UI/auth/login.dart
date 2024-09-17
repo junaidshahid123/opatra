@@ -24,7 +24,7 @@ class _LoginState extends State<Login> {
 
   Future<void> loginUser() async {
     isLoading.value = true;
-    final String url = 'https://opatra.meetchallenge.com/api/login';
+    final String url = 'https://opatra.fai-tech.online/api/login';
 
     Map<String, String> requestBody = {
       "email": _emailController.text,

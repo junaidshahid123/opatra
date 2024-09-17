@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
+import 'package:appinio_video_player/appinio_video_player.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
@@ -21,10 +23,13 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../controllers/bottom_bar_host_controller.dart';
 import '../../models/MDAllVideos.dart';
 import '../../models/MDProductsByCategory.dart';
+import '../../models/MDVideosByCategory.dart';
 import 'contact_us.dart';
 import 'live_stream.dart';
 import 'notifications.dart';
 import 'package:http/http.dart' as http;
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class BottomBarHost extends StatefulWidget {
   const BottomBarHost({super.key});
@@ -41,7 +46,8 @@ class _BottomBarHost extends State<BottomBarHost> {
   RxBool home = true.obs;
   RxBool product = true.obs;
   RxBool video = true.obs;
-  RxInt selectedCategory = 0.obs;
+  RxInt selectedCategoryForProduct = 0.obs;
+  RxInt selectedCategoryForVideo = 0.obs;
   RxInt selectedIndex = 0.obs;
   RxBool isLoading = false.obs;
   TextEditingController searchTextController = TextEditingController();
@@ -51,7 +57,7 @@ class _BottomBarHost extends State<BottomBarHost> {
 
   Future<void> logOut() async {
     isLoading.value = true;
-    final String url = 'https://opatra.meetchallenge.com/api/logout';
+    final String url = 'https://opatra.fai-tech.online/api/logout';
     // Retrieve token from SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
@@ -597,8 +603,13 @@ class _BottomBarHost extends State<BottomBarHost> {
                                       : Container(),
                                 ),
                                 Obx(
-                                  () => product.value || video.value == true
-                                      ? buildCategories()
+                                  () => product.value == true
+                                      ? buildCategoriesForProducts()
+                                      : Container(),
+                                ),
+                                Obx(
+                                  () => video.value == true
+                                      ? buildCategoriesForVideos()
                                       : Container(),
                                 ),
                                 Obx(() => product.value
@@ -673,11 +684,11 @@ class _BottomBarHost extends State<BottomBarHost> {
                                         return buildProductGridViewPopular();
                                       })
                                     : Container()),
-                                // Obx(() => video.value == true
-                                //     ? buildGridView(controller.mdAllVideos!)
-                                //     : Container())
                                 Obx(() => video.value == true
-                                    ? VideoGridWidget(videos: controller.mdAllVideos!,)
+                                    ? VideoGridWidget(
+                                        videos: controller
+                                            .mdVideosByCategory!.data!.videos!,
+                                      )
                                     : Container())
                               ],
                             ),
@@ -1296,7 +1307,59 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildCategories() {
+  Widget buildCategoriesForVideos() {
+    return Container(
+      height: 50,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: controller.mdAllVideoCategories!.data!.length,
+        itemBuilder: (context, index) {
+          // Adjusting width to account for left and right margins
+          double containerWidth = MediaQuery.of(context).size.width - 40;
+
+          return InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: () {
+              searchTextController.clear();
+              selectedCategoryForVideo.value = index;
+              // controller.fetchProductByCategory(
+              //     controller.mdCategories!.smartCollections![index].id!);
+            },
+            child: Obx(
+              () => Container(
+                  margin: EdgeInsets.only(left: 20, right: 5, top: 20),
+                  // width: 60,
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                          color: selectedCategoryForVideo.value == index
+                              ? Colors.transparent
+                              : Color(0xFFFBF3D7)),
+                      borderRadius: BorderRadius.circular(20),
+                      color: selectedCategoryForVideo.value == index
+                          ? Color(0xFFB7A06A)
+                          : Colors.transparent),
+                  child: Center(
+                      child: Container(
+                    margin: EdgeInsets.all(5),
+                    child: Text(
+                      controller.mdAllVideoCategories!.data![index].name!,
+                      style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w400,
+                          color: selectedCategoryForVideo.value == index
+                              ? AppColors.appWhiteColor
+                              : AppColors.appPrimaryBlackColor),
+                    ),
+                  ))),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget buildCategoriesForProducts() {
     return Container(
       height: 50,
       child: ListView.builder(
@@ -1311,7 +1374,7 @@ class _BottomBarHost extends State<BottomBarHost> {
             highlightColor: Colors.transparent,
             onTap: () {
               searchTextController.clear();
-              selectedCategory.value = index;
+              selectedCategoryForProduct.value = index;
               controller.fetchProductByCategory(
                   controller.mdCategories!.smartCollections![index].id!);
             },
@@ -1321,11 +1384,11 @@ class _BottomBarHost extends State<BottomBarHost> {
                   // width: 60,
                   decoration: BoxDecoration(
                       border: Border.all(
-                          color: selectedCategory.value == index
+                          color: selectedCategoryForProduct.value == index
                               ? Colors.transparent
                               : Color(0xFFFBF3D7)),
                       borderRadius: BorderRadius.circular(20),
-                      color: selectedCategory.value == index
+                      color: selectedCategoryForProduct.value == index
                           ? Color(0xFFB7A06A)
                           : Colors.transparent),
                   child: Center(
@@ -1336,7 +1399,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                       style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
-                          color: selectedCategory.value == index
+                          color: selectedCategoryForProduct.value == index
                               ? AppColors.appWhiteColor
                               : AppColors.appPrimaryBlackColor),
                     ),
@@ -2210,14 +2273,72 @@ class _BottomBarHost extends State<BottomBarHost> {
   }
 }
 
+class VideoPlayerScreen extends StatefulWidget {
+  final String videoUrl;
 
+  // Accept the video URL as a parameter
+  VideoPlayerScreen({required this.videoUrl, Key? key}) : super(key: key);
 
+  @override
+  _VideoPlayerScreenState createState() => _VideoPlayerScreenState();
+}
 
+class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
+  late VideoPlayerController _videoPlayerController;
 
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the video player with the provided video URL
+    _videoPlayerController = VideoPlayerController.network(
+        'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4')
+      ..initialize().then((_) {
+        // Ensure the first frame is shown after the video is initialized
+        setState(() {});
+      }).catchError((e) {
+        print('Error initializing video player: $e');
+      });
+  }
 
+  @override
+  void dispose() {
+    // Dispose the controller to free resources
+    _videoPlayerController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Video Player')),
+      body: Center(
+        child: _videoPlayerController.value.isInitialized
+            ? AspectRatio(
+                aspectRatio: _videoPlayerController.value.aspectRatio,
+                child: VideoPlayer(_videoPlayerController),
+              )
+            : CircularProgressIndicator(), // Show loading indicator while video is being initialized
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            _videoPlayerController.value.isPlaying
+                ? _videoPlayerController.pause() // Pause video
+                : _videoPlayerController.play(); // Play video
+          });
+        },
+        child: Icon(
+          _videoPlayerController.value.isPlaying
+              ? Icons.pause
+              : Icons.play_arrow, // Toggle play/pause icon
+        ),
+      ),
+    );
+  }
+}
 
 class VideoGridWidget extends StatefulWidget {
-  final List<Video> videos;
+  final List<Videos> videos;
 
   VideoGridWidget({required this.videos});
 
@@ -2226,99 +2347,82 @@ class VideoGridWidget extends StatefulWidget {
 }
 
 class _VideoGridWidgetState extends State<VideoGridWidget> {
-  YoutubePlayerController? _controller;
-  String? _currentVideoId;
-
   @override
   void dispose() {
-    _controller?.dispose();
     super.dispose();
+  }
+
+  void _playVideo(String videoUrl) {
+    print('videoUrl===${videoUrl}');
+    if (videoUrl.isEmpty) {
+      // Handle empty URL case
+      return;
+    }
+    if (videoUrl.isNotEmpty) {
+      print('videoUrl===${videoUrl}');
+
+      Get.to(() => VideoPlayerScreen(
+            videoUrl: videoUrl,
+          ));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Container(
-        margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        child: GridView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 20.0,
-            mainAxisSpacing: 20.0,
-            childAspectRatio: 1.2,
-          ),
-          itemCount: widget.videos.length,
-          itemBuilder: (context, index) {
-            final video = widget.videos[index];
-            final youtubeId = YoutubePlayer.convertUrlToId(video.videoUrl!);
-
-            return GestureDetector(
-              onTap: () {
-                if (youtubeId != null) {
-                  setState(() {
-                    _currentVideoId = youtubeId;
-                    _controller = YoutubePlayerController(
-                      initialVideoId: youtubeId,
-                      flags: YoutubePlayerFlags(
-                        autoPlay: true,
-                        mute: false,
-                      ),
-                    );
-                  });
-
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (context) {
-                      return YoutubePlayer(
-                        controller: _controller!,
-                        showVideoProgressIndicator: true,
-                        onReady: () {
-                          _controller!.play();
-                        },
-                      );
-                    },
-                  );
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.grey,
-                ),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    video.thumbnail != null
-                        ? Image.network(
-                      video.thumbnail!,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: double.infinity,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Icon(Icons.error);
-                      },
-                    )
-                        : Container(color: Colors.grey),
-                    Icon(
-                      Icons.play_circle_filled,
-                      color: Colors.white,
-                      size: 50,
-                    ), // Play icon overlay
-                  ],
-                ),
-              ),
-            );
-          },
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 20.0,
+          mainAxisSpacing: 20.0,
+          childAspectRatio: 1.2,
         ),
+        itemCount: widget.videos.length,
+        itemBuilder: (context, index) {
+          final video = widget.videos[index];
+          final videoUrl = video.videoUrl!;
+
+          return GestureDetector(
+            onTap: () {
+              _playVideo(videoUrl);
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: Colors.grey.shade300,
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  video.thumbnail != null
+                      ? CachedNetworkImage(
+                          imageUrl: video.thumbnail!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                          placeholder: (context, url) =>
+                              const CircularProgressIndicator(),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
+                        )
+                      : Container(color: Colors.grey.shade300),
+                  const Icon(
+                    Icons.play_circle_fill,
+                    color: Colors.white,
+                    size: 50,
+                  ), // Play icon overlay
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }
 }
-
 
 class CenteredExpandingPageView extends StatefulWidget {
   @override

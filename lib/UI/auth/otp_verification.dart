@@ -28,7 +28,7 @@ class _OtpVerificationState extends State<OtpVerification> {
 
   Future<void> verifyOtp(String otp) async {
     isLoading.value = true;
-    final String url = 'https://opatra.meetchallenge.com/api/verify-otp';
+    final String url = 'https://opatra.fai-tech.online/api/verify-otp';
 
     Map<String, String> requestBody = {
       "email": widget.email,
