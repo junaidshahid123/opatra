@@ -1,11 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ffi';
-import 'package:appinio_video_player/appinio_video_player.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
@@ -19,7 +16,6 @@ import 'package:opatra/UI/home/warranty_claim.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../controllers/bottom_bar_host_controller.dart';
 import '../../models/MDAllVideos.dart';
 import '../../models/MDProductsByCategory.dart';
@@ -28,7 +24,6 @@ import 'contact_us.dart';
 import 'live_stream.dart';
 import 'notifications.dart';
 import 'package:http/http.dart' as http;
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class BottomBarHost extends StatefulWidget {
