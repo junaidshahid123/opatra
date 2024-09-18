@@ -9,12 +9,14 @@ import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:opatra/UI/auth/login.dart';
 import 'package:opatra/UI/home/about_us.dart';
 import 'package:opatra/UI/home/ask_our_experts.dart';
+import 'package:opatra/UI/home/bag.dart';
 import 'package:opatra/UI/home/product_detail.dart';
 import 'package:opatra/UI/home/register_your_own_product.dart';
 import 'package:opatra/UI/home/treatment.dart';
 import 'package:opatra/UI/home/warranty_claim.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import '../../controllers/bottom_bar_host_controller.dart';
 import '../../models/MDAllVideos.dart';
@@ -680,10 +682,18 @@ class _BottomBarHost extends State<BottomBarHost> {
                                       })
                                     : Container()),
                                 Obx(() => video.value == true
-                                    ? VideoGridWidget(
-                                        videos: controller
-                                            .mdVideosByCategory!.data!.videos!,
-                                      )
+                                    ? controller.mdVideosByCategory == null
+                                        ? Center(
+                                            child: CircularProgressIndicator(
+                                              color: Color(0xFFB7A06A),
+                                            ),
+                                          )
+                                        : VideoGridWidget(
+                                            videos: controller
+                                                .mdVideosByCategory!
+                                                .data!
+                                                .videos!,
+                                          )
                                     : Container())
                               ],
                             ),
@@ -1303,55 +1313,61 @@ class _BottomBarHost extends State<BottomBarHost> {
   }
 
   Widget buildCategoriesForVideos() {
-    return Container(
-      height: 50,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: controller.mdAllVideoCategories!.data!.length,
-        itemBuilder: (context, index) {
-          // Adjusting width to account for left and right margins
-          double containerWidth = MediaQuery.of(context).size.width - 40;
+    return controller.mdVideosByCategory == null
+        ? Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFFB7A06A),
+            ),
+          )
+        : Container(
+            height: 50,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: controller.mdAllVideoCategories!.data!.length,
+              itemBuilder: (context, index) {
+                // Adjusting width to account for left and right margins
+                double containerWidth = MediaQuery.of(context).size.width - 40;
 
-          return InkWell(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            onTap: () {
-              searchTextController.clear();
-              selectedCategoryForVideo.value = index;
-              // controller.fetchProductByCategory(
-              //     controller.mdCategories!.smartCollections![index].id!);
-            },
-            child: Obx(
-              () => Container(
-                  margin: EdgeInsets.only(left: 20, right: 5, top: 20),
-                  // width: 60,
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                          color: selectedCategoryForVideo.value == index
-                              ? Colors.transparent
-                              : Color(0xFFFBF3D7)),
-                      borderRadius: BorderRadius.circular(20),
-                      color: selectedCategoryForVideo.value == index
-                          ? Color(0xFFB7A06A)
-                          : Colors.transparent),
-                  child: Center(
-                      child: Container(
-                    margin: EdgeInsets.all(5),
-                    child: Text(
-                      controller.mdAllVideoCategories!.data![index].name!,
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                          color: selectedCategoryForVideo.value == index
-                              ? AppColors.appWhiteColor
-                              : AppColors.appPrimaryBlackColor),
-                    ),
-                  ))),
+                return InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: () {
+                    searchTextController.clear();
+                    selectedCategoryForVideo.value = index;
+                    // controller.fetchProductByCategory(
+                    //     controller.mdCategories!.smartCollections![index].id!);
+                  },
+                  child: Obx(
+                    () => Container(
+                        margin: EdgeInsets.only(left: 20, right: 5, top: 20),
+                        // width: 60,
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                                color: selectedCategoryForVideo.value == index
+                                    ? Colors.transparent
+                                    : Color(0xFFFBF3D7)),
+                            borderRadius: BorderRadius.circular(20),
+                            color: selectedCategoryForVideo.value == index
+                                ? Color(0xFFB7A06A)
+                                : Colors.transparent),
+                        child: Center(
+                            child: Container(
+                          margin: EdgeInsets.all(5),
+                          child: Text(
+                            controller.mdAllVideoCategories!.data![index].name!,
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                color: selectedCategoryForVideo.value == index
+                                    ? AppColors.appWhiteColor
+                                    : AppColors.appPrimaryBlackColor),
+                          ),
+                        ))),
+                  ),
+                );
+              },
             ),
           );
-        },
-      ),
-    );
   }
 
   Widget buildCategoriesForProducts() {
@@ -1463,7 +1479,7 @@ class _BottomBarHost extends State<BottomBarHost> {
         margin: EdgeInsets.only(
           left: 20,
           right: 20,
-          top: 30,
+          top: 20,
         ),
         child: Row(
           children: [
@@ -1471,6 +1487,10 @@ class _BottomBarHost extends State<BottomBarHost> {
             Spacer(),
             buildName(),
             Spacer(),
+            buildCartOption(),
+            SizedBox(
+              width: 5,
+            ),
             buildNotificationOption()
           ],
         ),
@@ -1490,8 +1510,8 @@ class _BottomBarHost extends State<BottomBarHost> {
             alignment: Alignment.center,
             children: [
               Container(
-                height: 50.sp,
-                width: 50.sp,
+                height: 40.sp,
+                width: 40.sp,
                 child: Image.asset('assets/images/ellipse.png'),
               ),
               Container(
@@ -1506,6 +1526,29 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
+  Widget buildCartOption() {
+    return InkWell(
+      onTap: () {
+        Get.to(() => Bag());
+      },
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            height: 40.sp,
+            width: 40.sp,
+            child: Image.asset('assets/images/ellipse.png'),
+          ),
+          Container(
+            height: 15,
+            width: 15,
+            child: Image.asset('assets/images/bagIconBlack.png'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget buildNotificationOption() {
     return InkWell(
       onTap: () {
@@ -1515,8 +1558,8 @@ class _BottomBarHost extends State<BottomBarHost> {
         alignment: Alignment.center,
         children: [
           Container(
-            height: 50.sp,
-            width: 50.sp,
+            height: 40.sp,
+            width: 40.sp,
             child: Image.asset('assets/images/ellipse.png'),
           ),
           Container(
@@ -2268,69 +2311,69 @@ class _BottomBarHost extends State<BottomBarHost> {
   }
 }
 
-class VideoPlayerScreen extends StatefulWidget {
-  final String videoUrl;
-
-  // Accept the video URL as a parameter
-  VideoPlayerScreen({required this.videoUrl, Key? key}) : super(key: key);
-
-  @override
-  _VideoPlayerScreenState createState() => _VideoPlayerScreenState();
-}
-
-class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
-  late VideoPlayerController _videoPlayerController;
-
-  @override
-  void initState() {
-    super.initState();
-    // Initialize the video player with the provided video URL
-    _videoPlayerController = VideoPlayerController.network(
-        'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4')
-      ..initialize().then((_) {
-        // Ensure the first frame is shown after the video is initialized
-        setState(() {});
-      }).catchError((e) {
-        print('Error initializing video player: $e');
-      });
-  }
-
-  @override
-  void dispose() {
-    // Dispose the controller to free resources
-    _videoPlayerController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Video Player')),
-      body: Center(
-        child: _videoPlayerController.value.isInitialized
-            ? AspectRatio(
-                aspectRatio: _videoPlayerController.value.aspectRatio,
-                child: VideoPlayer(_videoPlayerController),
-              )
-            : CircularProgressIndicator(), // Show loading indicator while video is being initialized
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            _videoPlayerController.value.isPlaying
-                ? _videoPlayerController.pause() // Pause video
-                : _videoPlayerController.play(); // Play video
-          });
-        },
-        child: Icon(
-          _videoPlayerController.value.isPlaying
-              ? Icons.pause
-              : Icons.play_arrow, // Toggle play/pause icon
-        ),
-      ),
-    );
-  }
-}
+// class VideoPlayerScreen extends StatefulWidget {
+//   final String videoUrl;
+//
+//   // Accept the video URL as a parameter
+//   VideoPlayerScreen({required this.videoUrl, Key? key}) : super(key: key);
+//
+//   @override
+//   _VideoPlayerScreenState createState() => _VideoPlayerScreenState();
+// }
+//
+// class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
+//   late VideoPlayerController _videoPlayerController;
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     // Initialize the video player with the provided video URL
+//     _videoPlayerController = VideoPlayerController.network(
+//         'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4')
+//       ..initialize().then((_) {
+//         // Ensure the first frame is shown after the video is initialized
+//         setState(() {});
+//       }).catchError((e) {
+//         print('Error initializing video player: $e');
+//       });
+//   }
+//
+//   @override
+//   void dispose() {
+//     // Dispose the controller to free resources
+//     _videoPlayerController.dispose();
+//     super.dispose();
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(title: Text('Video Player')),
+//       body: Center(
+//         child: _videoPlayerController.value.isInitialized
+//             ? AspectRatio(
+//                 aspectRatio: _videoPlayerController.value.aspectRatio,
+//                 child: VideoPlayer(_videoPlayerController),
+//               )
+//             : CircularProgressIndicator(), // Show loading indicator while video is being initialized
+//       ),
+//       floatingActionButton: FloatingActionButton(
+//         onPressed: () {
+//           setState(() {
+//             _videoPlayerController.value.isPlaying
+//                 ? _videoPlayerController.pause() // Pause video
+//                 : _videoPlayerController.play(); // Play video
+//           });
+//         },
+//         child: Icon(
+//           _videoPlayerController.value.isPlaying
+//               ? Icons.pause
+//               : Icons.play_arrow, // Toggle play/pause icon
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class VideoGridWidget extends StatefulWidget {
   final List<Videos> videos;
@@ -2347,23 +2390,32 @@ class _VideoGridWidgetState extends State<VideoGridWidget> {
     super.dispose();
   }
 
-  void _playVideo(String videoUrl) {
-    print('videoUrl===${videoUrl}');
+  // Function to play video using URL launcher
+  void _playVideo(String videoUrl) async {
     if (videoUrl.isEmpty) {
-      // Handle empty URL case
+      print('Error: Empty video URL');
       return;
     }
-    if (videoUrl.isNotEmpty) {
-      print('videoUrl===${videoUrl}');
 
-      Get.to(() => VideoPlayerScreen(
-            videoUrl: videoUrl,
-          ));
+    try {
+      // Ensure the video URL is a valid URL before trying to launch
+      final Uri videoUri = Uri.parse(videoUrl);
+      if (await canLaunchUrl(videoUri)) {
+        // Launch the URL using the system's default browser or app
+        await launchUrl(videoUri, mode: LaunchMode.externalApplication);
+      } else {
+        print('Could not launch $videoUrl');
+      }
+    } catch (e) {
+      // Handle any errors or exceptions that occur during URL launch
+      print('Exception while launching video URL: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    const testImageUrl = "https://via.placeholder.com/150";
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
       child: GridView.builder(
@@ -2378,11 +2430,14 @@ class _VideoGridWidgetState extends State<VideoGridWidget> {
         itemCount: widget.videos.length,
         itemBuilder: (context, index) {
           final video = widget.videos[index];
-          final videoUrl = video.videoUrl!;
+          final videoUrl = video.videoUrl ?? ''; // Use empty string if null
+          final thumbnailUrl =
+              video.thumbnail ?? ''; // Use empty string if null
 
           return GestureDetector(
             onTap: () {
-              _playVideo(videoUrl);
+              print('video.thumbnail!======${video.thumbnail!}');
+              _playVideo(videoUrl); // Play video on tap
             },
             child: Container(
               decoration: BoxDecoration(
@@ -2392,23 +2447,47 @@ class _VideoGridWidgetState extends State<VideoGridWidget> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  video.thumbnail != null
-                      ? CachedNetworkImage(
-                          imageUrl: video.thumbnail!,
+                  // Display thumbnail if available, else show a placeholder container
+                  thumbnailUrl.isNotEmpty
+                      ?
+                  Image.network(
+                          video.thumbnail!,
                           fit: BoxFit.cover,
                           width: double.infinity,
                           height: double.infinity,
-                          placeholder: (context, url) =>
-                              const CircularProgressIndicator(),
-                          errorWidget: (context, url, error) =>
-                              const Icon(Icons.error),
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            }
+                            return Center(
+                              child: CircularProgressIndicator(
+                                color: Color(0xFFB7A06A),
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        (loadingProgress.expectedTotalBytes ??
+                                            1)
+                                    : null,
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            print('Error loading image: $error');
+                            print('Stack trace: $stackTrace');
+                            // Optionally, add more debugging info
+                            return Icon(Icons.error);
+                          },
                         )
-                      : Container(color: Colors.grey.shade300),
+                      : Container(
+                          color: Colors.grey.shade300,
+                          child: const Icon(Icons.error),
+                        ),
+                  // Play icon overlay
                   const Icon(
                     Icons.play_circle_fill,
                     color: Colors.white,
                     size: 50,
-                  ), // Play icon overlay
+                  ),
                 ],
               ),
             ),

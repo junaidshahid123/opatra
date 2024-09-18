@@ -42,6 +42,7 @@ class _LoginState extends State<Login> {
         headers: headers,
         body: requestBody,
       );
+      print('requestBody========${requestBody}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         isLoading.value = false; // Stop loading spinner
@@ -51,8 +52,10 @@ class _LoginState extends State<Login> {
 
         // Extract token, name, and email
         var token = responseData['authorization']['token'] ?? "";
-        var userName = responseData['user']['name'] ?? ""; // Fallback to empty string
-        var userEmail = responseData['user']['email'] ?? ""; // Fallback to empty string
+        var userName =
+            responseData['user']['name'] ?? ""; // Fallback to empty string
+        var userEmail =
+            responseData['user']['email'] ?? ""; // Fallback to empty string
 
         // Store data in shared preferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -63,8 +66,7 @@ class _LoginState extends State<Login> {
         Get.snackbar('Success', 'User Login successfully!',
             backgroundColor: Color(0xFFB7A06A), colorText: Colors.white);
         Get.offAll(BottomBarHost());
-      }
-      else {
+      } else {
         isLoading.value = false; // Stop loading spinner
 
         // Handle errors
