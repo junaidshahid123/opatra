@@ -11,8 +11,10 @@ import 'bag.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   final int productId; // Example value you want to pass
+  final String currency; // Example value you want to pass
 
-  const ProductDetailScreen({super.key, required this.productId});
+  const ProductDetailScreen(
+      {super.key, required this.productId, required this.currency});
 
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
@@ -48,40 +50,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    controller.fetchImages(widget.productId);
+    print('widget.productId=====${widget.productId}');
+    print('widget.currency=====${widget.currency}');
     controller.fetchProductDetail(widget.productId);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      checkIfTextExceedsMaxLines();
-    });
-  }
-
-  void checkIfTextExceedsMaxLines() {
-    // Ensure bodyHtml is not null
-    String? bodyHtml =
-        controller.mdProductCategoryDetail?.smartCollection?.bodyHtml;
-
-    if (bodyHtml == null || bodyHtml.isEmpty) {
-      return; // If bodyHtml is null or empty, return early
-    }
-
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: bodyHtml,
-        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-      ),
-      maxLines: maxLines,
-      textDirection: TextDirection.ltr,
-    );
-
-    // Measure the available width for the text (subtracting padding)
-    textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 40);
-
-    // Check if the text exceeds maxLines
-    if (textPainter.didExceedMaxLines) {
-      setState(() {
-        isLongText = true;
-      });
-    }
   }
 
   @override
@@ -96,21 +67,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 child: Column(
                   children: [
                     buildAppBar(),
-                    controller.mdProductCategoryDetail == null
+                    controller.mdProductDetail == null
                         ? Center(
                             child: CircularProgressIndicator(
-                              color: AppColors.appPrimaryBlackColor,
+                              color: Color(0xFFB7A06A),
                             ),
                           )
                         : Column(
                             children: [
-                              controller.mdProductDetailImages == null
-                                  ? Center(
-                                      child: CircularProgressIndicator(
-                                        color: AppColors.appPrimaryBlackColor,
-                                      ),
-                                    )
-                                  : buildPreviewProductImages(),
+                              buildPreviewProductImages(),
                               buildProductName(),
                               buildDescription(),
                               buildAddToBagButton(),
@@ -346,8 +311,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget buildDescription() {
-    String bodyHtml =
-        controller.mdProductCategoryDetail?.smartCollection?.bodyHtml ?? "";
+    String bodyHtml = controller.mdProductDetail!.product!.bodyHtml!;
 
     // Determine whether to display full text or short version
     final String shortDescription =
@@ -358,7 +322,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           HtmlWidget(
-            isExpanded ? bodyHtml : shortDescription,
+            bodyHtml,
             textStyle: TextStyle(
               fontSize: 13,
               color: Color(0xFF797E86),
@@ -484,6 +448,32 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget buildProductName() {
+    // Define the indexes for each currency
+    int usDollarIndex = 6;
+    int euroIndex = 4;
+    int poundIndex = 0;
+
+    // Determine the price based on the selected currency and its variant availability
+    String price;
+    if (widget.currency == 'US Dollar') {
+      price = (controller.mdProductDetail!.product!.variants != null &&
+              controller.mdProductDetail!.product!.variants!.length >
+                  usDollarIndex)
+          ? '\$ ${controller.mdProductDetail!.product!.variants![usDollarIndex].price ?? '0.00'} USD'
+          : '\$ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} Pound';
+    } else if (widget.currency == 'Euro') {
+      price = (controller.mdProductDetail!.product!.variants != null &&
+              controller.mdProductDetail!.product!.variants!.length > euroIndex)
+          ? '€ ${controller.mdProductDetail!.product!.variants![euroIndex].price ?? '0.00'} Euro'
+          : '€ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} Pound';
+    } else {
+      price = (controller.mdProductDetail!.product!.variants != null &&
+              controller.mdProductDetail!.product!.variants!.length >
+                  poundIndex)
+          ? '£ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} Pound'
+          : '£ 0.00 Pound';
+    }
+
     return Container(
       margin: EdgeInsets.only(top: 20, left: 20),
       child: Row(
@@ -494,9 +484,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               Row(
                 children: [
                   Text(
-                    controller.mdProductCategoryDetail!.smartCollection!.title!,
+                    controller.mdProductDetail!.product!.title!,
                     style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 14,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF333333)),
                   ),
@@ -535,18 +525,59 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ],
           ),
           Spacer(),
+          // Assuming widget.currency is a state that affects the price display
           Container(
             margin: EdgeInsets.only(
               right: 20,
             ),
             child: Text(
-              '\$ 374.00',
+              price,
               style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFFB7A06A)),
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFFB7A06A),
+              ),
             ),
-          ),
+          )
+          // Obx(() {
+          //   // Define the indexes for each currency
+          //   int usDollarIndex = 6;
+          //   int euroIndex = 4;
+          //   int poundIndex = 0;
+          //
+          //   // Determine the price based on the selected currency and its variant availability
+          //   String price;
+          //   if (widget.currency == 'US Dollar') {
+          //     price = (controller.mdProductDetail!.product!.variants != null &&
+          //         controller.mdProductDetail!.product!.variants!.length > usDollarIndex)
+          //         ? '\$ ${controller.mdProductDetail!.product!.variants![usDollarIndex].price ?? '0.00'} USD'
+          //         : '\$ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} Pound';
+          //   } else if (widget.currency == 'Euro') {
+          //     price = (controller.mdProductDetail!.product!.variants != null &&
+          //         controller.mdProductDetail!.product!.variants!.length > euroIndex)
+          //         ? '€ ${controller.mdProductDetail!.product!.variants![euroIndex].price ?? '0.00'} Euro'
+          //         : '€ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} Pound';
+          //   } else {
+          //     price = (controller.mdProductDetail!.product!.variants != null &&
+          //         controller.mdProductDetail!.product!.variants!.length > poundIndex)
+          //         ? '£ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} Pound'
+          //         : '£ 0.00 Pound';
+          //   }
+          //
+          //   return Container(
+          //     margin: EdgeInsets.only(
+          //       right: 20,
+          //     ),
+          //     child: Text(
+          //       price,
+          //       style: TextStyle(
+          //         fontSize: 20,
+          //         fontWeight: FontWeight.w600,
+          //         color: Color(0xFFB7A06A),
+          //       ),
+          //     ),
+          //   );
+          // }),
         ],
       ),
     );
@@ -562,7 +593,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             height: MediaQuery.of(context).size.height / 3,
             child: PageView.builder(
               controller: _pageController,
-              itemCount: controller.mdProductDetailImages!.images!.length,
+              itemCount: controller.mdProductDetail!.product!.images!.length,
               onPageChanged: (int index) {
                 setState(() {
                   _currentPage = index;
@@ -570,7 +601,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               },
               itemBuilder: (context, index) {
                 return Image.network(
-                  controller.mdProductDetailImages!.images![index].src!,
+                  controller.mdProductDetail!.product!.images![index].src!,
                   fit: BoxFit.cover,
                 );
               },
@@ -581,7 +612,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
-                  controller.mdProductDetailImages!.images!.length, (index) {
+                  controller.mdProductDetail!.product!.images!.length, (index) {
                 return AnimatedContainer(
                   duration: Duration(milliseconds: 300),
                   margin: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
@@ -612,7 +643,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         children: [
           buildSideBarOption(),
           Spacer(),
-          buildName(),
+          controller.mdProductDetail == null
+              ? Center(
+                  child: CircularProgressIndicator(
+                    color: Color(0xFFB7A06A),
+                  ),
+                )
+              : buildName(),
           Spacer(),
           buildNotificationOption()
         ],
@@ -657,10 +694,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget buildName() {
-    return const Text(
-      'COLLAGEN MASK',
+    return Text(
+      controller.mdProductDetail!.product!.title!,
       style: TextStyle(
-          fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF333333)),
+          fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF333333)),
     );
   }
 }

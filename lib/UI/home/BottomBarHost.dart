@@ -1853,6 +1853,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                     print('id=====${id}');
                     Get.to(() => ProductDetailScreen(
                           productId: id!,
+                          currency: controller.selectedCurrency.value,
                         ));
                   },
                   child: Container(
@@ -1896,26 +1897,30 @@ class _BottomBarHost extends State<BottomBarHost> {
                         SizedBox(height: 5),
                         // Display additional information like price (if available)
                         Obx(() {
-                          // Check if the index exists before accessing variants
+                          // Define the indexes for each currency
                           int usDollarIndex = 6;
                           int euroIndex = 4;
                           int poundIndex = 0;
 
-                          // Check if the required variant exists; otherwise, use the Pound variant
+                          // Set up the price based on the selected currency and its variant availability
                           String price = controller.selectedCurrency.value ==
                                   'US Dollar'
                               ? (smartCollection.variants != null &&
                                       smartCollection.variants!.length >
                                           usDollarIndex
-                                  ? '\$${smartCollection.variants![usDollarIndex].price ?? '0.00'} USD'
-                                  : '\$${smartCollection.variants![poundIndex].price ?? '0.00'} Pound')
+                                  ? '\$ ${smartCollection.variants![usDollarIndex].price ?? '0.00'} USD'
+                                  : '\$ ${smartCollection.variants![poundIndex].price ?? '0.00'} Pound')
                               : controller.selectedCurrency.value == 'Euro'
                                   ? (smartCollection.variants != null &&
                                           smartCollection.variants!.length >
                                               euroIndex
-                                      ? '\$${smartCollection.variants![euroIndex].price ?? '0.00'} Euro'
-                                      : '\$${smartCollection.variants![poundIndex].price ?? '0.00'} Pound')
-                                  : '\$${smartCollection.variants![poundIndex].price ?? '0.00'} Pound';
+                                      ? '€ ${smartCollection.variants![euroIndex].price ?? '0.00'} Euro'
+                                      : '€ ${smartCollection.variants![poundIndex].price ?? '0.00'} Pound')
+                                  : smartCollection.variants != null &&
+                                          smartCollection.variants!.length >
+                                              poundIndex
+                                      ? '£ ${smartCollection.variants![poundIndex].price ?? '0.00'} Pound'
+                                      : '£ 0.00 Pound';
 
                           return Text(
                             price,
@@ -2375,6 +2380,9 @@ class _BottomBarHost extends State<BottomBarHost> {
 //   }
 // }
 
+
+
+
 class VideoGridWidget extends StatefulWidget {
   final List<Videos> videos;
 
@@ -2399,7 +2407,7 @@ class _VideoGridWidgetState extends State<VideoGridWidget> {
 
     try {
       // Ensure the video URL is a valid URL before trying to launch
-      final Uri videoUri = Uri.parse(videoUrl);
+      final Uri videoUri = Uri.parse(Uri.encodeFull(videoUrl));
       if (await canLaunchUrl(videoUri)) {
         // Launch the URL using the system's default browser or app
         await launchUrl(videoUri, mode: LaunchMode.externalApplication);
@@ -2414,8 +2422,6 @@ class _VideoGridWidgetState extends State<VideoGridWidget> {
 
   @override
   Widget build(BuildContext context) {
-    const testImageUrl = "https://via.placeholder.com/150";
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
       child: GridView.builder(
@@ -2431,12 +2437,10 @@ class _VideoGridWidgetState extends State<VideoGridWidget> {
         itemBuilder: (context, index) {
           final video = widget.videos[index];
           final videoUrl = video.videoUrl ?? ''; // Use empty string if null
-          final thumbnailUrl =
-              video.thumbnail ?? ''; // Use empty string if null
+          final thumbnailUrl = video.thumbnail ?? ''; // Use empty string if null
 
           return GestureDetector(
             onTap: () {
-              print('video.thumbnail!======${video.thumbnail!}');
               _playVideo(videoUrl); // Play video on tap
             },
             child: Container(
@@ -2449,39 +2453,44 @@ class _VideoGridWidgetState extends State<VideoGridWidget> {
                 children: [
                   // Display thumbnail if available, else show a placeholder container
                   thumbnailUrl.isNotEmpty
-                      ?
-                  Image.network(
-                          video.thumbnail!,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) {
-                              return child;
-                            }
-                            return Center(
-                              child: CircularProgressIndicator(
-                                color: Color(0xFFB7A06A),
-                                value: loadingProgress.expectedTotalBytes !=
-                                        null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        (loadingProgress.expectedTotalBytes ??
-                                            1)
-                                    : null,
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            print('Error loading image: $error');
-                            print('Stack trace: $stackTrace');
-                            // Optionally, add more debugging info
-                            return Icon(Icons.error);
-                          },
-                        )
-                      : Container(
-                          color: Colors.grey.shade300,
-                          child: const Icon(Icons.error),
+                      ? Image.network(
+                    thumbnailUrl,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child;
+                      }
+                      return Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFFB7A06A),
+                          value: loadingProgress.expectedTotalBytes !=
+                              null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                              (loadingProgress.expectedTotalBytes ?? 1)
+                              : null,
                         ),
+                      );
+                    },
+                    errorBuilder: (context, error, stackTrace) {
+                      print('Error loading image: $error');
+                      print('Stack trace: $stackTrace');
+                      print('Thumbnail URL: $thumbnailUrl'); // Log the URL for debugging
+                      return Container(
+                        color: Colors.grey.shade300,
+                        child: Center(
+                          child: Icon(Icons.error, color: Colors.red),
+                        ),
+                      );
+                    },
+                  )
+                      : Container(
+                    color: Colors.grey.shade300,
+                    child: Center(
+                      child: Icon(Icons.error, color: Colors.red),
+                    ),
+                  ),
                   // Play icon overlay
                   const Icon(
                     Icons.play_circle_fill,
@@ -2497,6 +2506,7 @@ class _VideoGridWidgetState extends State<VideoGridWidget> {
     );
   }
 }
+
 
 class CenteredExpandingPageView extends StatefulWidget {
   @override
