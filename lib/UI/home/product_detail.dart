@@ -662,8 +662,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       alignment: Alignment.center,
       children: [
         Container(
-          height: 50.sp,
-          width: 50.sp,
+          height: 40.sp,
+          width: 40.sp,
           child: Image.asset('assets/images/ellipse.png'),
         ),
         Container(
@@ -680,8 +680,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       alignment: Alignment.center,
       children: [
         Container(
-          height: 50.sp,
-          width: 50.sp,
+          height: 40.sp,
+          width: 40.sp,
           child: Image.asset('assets/images/ellipse.png'),
         ),
         Container(

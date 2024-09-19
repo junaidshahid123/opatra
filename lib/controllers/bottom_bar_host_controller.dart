@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/MDAllBanners.dart';
 import '../models/MDAllVideoCategories.dart';
 import '../models/MDAllVideos.dart';
 import '../models/MDCategories.dart';
@@ -15,6 +16,7 @@ class BottomBarHostController extends GetxController {
   var userName = ''.obs; // RxString to hold the userName
   var userEmail = ''.obs; // RxString to hold the userEmail
   MDCategories? mdCategories;
+  MDAllBanners? mdAllBanners;
   MDAllVideoCategories? mdAllVideoCategories;
   MDVideosByCategory? mdVideosByCategory;
   List<Video>? mdAllVideos;
@@ -42,6 +44,7 @@ class BottomBarHostController extends GetxController {
     fetchAllProducts();
     fetchProductCategories();
     selectedCurrency.value = 'Pound';
+    fetchAllBanners();
     fetchVideoCategories();
   }
 
@@ -157,7 +160,7 @@ class BottomBarHostController extends GetxController {
   }
 
   Future<void> fetchAllBanners() async {
-    final url = Uri.parse('https://opatra.fai-tech.online/api/video');
+    final url = Uri.parse('https://opatra.fai-tech.online/api/banner');
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -177,14 +180,13 @@ class BottomBarHostController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print('Videos: $data');
-        final allVideos = MDAllVideos.fromJson(data); // Parse JSON data
-        mdAllVideos = allVideos.data;
+        print('Banners: $data');
+        mdAllBanners = MDAllBanners.fromJson(data);
         print(
-            'mdAllVideos=========${mdAllVideos}'); // Set the fetched video list
+            'mdAllVideos=========${mdAllBanners}'); // Set the fetched video list
       } else {
         print(
-            'Failed to load mdAllVideos. Status Code: ${response.statusCode}');
+            'Failed to load mdAllBanners. Status Code: ${response.statusCode}');
       }
     } catch (e) {
       print('Error: $e');

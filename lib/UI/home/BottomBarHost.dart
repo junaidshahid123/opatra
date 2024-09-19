@@ -17,7 +17,6 @@ import 'package:opatra/UI/home/warranty_claim.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:video_player/video_player.dart';
 import '../../controllers/bottom_bar_host_controller.dart';
 import '../../models/MDAllVideos.dart';
 import '../../models/MDProductsByCategory.dart';
@@ -26,7 +25,6 @@ import 'contact_us.dart';
 import 'live_stream.dart';
 import 'notifications.dart';
 import 'package:http/http.dart' as http;
-import 'package:cached_network_image/cached_network_image.dart';
 
 class BottomBarHost extends StatefulWidget {
   const BottomBarHost({super.key});
@@ -592,7 +590,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                                 Obx(() => home.value == true
                                     ? buildHomeProductListView()
                                     : video.value == true
-                                        ? buildProductListViewForVideos()
+                                        ? buildProductListViewForBanners()
                                         : buildProductListView()),
                                 Obx(
                                   () => product.value || video.value == true
@@ -1845,6 +1843,45 @@ class _BottomBarHost extends State<BottomBarHost> {
               itemBuilder: (context, index) {
                 // Extract SmartCollections data from the controller
                 final smartCollection = controller.mdProducts!.products![index];
+                // Define the indexes for each currency
+                int usDollarIndex = 6;
+                int euroIndex = 4;
+                int poundIndex = 0;
+
+                // Check if the product has a variant with the title "Default Title"
+                bool hasDefaultTitle = smartCollection.variants?.any(
+                        (variant) =>
+                    variant.title == "Default Title") ??
+                    false;
+
+                // Set up the price based on the selected currency, variant availability, and "Default Title" presence
+                String price;
+
+                if (hasDefaultTitle) {
+                  price =
+                  '£ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
+                } else if (controller.selectedCurrency.value ==
+                    'US Dollar') {
+                  price = (smartCollection.variants != null &&
+                      smartCollection.variants!.length >
+                          usDollarIndex)
+                      ? '\$ ${smartCollection.variants![usDollarIndex].price ?? '0.00'} USD'
+                      : '\$ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
+                } else if (controller.selectedCurrency.value ==
+                    'Euro') {
+                  price = (smartCollection.variants != null &&
+                      smartCollection.variants!.length >
+                          euroIndex)
+                      ? '€ ${smartCollection.variants![euroIndex].price ?? '0.00'} Euro'
+                      : '€ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
+                } else {
+                  price = (smartCollection.variants != null &&
+                      smartCollection.variants!.length >
+                          poundIndex)
+                      ? '£ ${smartCollection.variants![poundIndex].price ?? '0.00'} Pound'
+                      : '£ 0.00 Pound';
+                }
+
 
                 return InkWell(
                   onTap: () {
@@ -1853,7 +1890,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                     print('id=====${id}');
                     Get.to(() => ProductDetailScreen(
                           productId: id!,
-                          currency: controller.selectedCurrency.value,
+                          currency: controller.mdProducts!.products![index].variants![0].title=='Default Title' ? 'Pound'   : controller.selectedCurrency.value,
                         ));
                   },
                   child: Container(
@@ -1896,41 +1933,14 @@ class _BottomBarHost extends State<BottomBarHost> {
                         ),
                         SizedBox(height: 5),
                         // Display additional information like price (if available)
-                        Obx(() {
-                          // Define the indexes for each currency
-                          int usDollarIndex = 6;
-                          int euroIndex = 4;
-                          int poundIndex = 0;
-
-                          // Set up the price based on the selected currency and its variant availability
-                          String price = controller.selectedCurrency.value ==
-                                  'US Dollar'
-                              ? (smartCollection.variants != null &&
-                                      smartCollection.variants!.length >
-                                          usDollarIndex
-                                  ? '\$ ${smartCollection.variants![usDollarIndex].price ?? '0.00'} USD'
-                                  : '\$ ${smartCollection.variants![poundIndex].price ?? '0.00'} Pound')
-                              : controller.selectedCurrency.value == 'Euro'
-                                  ? (smartCollection.variants != null &&
-                                          smartCollection.variants!.length >
-                                              euroIndex
-                                      ? '€ ${smartCollection.variants![euroIndex].price ?? '0.00'} Euro'
-                                      : '€ ${smartCollection.variants![poundIndex].price ?? '0.00'} Pound')
-                                  : smartCollection.variants != null &&
-                                          smartCollection.variants!.length >
-                                              poundIndex
-                                      ? '£ ${smartCollection.variants![poundIndex].price ?? '0.00'} Pound'
-                                      : '£ 0.00 Pound';
-
-                          return Text(
-                            price,
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                              color: AppColors.appPrimaryBlackColor,
-                            ),
-                          );
-                        }),
+                      Text(
+                        price,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.appPrimaryBlackColor,
+                        ),
+                      ),
 
                         Spacer(),
                       ],
@@ -1941,6 +1951,7 @@ class _BottomBarHost extends State<BottomBarHost> {
             ),
           );
   }
+
 
   Widget buildProductListView() {
     return Container(
@@ -2017,75 +2028,84 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildProductListViewForVideos() {
-    return Container(
-      color: AppColors.appGrayColor,
-      height: 200,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          // Adjusting width to account for left and right margins
-          double containerWidth = MediaQuery.of(context).size.width - 40;
-
-          return Container(
-            margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-            width: containerWidth,
-            decoration: BoxDecoration(
-              color: AppColors.appPrimaryBlackColor,
-              borderRadius: BorderRadius.circular(20),
+  Widget buildProductListViewForBanners() {
+    return controller.mdAllBanners == null
+        ? Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFFB7A06A),
             ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Image.asset(
-                //   'assets/images/skinCareDummy.png',
-                //   width: containerWidth,
-                //   fit: BoxFit.cover,
-                // ),
-                Image.asset(
-                  'assets/images/batteryChargingIcon.png',
-                  height: 40,
-                  width: 40,
-                ),
-                Positioned(
-                    top: 20,
-                    right: 20,
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: AppColors.appWhiteColor,
-                          borderRadius: BorderRadius.circular(20)),
-                      height: 20,
-                      width: 60,
-                      child: Container(
-                        margin: EdgeInsets.only(left: 10),
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              'assets/images/profileIcon.png',
-                              height: 10,
-                              width: 10,
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Text(
-                              '124 K',
-                              style: TextStyle(
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.appPrimaryBlackColor),
-                            )
-                          ],
+          )
+        : Container(
+            height: 200,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: controller.mdAllBanners!.data!.length,
+              itemBuilder: (context, index) {
+                // Adjusting width to account for left and right margins
+                double containerWidth = MediaQuery.of(context).size.width - 40;
+
+                return Container(
+                  margin: EdgeInsets.only(left: 20, right: 20, top: 20),
+                  width: containerWidth,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(
+                            20), // Apply the same border radius
+                        child: Image.network(
+                          controller.mdAllBanners!.data![index].imageUrl!,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
                         ),
                       ),
-                    ))
-              ],
+                      Image.asset(
+                        'assets/images/batteryChargingIcon.png',
+                        height: 40,
+                        width: 40,
+                      ),
+                      Positioned(
+                          top: 20,
+                          right: 20,
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: AppColors.appWhiteColor,
+                                borderRadius: BorderRadius.circular(20)),
+                            height: 20,
+                            width: 60,
+                            child: Container(
+                              margin: EdgeInsets.only(left: 10),
+                              child: Row(
+                                children: [
+                                  Image.asset(
+                                    'assets/images/profileIcon.png',
+                                    height: 10,
+                                    width: 10,
+                                  ),
+                                  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(
+                                    '124 K',
+                                    style: TextStyle(
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.appPrimaryBlackColor),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ))
+                    ],
+                  ),
+                );
+              },
             ),
           );
-        },
-      ),
-    );
   }
 
   Widget buildProductGridViewPopularA(RxList<ProductsA> filteredProducts) {
@@ -2316,73 +2336,6 @@ class _BottomBarHost extends State<BottomBarHost> {
   }
 }
 
-// class VideoPlayerScreen extends StatefulWidget {
-//   final String videoUrl;
-//
-//   // Accept the video URL as a parameter
-//   VideoPlayerScreen({required this.videoUrl, Key? key}) : super(key: key);
-//
-//   @override
-//   _VideoPlayerScreenState createState() => _VideoPlayerScreenState();
-// }
-//
-// class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
-//   late VideoPlayerController _videoPlayerController;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     // Initialize the video player with the provided video URL
-//     _videoPlayerController = VideoPlayerController.network(
-//         'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4')
-//       ..initialize().then((_) {
-//         // Ensure the first frame is shown after the video is initialized
-//         setState(() {});
-//       }).catchError((e) {
-//         print('Error initializing video player: $e');
-//       });
-//   }
-//
-//   @override
-//   void dispose() {
-//     // Dispose the controller to free resources
-//     _videoPlayerController.dispose();
-//     super.dispose();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text('Video Player')),
-//       body: Center(
-//         child: _videoPlayerController.value.isInitialized
-//             ? AspectRatio(
-//                 aspectRatio: _videoPlayerController.value.aspectRatio,
-//                 child: VideoPlayer(_videoPlayerController),
-//               )
-//             : CircularProgressIndicator(), // Show loading indicator while video is being initialized
-//       ),
-//       floatingActionButton: FloatingActionButton(
-//         onPressed: () {
-//           setState(() {
-//             _videoPlayerController.value.isPlaying
-//                 ? _videoPlayerController.pause() // Pause video
-//                 : _videoPlayerController.play(); // Play video
-//           });
-//         },
-//         child: Icon(
-//           _videoPlayerController.value.isPlaying
-//               ? Icons.pause
-//               : Icons.play_arrow, // Toggle play/pause icon
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-
-
-
 class VideoGridWidget extends StatefulWidget {
   final List<Videos> videos;
 
@@ -2437,7 +2390,8 @@ class _VideoGridWidgetState extends State<VideoGridWidget> {
         itemBuilder: (context, index) {
           final video = widget.videos[index];
           final videoUrl = video.videoUrl ?? ''; // Use empty string if null
-          final thumbnailUrl = video.thumbnail ?? ''; // Use empty string if null
+          final thumbnailUrl =
+              video.thumbnail ?? ''; // Use empty string if null
 
           return GestureDetector(
             onTap: () {
@@ -2454,43 +2408,45 @@ class _VideoGridWidgetState extends State<VideoGridWidget> {
                   // Display thumbnail if available, else show a placeholder container
                   thumbnailUrl.isNotEmpty
                       ? Image.network(
-                    thumbnailUrl,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) {
-                        return child;
-                      }
-                      return Center(
-                        child: CircularProgressIndicator(
-                          color: Color(0xFFB7A06A),
-                          value: loadingProgress.expectedTotalBytes !=
-                              null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                              (loadingProgress.expectedTotalBytes ?? 1)
-                              : null,
-                        ),
-                      );
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      print('Error loading image: $error');
-                      print('Stack trace: $stackTrace');
-                      print('Thumbnail URL: $thumbnailUrl'); // Log the URL for debugging
-                      return Container(
-                        color: Colors.grey.shade300,
-                        child: Center(
-                          child: Icon(Icons.error, color: Colors.red),
-                        ),
-                      );
-                    },
-                  )
+                          thumbnailUrl,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) {
+                              return child;
+                            }
+                            return Center(
+                              child: CircularProgressIndicator(
+                                color: Color(0xFFB7A06A),
+                                value: loadingProgress.expectedTotalBytes !=
+                                        null
+                                    ? loadingProgress.cumulativeBytesLoaded /
+                                        (loadingProgress.expectedTotalBytes ??
+                                            1)
+                                    : null,
+                              ),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            print('Error loading image: $error');
+                            print('Stack trace: $stackTrace');
+                            print(
+                                'Thumbnail URL: $thumbnailUrl'); // Log the URL for debugging
+                            return Container(
+                              color: Colors.grey.shade300,
+                              child: Center(
+                                child: Icon(Icons.error, color: Colors.red),
+                              ),
+                            );
+                          },
+                        )
                       : Container(
-                    color: Colors.grey.shade300,
-                    child: Center(
-                      child: Icon(Icons.error, color: Colors.red),
-                    ),
-                  ),
+                          color: Colors.grey.shade300,
+                          child: Center(
+                            child: Icon(Icons.error, color: Colors.red),
+                          ),
+                        ),
                   // Play icon overlay
                   const Icon(
                     Icons.play_circle_fill,
@@ -2506,7 +2462,6 @@ class _VideoGridWidgetState extends State<VideoGridWidget> {
     );
   }
 }
-
 
 class CenteredExpandingPageView extends StatefulWidget {
   @override

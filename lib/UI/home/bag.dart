@@ -174,8 +174,8 @@ class _BagState extends State<Bag> {
 
   Widget buildContinueButton() {
     return InkWell(
-      onTap: (){
-        Get.to(()=>Payment());
+      onTap: () {
+        Get.to(() => Payment());
       },
       child: Container(
           margin: EdgeInsets.only(bottom: 20),
@@ -347,8 +347,8 @@ class _BagState extends State<Bag> {
       alignment: Alignment.center,
       children: [
         Container(
-          height: 50.sp,
-          width: 50.sp,
+          height: 40.sp,
+          width: 40.sp,
           child: Image.asset('assets/images/ellipse.png'),
         ),
         Container(
