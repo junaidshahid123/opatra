@@ -146,14 +146,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                           children: [
                             InkWell(
                               onTap: () {
-                                setState(() {
-                                  controller.usd.value = true;
-                                  controller.euro.value = false;
-                                  controller.pound.value = false;
-                                  controller.isCurrencyDropDown.value = false;
-                                  controller.selectedCurrency.value =
-                                      'US Dollar';
-                                });
+                                controller.makeUsDollar();
                                 Get.back();
                               },
                               child: Container(
@@ -185,13 +178,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                             ),
                             InkWell(
                               onTap: () {
-                                setState(() {
-                                  controller.usd.value = false;
-                                  controller.euro.value = true;
-                                  controller.pound.value = false;
-                                  controller.isCurrencyDropDown.value = false;
-                                  controller.selectedCurrency.value = 'Euro';
-                                });
+                               controller.makeEuro();
                                 Get.back();
                               },
                               child: Container(
@@ -223,13 +210,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                             ),
                             InkWell(
                               onTap: () {
-                                setState(() {
-                                  controller.usd.value = false;
-                                  controller.euro.value = false;
-                                  controller.pound.value = true;
-                                  controller.isCurrencyDropDown.value = false;
-                                  controller.selectedCurrency.value = 'Pound';
-                                });
+                             controller.makePound();
                                 Get.back();
                               },
                               child: Container(
@@ -1843,54 +1824,50 @@ class _BottomBarHost extends State<BottomBarHost> {
               itemBuilder: (context, index) {
                 // Extract SmartCollections data from the controller
                 final smartCollection = controller.mdProducts!.products![index];
-                // Define the indexes for each currency
+
                 int usDollarIndex = 6;
                 int euroIndex = 4;
                 int poundIndex = 0;
 
                 // Check if the product has a variant with the title "Default Title"
-                bool hasDefaultTitle = smartCollection.variants?.any(
-                        (variant) =>
-                    variant.title == "Default Title") ??
+                bool hasDefaultTitle = smartCollection.variants
+                        ?.any((variant) => variant.title == "Default Title") ??
                     false;
 
-                // Set up the price based on the selected currency, variant availability, and "Default Title" presence
+                // Define the updated price based on selected currency and "Default Title" presence
                 String price;
 
                 if (hasDefaultTitle) {
                   price =
-                  '£ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
-                } else if (controller.selectedCurrency.value ==
-                    'US Dollar') {
+                      '£ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
+                } else if (controller.selectedCurrency.value == 'US Dollar') {
                   price = (smartCollection.variants != null &&
-                      smartCollection.variants!.length >
-                          usDollarIndex)
+                          smartCollection.variants!.length > usDollarIndex)
                       ? '\$ ${smartCollection.variants![usDollarIndex].price ?? '0.00'} USD'
                       : '\$ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
-                } else if (controller.selectedCurrency.value ==
-                    'Euro') {
+                } else if (controller.selectedCurrency.value == 'Euro') {
                   price = (smartCollection.variants != null &&
-                      smartCollection.variants!.length >
-                          euroIndex)
+                          smartCollection.variants!.length > euroIndex)
                       ? '€ ${smartCollection.variants![euroIndex].price ?? '0.00'} Euro'
                       : '€ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
                 } else {
                   price = (smartCollection.variants != null &&
-                      smartCollection.variants!.length >
-                          poundIndex)
+                          smartCollection.variants!.length > poundIndex)
                       ? '£ ${smartCollection.variants![poundIndex].price ?? '0.00'} Pound'
                       : '£ 0.00 Pound';
                 }
 
-
                 return InkWell(
                   onTap: () {
                     // Navigate to ProductDetailScreen
-                    int? id = controller.mdProducts!.products![index].id;
+                    int? id = smartCollection.id;
                     print('id=====${id}');
                     Get.to(() => ProductDetailScreen(
                           productId: id!,
-                          currency: controller.mdProducts!.products![index].variants![0].title=='Default Title' ? 'Pound'   : controller.selectedCurrency.value,
+                          currency: smartCollection.variants![0].title ==
+                                  'Default Title'
+                              ? 'Pound'
+                              : controller.selectedCurrency.value,
                         ));
                   },
                   child: Container(
@@ -1932,16 +1909,19 @@ class _BottomBarHost extends State<BottomBarHost> {
                           maxLines: 1,
                         ),
                         SizedBox(height: 5),
-                        // Display additional information like price (if available)
-                      Text(
-                        price,
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.appPrimaryBlackColor,
-                        ),
-                      ),
-
+                        // Display the updated price
+                        GetBuilder<BottomBarHostController>(
+                            init: BottomBarHostController(),
+                            builder: (BottomBarHostController) {
+                              return Text(
+                                price,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.appPrimaryBlackColor,
+                                ),
+                              );
+                            }),
                         Spacer(),
                       ],
                     ),
@@ -1951,7 +1931,6 @@ class _BottomBarHost extends State<BottomBarHost> {
             ),
           );
   }
-
 
   Widget buildProductListView() {
     return Container(
