@@ -178,7 +178,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                             ),
                             InkWell(
                               onTap: () {
-                               controller.makeEuro();
+                                controller.makeEuro();
                                 Get.back();
                               },
                               child: Container(
@@ -210,7 +210,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                             ),
                             InkWell(
                               onTap: () {
-                             controller.makePound();
+                                controller.makePound();
                                 Get.back();
                               },
                               child: Container(
@@ -571,8 +571,8 @@ class _BottomBarHost extends State<BottomBarHost> {
                                 Obx(() => home.value == true
                                     ? buildHomeProductListView()
                                     : video.value == true
-                                        ? buildProductListViewForBanners()
-                                        : buildProductListView()),
+                                        ? buildProductListView()
+                                        : buildProductListViewForBanners()),
                                 Obx(
                                   () => product.value || video.value == true
                                       ? buildSearchField()
@@ -1350,7 +1350,7 @@ class _BottomBarHost extends State<BottomBarHost> {
   }
 
   Widget buildCategoriesForProducts() {
-    return Container(
+    return  controller.mdCategories ==null ? Center(child: CircularProgressIndicator(color:Color(0xFFB7A06A),),)  :Container(
       height: 50,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -1934,7 +1934,6 @@ class _BottomBarHost extends State<BottomBarHost> {
 
   Widget buildProductListView() {
     return Container(
-      // color: AppColors.appGrayColor,
       height: 200,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
@@ -1947,40 +1946,122 @@ class _BottomBarHost extends State<BottomBarHost> {
             margin: EdgeInsets.only(left: 20, right: 20, top: 20),
             width: containerWidth,
             decoration: BoxDecoration(
-              color: AppColors.appPrimaryBlackColor,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Stack(
               alignment: Alignment.center,
               children: [
+                // Make the background image fill the container
+                Positioned.fill(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.asset(
+                      'assets/images/skinCareDummy.png',
+                      fit: BoxFit.cover, // Fills the entire container while keeping aspect ratio
+                    ),
+                  ),
+                ),
+                // Other widgets like battery icon and container with text
                 Image.asset(
-                  'assets/images/skinCareDummy.png',
-                  width: containerWidth,
-                  fit: BoxFit.cover,
+                  'assets/images/batteryChargingIcon.png',
+                  height: 40,
+                  width: 40,
                 ),
                 Positioned(
+                  top: 20,
+                  right: 20,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.appWhiteColor,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    height: 20,
+                    width: 60,
+                    child: Container(
+                      margin: EdgeInsets.only(left: 10),
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            'assets/images/profileIcon.png',
+                            height: 10,
+                            width: 10,
+                          ),
+                          SizedBox(width: 5),
+                          Text(
+                            '124 K',
+                            style: TextStyle(
+                              fontSize: 8,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.appPrimaryBlackColor,
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget buildProductListViewForBanners() {
+    return controller.mdAllBanners == null
+        ? Center(
+      child: CircularProgressIndicator(
+        color: Color(0xFFB7A06A),
+      ),
+    )
+        : Container(
+      height: 200,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: controller.mdAllBanners!.data!.length,
+        itemBuilder: (context, index) {
+          // Adjusting width to account for left and right margins
+          double containerWidth = MediaQuery.of(context).size.width - 40;
+
+          return Container(
+            margin: EdgeInsets.only(left: 20, right: 20, top: 20),
+            width: containerWidth,
+            decoration: BoxDecoration(
+              color: AppColors.appPrimaryBlackColor,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Stack(
+              children: [
+                // Image filling the parent container
+                Positioned.fill(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.network(
+                      controller.mdAllBanners!.data![index].imageUrl!,
+                      fit: BoxFit.cover, // Ensure the image covers the entire container
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 20,
                   left: 20,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
                         color: Colors.black.withOpacity(0.5),
-                        // Semi-transparent background color
                         padding: EdgeInsets.all(10),
-                        // Padding inside the container
                         child: Text(
-                          'New product for your skin',
+                          controller.mdAllBanners!.data![index].title!,
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 16,
-                            color: Colors
-                                .white, // White text color for better contrast
+                            color: Colors.white, // White text color for better contrast
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: 5,
-                      ),
+                      SizedBox(height: 5),
                       Container(
                         height: 50,
                         width: 100,
@@ -2005,86 +2086,6 @@ class _BottomBarHost extends State<BottomBarHost> {
         },
       ),
     );
-  }
-
-  Widget buildProductListViewForBanners() {
-    return controller.mdAllBanners == null
-        ? Center(
-            child: CircularProgressIndicator(
-              color: Color(0xFFB7A06A),
-            ),
-          )
-        : Container(
-            height: 200,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: controller.mdAllBanners!.data!.length,
-              itemBuilder: (context, index) {
-                // Adjusting width to account for left and right margins
-                double containerWidth = MediaQuery.of(context).size.width - 40;
-
-                return Container(
-                  margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-                  width: containerWidth,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(
-                            20), // Apply the same border radius
-                        child: Image.network(
-                          controller.mdAllBanners!.data![index].imageUrl!,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                        ),
-                      ),
-                      Image.asset(
-                        'assets/images/batteryChargingIcon.png',
-                        height: 40,
-                        width: 40,
-                      ),
-                      Positioned(
-                          top: 20,
-                          right: 20,
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: AppColors.appWhiteColor,
-                                borderRadius: BorderRadius.circular(20)),
-                            height: 20,
-                            width: 60,
-                            child: Container(
-                              margin: EdgeInsets.only(left: 10),
-                              child: Row(
-                                children: [
-                                  Image.asset(
-                                    'assets/images/profileIcon.png',
-                                    height: 10,
-                                    width: 10,
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    '124 K',
-                                    style: TextStyle(
-                                        fontSize: 8,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.appPrimaryBlackColor),
-                                  )
-                                ],
-                              ),
-                            ),
-                          ))
-                    ],
-                  ),
-                );
-              },
-            ),
-          );
   }
 
   Widget buildProductGridViewPopularA(RxList<ProductsA> filteredProducts) {
