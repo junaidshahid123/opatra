@@ -48,31 +48,30 @@ class BottomBarHostController extends GetxController {
     fetchVideoCategories();
   }
 
-  void makeUsDollar(){
+  void makeUsDollar() {
     usd.value = true;
     euro.value = false;
     pound.value = false;
     isCurrencyDropDown.value = false;
-    selectedCurrency.value =
-    'US Dollar';
+    selectedCurrency.value = 'US Dollar';
     update();
   }
 
-  void makeEuro(){
-      usd.value = false;
-      euro.value = true;
-      pound.value = false;
-      isCurrencyDropDown.value = false;
-      selectedCurrency.value = 'Euro';
+  void makeEuro() {
+    usd.value = false;
+    euro.value = true;
+    pound.value = false;
+    isCurrencyDropDown.value = false;
+    selectedCurrency.value = 'Euro';
     update();
   }
 
-  void makePound(){
-      usd.value = false;
-      euro.value = false;
-      pound.value = true;
-      isCurrencyDropDown.value = false;
-      selectedCurrency.value = 'Pound';
+  void makePound() {
+    usd.value = false;
+    euro.value = false;
+    pound.value = true;
+    isCurrencyDropDown.value = false;
+    selectedCurrency.value = 'Pound';
     update();
   }
 

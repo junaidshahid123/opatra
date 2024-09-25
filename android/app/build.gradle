@@ -38,7 +38,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.opatra"
-        minSdk = flutter.minSdkVersion
+        minSdk = 19
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
@@ -61,3 +61,4 @@ android {
 flutter {
     source = "../.."
 }
+apply plugin: 'com.google.gms.google-services'
