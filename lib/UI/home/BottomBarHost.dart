@@ -41,6 +41,8 @@ class _BottomBarHost extends State<BottomBarHost> {
   RxBool home = true.obs;
   RxBool product = true.obs;
   RxBool video = true.obs;
+  RxBool skinCare = true.obs;
+  RxBool devices = true.obs;
   RxInt selectedCategoryForProduct = 0.obs;
   RxInt selectedCategoryForVideo = 0.obs;
   RxInt selectedIndex = 0.obs;
@@ -262,6 +264,8 @@ class _BottomBarHost extends State<BottomBarHost> {
     product.value = false;
     video.value = false;
     selectedIndex.value = -1;
+    skinCare.value = true;
+    devices.value = false;
     _getUserName();
   }
 
@@ -579,13 +583,21 @@ class _BottomBarHost extends State<BottomBarHost> {
                                       : Container(),
                                 ),
                                 Obx(
-                                  () => product.value == true
-                                      ? buildCategoriesForProducts()
+                                  () => video.value == true
+                                      ? buildCategoriesForVideos()
+                                      : Container(),
+                                ),
+                                Obx(() => product.value == true
+                                    ? buildSkinCareAndDevicesOptions()
+                                    : Container()),
+                                Obx(
+                                  () => skinCare.value == true
+                                      ? buildSkinCareCategories()
                                       : Container(),
                                 ),
                                 Obx(
-                                  () => video.value == true
-                                      ? buildCategoriesForVideos()
+                                  () => devices.value == true
+                                      ? buildDevicesCategories()
                                       : Container(),
                                 ),
                                 Obx(() => product.value
@@ -625,7 +637,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                                           // No products found, show a message for 5 seconds
                                           WidgetsBinding.instance
                                               .addPostFrameCallback((_) {
-                                            Timer(Duration(seconds: 5), () {
+                                            Timer(Duration(seconds: 3), () {
                                               // Clear the search query and reset the products to popular products
                                               controller.searchQuery.value = '';
                                               searchTextController.clear();
@@ -687,6 +699,85 @@ class _BottomBarHost extends State<BottomBarHost> {
             ),
           );
         });
+  }
+
+  Widget buildSkinCareAndDevicesOptions() {
+    return Container(
+      margin: EdgeInsets.only(top: 20, left: 20, right: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        // Space between the two containers
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: () {
+                skinCare.value = true;
+                devices.value = false;
+                // controller.fetchProductByCategory(
+                //     controller.mdCategories!.smartCollections![0].id!);
+              },
+              child: Container(
+                padding: EdgeInsets.all(5), // Padding inside the container
+                decoration: BoxDecoration(
+                  border: skinCare.value == true
+                      ? Border.all(color: Colors.transparent)
+                      : Border.all(color: AppColors.appGrayColor),
+                  color: skinCare.value == true
+                      ? Color(0xFFB7A06A)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10), // Rounded corners
+                ),
+                child: Center(
+                  child: Text(
+                    'SKINCARE',
+                    style: TextStyle(
+                      color: skinCare.value == true
+                          ? Colors.white
+                          : Color(0xFFB7A06A), // Text color
+                      fontSize: 18, // Font size
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 16), // Space between the containers
+          Expanded(
+            child: InkWell(
+              onTap: () {
+                skinCare.value = false;
+                devices.value = true;
+              },
+              child: Container(
+                padding: EdgeInsets.all(5), // Padding inside the container
+                decoration: BoxDecoration(
+                  border: devices.value == true
+                      ? Border.all(color: Colors.transparent)
+                      : Border.all(color: AppColors.appGrayColor),
+                  color: devices.value == true
+                      ? Color(0xFFB7A06A)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: Text(
+                    'DEVICES',
+                    style: TextStyle(
+                      color: devices.value == true
+                          ? Colors.white
+                          : Color(0xFFB7A06A), // Text color
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget buildCurrencyDropDown() {
@@ -1313,8 +1404,8 @@ class _BottomBarHost extends State<BottomBarHost> {
                   onTap: () {
                     searchTextController.clear();
                     selectedCategoryForVideo.value = index;
-                    // controller.fetchProductByCategory(
-                    //     controller.mdCategories!.smartCollections![index].id!);
+                    controller.fetchProductByCategory(
+                        controller.mdCategories!.smartCollections![index].id!);
                   },
                   child: Obx(
                     () => Container(
@@ -1349,56 +1440,120 @@ class _BottomBarHost extends State<BottomBarHost> {
           );
   }
 
-  Widget buildCategoriesForProducts() {
-    return  controller.mdCategories ==null ? Center(child: CircularProgressIndicator(color:Color(0xFFB7A06A),),)  :Container(
-      height: 50,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: controller.mdCategories!.smartCollections!.length,
-        itemBuilder: (context, index) {
-          // Adjusting width to account for left and right margins
-          double containerWidth = MediaQuery.of(context).size.width - 40;
+  Widget buildDevicesCategories() {
+    return controller.devicesCategories.isEmpty
+        ? Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFFB7A06A),
+            ),
+          )
+        : Container(
+            height: 50,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: controller.devicesCategories.length,
+              itemBuilder: (context, index) {
+                // Adjusting width to account for left and right margins
+                double containerWidth = MediaQuery.of(context).size.width - 40;
 
-          return InkWell(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            onTap: () {
-              searchTextController.clear();
-              selectedCategoryForProduct.value = index;
-              controller.fetchProductByCategory(
-                  controller.mdCategories!.smartCollections![index].id!);
-            },
-            child: Obx(
-              () => Container(
-                  margin: EdgeInsets.only(left: 20, right: 5, top: 20),
-                  // width: 60,
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                          color: selectedCategoryForProduct.value == index
-                              ? Colors.transparent
-                              : Color(0xFFFBF3D7)),
-                      borderRadius: BorderRadius.circular(20),
-                      color: selectedCategoryForProduct.value == index
-                          ? Color(0xFFB7A06A)
-                          : Colors.transparent),
-                  child: Center(
-                      child: Container(
-                    margin: EdgeInsets.all(5),
-                    child: Text(
-                      controller.mdCategories!.smartCollections![index].title!,
-                      style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                          color: selectedCategoryForProduct.value == index
-                              ? AppColors.appWhiteColor
-                              : AppColors.appPrimaryBlackColor),
-                    ),
-                  ))),
+                return InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: () {
+                    searchTextController.clear();
+                    selectedCategoryForProduct.value = index;
+                    controller.fetchProductByCategory(
+                        controller.devicesCategories[index].id!);
+                  },
+                  child: Obx(
+                    () => Container(
+                        margin: EdgeInsets.only(left: 20, right: 5, top: 20),
+                        // width: 60,
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                                color: selectedCategoryForProduct.value == index
+                                    ? Colors.transparent
+                                    : Color(0xFFFBF3D7)),
+                            borderRadius: BorderRadius.circular(20),
+                            color: selectedCategoryForProduct.value == index
+                                ? Color(0xFFB7A06A)
+                                : Colors.transparent),
+                        child: Center(
+                            child: Container(
+                          margin: EdgeInsets.all(5),
+                          child: Text(
+                            controller.devicesCategories[index].title!,
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                color: selectedCategoryForProduct.value == index
+                                    ? AppColors.appWhiteColor
+                                    : AppColors.appPrimaryBlackColor),
+                          ),
+                        ))),
+                  ),
+                );
+              },
             ),
           );
-        },
-      ),
-    );
+  }
+
+  Widget buildSkinCareCategories() {
+    return controller.skinCareCategories.isEmpty
+        ? Center(
+            child: CircularProgressIndicator(
+              color: Color(0xFFB7A06A),
+            ),
+          )
+        : Container(
+            height: 50,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: controller.skinCareCategories.length,
+              itemBuilder: (context, index) {
+                // Adjusting width to account for left and right margins
+                double containerWidth = MediaQuery.of(context).size.width - 40;
+
+                return InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: () {
+                    searchTextController.clear();
+                    selectedCategoryForProduct.value = index;
+                    controller.fetchProductByCategory(
+                        controller.skinCareCategories[index].id!);
+                  },
+                  child: Obx(
+                    () => Container(
+                        margin: EdgeInsets.only(left: 20, right: 5, top: 20),
+                        // width: 60,
+                        decoration: BoxDecoration(
+                            border: Border.all(
+                                color: selectedCategoryForProduct.value == index
+                                    ? Colors.transparent
+                                    : Color(0xFFFBF3D7)),
+                            borderRadius: BorderRadius.circular(20),
+                            color: selectedCategoryForProduct.value == index
+                                ? Color(0xFFB7A06A)
+                                : Colors.transparent),
+                        child: Center(
+                            child: Container(
+                          margin: EdgeInsets.all(5),
+                          child: Text(
+                            controller.skinCareCategories[index].title!,
+                            style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                                color: selectedCategoryForProduct.value == index
+                                    ? AppColors.appWhiteColor
+                                    : AppColors.appPrimaryBlackColor),
+                          ),
+                        ))),
+                  ),
+                );
+              },
+            ),
+          );
   }
 
   Widget buildSearchField() {
@@ -1957,7 +2112,8 @@ class _BottomBarHost extends State<BottomBarHost> {
                     borderRadius: BorderRadius.circular(20),
                     child: Image.asset(
                       'assets/images/skinCareDummy.png',
-                      fit: BoxFit.cover, // Fills the entire container while keeping aspect ratio
+                      fit: BoxFit
+                          .cover, // Fills the entire container while keeping aspect ratio
                     ),
                   ),
                 ),
@@ -2011,81 +2167,84 @@ class _BottomBarHost extends State<BottomBarHost> {
   Widget buildProductListViewForBanners() {
     return controller.mdAllBanners == null
         ? Center(
-      child: CircularProgressIndicator(
-        color: Color(0xFFB7A06A),
-      ),
-    )
-        : Container(
-      height: 200,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: controller.mdAllBanners!.data!.length,
-        itemBuilder: (context, index) {
-          // Adjusting width to account for left and right margins
-          double containerWidth = MediaQuery.of(context).size.width - 40;
-
-          return Container(
-            margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-            width: containerWidth,
-            decoration: BoxDecoration(
-              color: AppColors.appPrimaryBlackColor,
-              borderRadius: BorderRadius.circular(20),
+            child: CircularProgressIndicator(
+              color: Color(0xFFB7A06A),
             ),
-            child: Stack(
-              children: [
-                // Image filling the parent container
-                Positioned.fill(
-                  child: ClipRRect(
+          )
+        : Container(
+            height: 200,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: controller.mdAllBanners!.data!.length,
+              itemBuilder: (context, index) {
+                // Adjusting width to account for left and right margins
+                double containerWidth = MediaQuery.of(context).size.width - 40;
+
+                return Container(
+                  margin: EdgeInsets.only(left: 20, right: 20, top: 20),
+                  width: containerWidth,
+                  decoration: BoxDecoration(
+                    color: AppColors.appPrimaryBlackColor,
                     borderRadius: BorderRadius.circular(20),
-                    child: Image.network(
-                      controller.mdAllBanners!.data![index].imageUrl!,
-                      fit: BoxFit.cover, // Ensure the image covers the entire container
-                    ),
                   ),
-                ),
-                Positioned(
-                  top: 20,
-                  left: 20,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Stack(
                     children: [
-                      Container(
-                        color: Colors.black.withOpacity(0.5),
-                        padding: EdgeInsets.all(10),
-                        child: Text(
-                          controller.mdAllBanners!.data![index].title!,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                            color: Colors.white, // White text color for better contrast
+                      // Image filling the parent container
+                      Positioned.fill(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.network(
+                            controller.mdAllBanners!.data![index].imageUrl!,
+                            fit: BoxFit
+                                .cover, // Ensure the image covers the entire container
                           ),
                         ),
                       ),
-                      SizedBox(height: 5),
-                      Container(
-                        height: 50,
-                        width: 100,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
-                          color: Color(0xFFB7A06A),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Shop now',
-                            style: TextStyle(
-                                fontWeight: FontWeight.w600, fontSize: 12),
-                          ),
+                      Positioned(
+                        top: 20,
+                        left: 20,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              color: Colors.black.withOpacity(0.5),
+                              padding: EdgeInsets.all(10),
+                              child: Text(
+                                controller.mdAllBanners!.data![index].title!,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                  color: Colors
+                                      .white, // White text color for better contrast
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 5),
+                            Container(
+                              height: 50,
+                              width: 100,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(50),
+                                color: Color(0xFFB7A06A),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Shop now',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 12),
+                                ),
+                              ),
+                            )
+                          ],
                         ),
                       )
                     ],
                   ),
-                )
-              ],
+                );
+              },
             ),
           );
-        },
-      ),
-    );
   }
 
   Widget buildProductGridViewPopularA(RxList<ProductsA> filteredProducts) {

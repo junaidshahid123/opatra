@@ -16,6 +16,8 @@ class BottomBarHostController extends GetxController {
   var userName = ''.obs; // RxString to hold the userName
   var userEmail = ''.obs; // RxString to hold the userEmail
   MDCategories? mdCategories;
+  List<SmartCollections> skinCareCategories = [];
+  List<SmartCollections> devicesCategories = [];
   MDAllBanners? mdAllBanners;
   MDAllVideoCategories? mdAllVideoCategories;
   MDVideosByCategory? mdVideosByCategory;
@@ -280,6 +282,32 @@ class BottomBarHostController extends GetxController {
         print('Product Categories: $data');
         mdCategories = MDCategories.fromJson(data);
         print('mdCategories: $mdCategories');
+        for (int i = 0; i < mdCategories!.smartCollections!.length; i++) {
+          if (mdCategories!.smartCollections![i].title == 'ACCESSORIES') {
+            devicesCategories.add(mdCategories!.smartCollections![i]);
+          }
+          if (mdCategories!.smartCollections![i].title == 'ANTI-AGEING') {
+            skinCareCategories.add(mdCategories!.smartCollections![i]);
+          }
+          if (mdCategories!.smartCollections![i].title == 'ANTI-BLEMISH') {
+            skinCareCategories.add(mdCategories!.smartCollections![i]);
+          }
+          if (mdCategories!.smartCollections![i].title == 'ANTI-WRINKLE') {
+            skinCareCategories.add(mdCategories!.smartCollections![i]);
+          }
+          if (mdCategories!.smartCollections![i].title == 'BODY CARE') {
+            skinCareCategories.add(mdCategories!.smartCollections![i]);
+          }
+          if (mdCategories!.smartCollections![i].title == 'CLEANSING') {
+            skinCareCategories.add(mdCategories!.smartCollections![i]);
+          }
+          if (mdCategories!.smartCollections![i].title == 'DEVICES') {
+            devicesCategories.add(mdCategories!.smartCollections![i]);
+          }if (mdCategories!.smartCollections![i].title == 'DRY SKIN') {
+            skinCareCategories.add(mdCategories!.smartCollections![i]);
+          }
+          print('title============${mdCategories!.smartCollections![i].title}');
+        }
         if (mdCategories != null &&
             mdCategories!.smartCollections!.isNotEmpty) {
           fetchProductByCategory(mdCategories!.smartCollections![0].id!);
