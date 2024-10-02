@@ -43,7 +43,8 @@ class _BottomBarHost extends State<BottomBarHost> {
   RxBool video = true.obs;
   RxBool skinCare = true.obs;
   RxBool devices = true.obs;
-  RxInt selectedCategoryForProduct = 0.obs;
+  RxInt selectedCategoryForSkinCare = 0.obs;
+  RxInt selectedCategoryForDevice = 0.obs;
   RxInt selectedCategoryForVideo = 0.obs;
   RxInt selectedIndex = 0.obs;
   RxBool isLoading = false.obs;
@@ -412,6 +413,11 @@ class _BottomBarHost extends State<BottomBarHost> {
                             ),
                             child: Column(
                               children: [
+                                Obx(
+                                  () => home.value == true
+                                      ? buildLatestProductsTextForHome()
+                                      : Container(),
+                                ),
                                 controller.mdLatestProducts == null
                                     ? Center(
                                         child: CircularProgressIndicator(
@@ -591,12 +597,14 @@ class _BottomBarHost extends State<BottomBarHost> {
                                     ? buildSkinCareAndDevicesOptions()
                                     : Container()),
                                 Obx(
-                                  () => skinCare.value == true
+                                  () => product.value == true &&
+                                          skinCare.value == true
                                       ? buildSkinCareCategories()
                                       : Container(),
                                 ),
                                 Obx(
-                                  () => devices.value == true
+                                  () => product.value == true &&
+                                          devices.value == true
                                       ? buildDevicesCategories()
                                       : Container(),
                                 ),
@@ -713,8 +721,8 @@ class _BottomBarHost extends State<BottomBarHost> {
               onTap: () {
                 skinCare.value = true;
                 devices.value = false;
-                // controller.fetchProductByCategory(
-                //     controller.mdCategories!.smartCollections![0].id!);
+                controller.fetchProductByCategory(
+                    controller.skinCareCategories[0].id!);
               },
               child: Container(
                 padding: EdgeInsets.all(5), // Padding inside the container
@@ -748,6 +756,8 @@ class _BottomBarHost extends State<BottomBarHost> {
               onTap: () {
                 skinCare.value = false;
                 devices.value = true;
+                controller.fetchProductByCategory(
+                    controller.devicesCategories[0].id!);
               },
               child: Container(
                 padding: EdgeInsets.all(5), // Padding inside the container
@@ -1461,7 +1471,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                   highlightColor: Colors.transparent,
                   onTap: () {
                     searchTextController.clear();
-                    selectedCategoryForProduct.value = index;
+                    selectedCategoryForDevice.value = index;
                     controller.fetchProductByCategory(
                         controller.devicesCategories[index].id!);
                   },
@@ -1471,11 +1481,11 @@ class _BottomBarHost extends State<BottomBarHost> {
                         // width: 60,
                         decoration: BoxDecoration(
                             border: Border.all(
-                                color: selectedCategoryForProduct.value == index
+                                color: selectedCategoryForDevice.value == index
                                     ? Colors.transparent
                                     : Color(0xFFFBF3D7)),
                             borderRadius: BorderRadius.circular(20),
-                            color: selectedCategoryForProduct.value == index
+                            color: selectedCategoryForDevice.value == index
                                 ? Color(0xFFB7A06A)
                                 : Colors.transparent),
                         child: Center(
@@ -1486,7 +1496,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
-                                color: selectedCategoryForProduct.value == index
+                                color: selectedCategoryForDevice.value == index
                                     ? AppColors.appWhiteColor
                                     : AppColors.appPrimaryBlackColor),
                           ),
@@ -1519,7 +1529,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                   highlightColor: Colors.transparent,
                   onTap: () {
                     searchTextController.clear();
-                    selectedCategoryForProduct.value = index;
+                    selectedCategoryForSkinCare.value = index;
                     controller.fetchProductByCategory(
                         controller.skinCareCategories[index].id!);
                   },
@@ -1529,11 +1539,11 @@ class _BottomBarHost extends State<BottomBarHost> {
                         // width: 60,
                         decoration: BoxDecoration(
                             border: Border.all(
-                                color: selectedCategoryForProduct.value == index
+                                color: selectedCategoryForSkinCare.value == index
                                     ? Colors.transparent
                                     : Color(0xFFFBF3D7)),
                             borderRadius: BorderRadius.circular(20),
-                            color: selectedCategoryForProduct.value == index
+                            color: selectedCategoryForSkinCare.value == index
                                 ? Color(0xFFB7A06A)
                                 : Colors.transparent),
                         child: Center(
@@ -1544,7 +1554,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
-                                color: selectedCategoryForProduct.value == index
+                                color: selectedCategoryForSkinCare.value == index
                                     ? AppColors.appWhiteColor
                                     : AppColors.appPrimaryBlackColor),
                           ),
@@ -1938,6 +1948,25 @@ class _BottomBarHost extends State<BottomBarHost> {
         ));
   }
 
+  Widget buildLatestProductsTextForHome() {
+    return Container(
+      margin: EdgeInsets.only(left: 20, top: 20, right: 20),
+      child: Row(
+        children: [
+          Expanded(
+            child: const Text(
+              'Latest Products',
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF333333)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget buildHeadingTextForHome() {
     return Container(
       margin: EdgeInsets.only(left: 20, top: 20, right: 20),
@@ -1962,6 +1991,129 @@ class _BottomBarHost extends State<BottomBarHost> {
         ],
       ),
     );
+  }
+
+  Widget buildFeaturedProductListView() {
+    return controller.mdProducts == null
+        ? Center(
+            child: CircularProgressIndicator(
+              color: AppColors.appPrimaryBlackColor,
+            ),
+          )
+        : Container(
+            height: 150,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: controller.mdProducts!.products!.length ?? 0,
+              itemBuilder: (context, index) {
+                // Extract SmartCollections data from the controller
+                final smartCollection = controller.mdProducts!.products![index];
+
+                int usDollarIndex = 6;
+                int euroIndex = 4;
+                int poundIndex = 0;
+
+                // Check if the product has a variant with the title "Default Title"
+                bool hasDefaultTitle = smartCollection.variants
+                        ?.any((variant) => variant.title == "Default Title") ??
+                    false;
+
+                // Define the updated price based on selected currency and "Default Title" presence
+                String price;
+
+                if (hasDefaultTitle) {
+                  price =
+                      '£ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
+                } else if (controller.selectedCurrency.value == 'US Dollar') {
+                  price = (smartCollection.variants != null &&
+                          smartCollection.variants!.length > usDollarIndex)
+                      ? '\$ ${smartCollection.variants![usDollarIndex].price ?? '0.00'} USD'
+                      : '\$ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
+                } else if (controller.selectedCurrency.value == 'Euro') {
+                  price = (smartCollection.variants != null &&
+                          smartCollection.variants!.length > euroIndex)
+                      ? '€ ${smartCollection.variants![euroIndex].price ?? '0.00'} Euro'
+                      : '€ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
+                } else {
+                  price = (smartCollection.variants != null &&
+                          smartCollection.variants!.length > poundIndex)
+                      ? '£ ${smartCollection.variants![poundIndex].price ?? '0.00'} Pound'
+                      : '£ 0.00 Pound';
+                }
+
+                return InkWell(
+                  onTap: () {
+                    // Navigate to ProductDetailScreen
+                    int? id = smartCollection.id;
+                    print('id=====${id}');
+                    Get.to(() => ProductDetailScreen(
+                          productId: id!,
+                          currency: smartCollection.variants![0].title ==
+                                  'Default Title'
+                              ? 'Pound'
+                              : controller.selectedCurrency.value,
+                        ));
+                  },
+                  child: Container(
+                    width: 150,
+                    margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Color(0xFFFBF3D7), width: 1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Spacer(),
+                        // Load image from SmartCollections data
+                        smartCollection.image != null &&
+                                smartCollection.image!.src != null
+                            ? Image.network(
+                                smartCollection.image!.src!,
+                                height: 50,
+                                width: 50,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.asset(
+                                'assets/images/skinCareDummy.png', // Fallback image
+                                height: 50,
+                                width: 50,
+                                fit: BoxFit.cover,
+                              ),
+                        SizedBox(height: 10),
+                        // Display the title of the product category
+                        Text(
+                          smartCollection.title ?? 'Unknown Title',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.appPrimaryBlackColor,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                        ),
+                        SizedBox(height: 5),
+                        // Display the updated price
+                        GetBuilder<BottomBarHostController>(
+                            init: BottomBarHostController(),
+                            builder: (BottomBarHostController) {
+                              return Text(
+                                price,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.appPrimaryBlackColor,
+                                ),
+                              );
+                            }),
+                        Spacer(),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
   }
 
   Widget buildHomeProductListView() {
@@ -2351,59 +2503,73 @@ class _BottomBarHost extends State<BottomBarHost> {
               ),
               itemCount: controller.mdProductsByCategory!.products!.length,
               itemBuilder: (context, index) {
-                return Container(
-                  margin: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Color(0xFFFBF3D7), width: 1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Spacer(),
-                      Image.network(
-                        controller
-                            .mdProductsByCategory!.products![index].image!.src!,
-                        height: 50, // Smaller image size
-                        width: 50,
-                        fit: BoxFit.cover,
-                      ),
-                      SizedBox(height: 8),
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: 5),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              controller.mdProductsByCategory!.products![index]
-                                          .title!.length >
-                                      10
-                                  ? controller.mdProductsByCategory!
-                                          .products![index].title!
-                                          .substring(0, 10) +
-                                      '...'
-                                  : controller.mdProductsByCategory!
-                                      .products![index].title!,
-                              style: TextStyle(
-                                  fontSize: 11, // Smaller font size
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.appPrimaryBlackColor),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Price',
-                              style: TextStyle(
-                                  fontSize: 9, // Smaller font size
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.appPrimaryBlackColor),
-                            ),
-                          ],
+                return InkWell(
+                  onTap: () {
+                    final smartCollection =
+                        controller.mdProductsByCategory!.products![index];
+
+                    int? id = smartCollection.id;
+                    print('id=====${id}');
+                    Get.to(() => ProductDetailScreen(
+                          productId: controller
+                              .mdProductsByCategory!.products![index].id!,
+                          currency: 'Pound',
+                        ));
+                  },
+                  child: Container(
+                    margin: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Color(0xFFFBF3D7), width: 1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Spacer(),
+                        Image.network(
+                          controller.mdProductsByCategory!.products![index]
+                              .image!.src!,
+                          height: 50, // Smaller image size
+                          width: 50,
+                          fit: BoxFit.cover,
                         ),
-                      ),
-                      Spacer(),
-                    ],
+                        SizedBox(height: 8),
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 5),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                controller.mdProductsByCategory!
+                                            .products![index].title!.length >
+                                        10
+                                    ? controller.mdProductsByCategory!
+                                            .products![index].title!
+                                            .substring(0, 10) +
+                                        '...'
+                                    : controller.mdProductsByCategory!
+                                        .products![index].title!,
+                                style: TextStyle(
+                                    fontSize: 11, // Smaller font size
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.appPrimaryBlackColor),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Price',
+                                style: TextStyle(
+                                    fontSize: 9, // Smaller font size
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.appPrimaryBlackColor),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Spacer(),
+                      ],
+                    ),
                   ),
                 );
               },

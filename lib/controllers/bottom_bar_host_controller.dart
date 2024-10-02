@@ -148,6 +148,7 @@ class BottomBarHostController extends GetxController {
   }
 
   Future<void> fetchProductByCategory(int id) async {
+    mdProductsByCategory=null;
     searchQuery.value = '';
     isLoading.value = true;
     final url =
@@ -176,7 +177,6 @@ class BottomBarHostController extends GetxController {
         mdProductsByCategory = MDProductsByCategory.fromJson(data);
         print('mdProductsByCategory: $mdProductsByCategory');
         update();
-        // filterProducts(searchQuery.value); // Filter with current query
       } else {
         isLoading.value = false;
         print(
@@ -303,16 +303,16 @@ class BottomBarHostController extends GetxController {
           }
           if (mdCategories!.smartCollections![i].title == 'DEVICES') {
             devicesCategories.add(mdCategories!.smartCollections![i]);
-          }if (mdCategories!.smartCollections![i].title == 'DRY SKIN') {
+          }
+          if (mdCategories!.smartCollections![i].title == 'DRY SKIN') {
             skinCareCategories.add(mdCategories!.smartCollections![i]);
           }
           print('title============${mdCategories!.smartCollections![i].title}');
         }
-        if (mdCategories != null &&
-            mdCategories!.smartCollections!.isNotEmpty) {
-          fetchProductByCategory(mdCategories!.smartCollections![0].id!);
+
+          fetchProductByCategory(skinCareCategories[0].id!);
           update();
-        }
+
         update();
       } else {
         print(
@@ -385,7 +385,10 @@ class BottomBarHostController extends GetxController {
         mdProducts = MDProducts.fromJson(data);
         print('mdProducts: $mdProducts');
         update();
-        filterProducts(searchQuery.value); // Filter with current query
+        for(int i=0;i<mdProducts!.products!.length;i++){
+          print('title============${mdProducts!.products![i].title}');
+
+        }
       } else {
         print('Failed to load products. Status Code: ${response.statusCode}');
       }
