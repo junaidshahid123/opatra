@@ -8,6 +8,7 @@ import 'package:opatra/UI/auth/forgot_password.dart';
 import 'package:opatra/UI/auth/signup.dart';
 import 'package:http/http.dart' as http;
 import 'package:opatra/constant/AppColors.dart';
+import 'package:opatra/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../home/BottomBarHost.dart';
 
@@ -29,6 +30,7 @@ class _LoginState extends State<Login> {
     Map<String, String> requestBody = {
       "email": _emailController.text,
       "password": _passwordController.text,
+      "fcm": fcmToken!,
     };
 
     Map<String, String> headers = {

@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import '../../main.dart';
 import 'otp_verification.dart';
 
 class SignUp extends StatefulWidget {
@@ -39,7 +40,8 @@ class _SignUpState extends State<SignUp> {
       "email": _emailController.text,
       "password": _passwordController.text,
       "phone": _phoneController.text,
-      "password_confirmation": _confirmPasswordController.text
+      "password_confirmation": _confirmPasswordController.text,
+      "fcm": fcmToken!,
     };
 
     Map<String, String> headers = {
