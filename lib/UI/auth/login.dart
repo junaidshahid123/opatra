@@ -30,7 +30,7 @@ class _LoginState extends State<Login> {
     Map<String, String> requestBody = {
       "email": _emailController.text,
       "password": _passwordController.text,
-      "fcm": fcmToken!,
+      "device_token": fcmToken!,
     };
 
     Map<String, String> headers = {

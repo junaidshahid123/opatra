@@ -41,7 +41,7 @@ class _SignUpState extends State<SignUp> {
       "password": _passwordController.text,
       "phone": _phoneController.text,
       "password_confirmation": _confirmPasswordController.text,
-      "fcm": fcmToken!,
+      "device_token": fcmToken!,
     };
 
     Map<String, String> headers = {
@@ -75,7 +75,10 @@ class _SignUpState extends State<SignUp> {
         await prefs.setString('userName', userName);
         await prefs.setString('userEmail', userEmail);
 
-        Get.offAll(OtpVerification(email: _emailController.text,isFromSignUp: true,));
+        Get.offAll(OtpVerification(
+          email: _emailController.text,
+          isFromSignUp: true,
+        ));
       } else {
         // Handle errors
         final Map<String, dynamic> responseData = json.decode(response.body);
@@ -292,8 +295,7 @@ class _SignUpState extends State<SignUp> {
                 color: Color(0xFFB7A06A),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child:
-              Center(
+              child: Center(
                   child: isLoading.value == true
                       ? SizedBox(
                           width: 20.0, // Adjust the width
