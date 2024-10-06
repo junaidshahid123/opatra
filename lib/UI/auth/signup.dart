@@ -35,8 +35,8 @@ class _SignUpState extends State<SignUp> {
 
     Map<String, String> requestBody = {
       "name": _nameController.text,
-      "last_name": _lastNameController.text,
-      "username": _nameController.text,
+      // "last_name": _lastNameController.text,
+      // "username": _nameController.text,
       "email": _emailController.text,
       "password": _passwordController.text,
       "phone": _phoneController.text,
