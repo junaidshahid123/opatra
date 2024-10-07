@@ -164,7 +164,7 @@ class _SignUpState extends State<SignUp> {
                           buildWelcomeText(),
                           // buildAddLocationButton(),
                           buildUserNameField(),
-                          buildLastNameField(),
+                          // buildLastNameField(),
                           buildEmailField(),
                           buildPhoneField(),
                           buildPasswordField(),
@@ -227,13 +227,13 @@ class _SignUpState extends State<SignUp> {
                   backgroundColor: Colors.red, colorText: Colors.white);
               return; // Return early to avoid further checks
             }
-
-            // Check if the last field is empty
-            if (_lastNameController.text.isEmpty) {
-              Get.snackbar('Alert', 'Please Enter Last Name',
-                  backgroundColor: Colors.red, colorText: Colors.white);
-              return; // Return early to avoid further checks
-            }
+            //
+            // // Check if the last field is empty
+            // if (_lastNameController.text.isEmpty) {
+            //   Get.snackbar('Alert', 'Please Enter Last Name',
+            //       backgroundColor: Colors.red, colorText: Colors.white);
+            //   return; // Return early to avoid further checks
+            // }
 
             // Check if the email field is empty
             if (_emailController.text.isEmpty) {

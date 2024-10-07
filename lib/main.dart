@@ -32,7 +32,7 @@ final _firebaseMessaging = FirebaseMessaging.instance;
 Future<void>  initNotifications() async {
   await _firebaseMessaging.requestPermission();
   fcmToken = await _firebaseMessaging.getToken();
-  print('fcmToken>>>>>>>>>>>>>>>>>>>>>>>${fcmToken}>>>>>>>>>>>>>>>>>>>>>>>');
+  print('fcmToken>>>>>>>>>>>>>>>>>>>>>>>${fcmToken}<<<<<<<<<<<<<<<<<<<<<<<<<');
 }
 
 Future<String?> getFCMToken() async {
