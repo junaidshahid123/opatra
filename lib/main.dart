@@ -8,6 +8,7 @@ import 'package:opatra/UI/Splash%20Screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'constant/AppColors.dart';
 import 'fcm_handle.dart';
+import 'firebase_options.dart';
 
 String? fcmToken;
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -16,7 +17,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   getFCMToken();
   await initNotifications();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);

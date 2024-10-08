@@ -16,38 +16,15 @@ class AboutUs extends StatefulWidget {
 
 class _AboutUsState extends State<AboutUs> {
   final String dummyText =
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
-      'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. '
-      'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi '
-      'ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit '
-      'in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint '
-      'occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim '
-      'id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. '
-      'Nulla dui. Fusce feugiat malesuada odio. Morbi nunc odio, gravida at, cursus nec, '
-      'luctus a, lorem. Maecenas tristique orci ac sem. Duis ultricies pharetra magna. '
-      'Donec accumsan malesuada orci. Donec sit amet eros. Lorem ipsum dolor sit amet, '
-      'consectetur adipiscing elit. Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
-      'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. '
-      'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi '
-      'ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit '
-      'in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint '
-      'occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim '
-      'id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. '
-      'Nulla dui. Fusce feugiat malesuada odio. Morbi nunc odio, gravida at, cursus nec, '
-      'luctus a, lorem. Maecenas tristique orci ac sem. Duis ultricies pharetra magna. '
-      'Donec accumsan malesuada orci. Donec sit amet eros. Lorem ipsum dolor sit amet, '
-      'consectetur adipiscing elit.'
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
-      'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. '
-      'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi '
-      'ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit '
-      'in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint '
-      'occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim '
-      'id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. '
-      'Nulla dui. Fusce feugiat malesuada odio. Morbi nunc odio, gravida at, cursus nec, '
-      'luctus a, lorem. Maecenas tristique orci ac sem. Duis ultricies pharetra magna. '
-      'Donec accumsan malesuada orci. Donec sit amet eros. Lorem ipsum dolor sit amet, '
-      'consectetur adipiscing elit.';
+      'Opatra London is a British brand internationally acclaimed for our customer-orientated approach and global prominence within the skincare industry.\n\n'
+      'Our contemporary way of perceiving beauty and skincare has allowed us to incorporate cutting-edge technology for deeply nourishing skincare products.\n\n'
+      'One of our visions is to redefine antiquated beauty standards, and attempt to find consistent and achievable outcomes for all skin types.\n\n'
+      'Based on this ethos, Opatra has created a unique and versatile range of products and devices ideal for all skin types.\n\n'
+      'We transform scientific breakthroughs and technological innovations into potent skincare solutions.\n\n'
+      'Since 2010, we have been pioneering easy-to-use devices and skincare formulations that help all skin types look firmer, younger, brighter, and more beautiful.\n\n'
+      'We develop, design, and source ground-breaking skin care devices and skincare products for both professional and at-home use.\n\n'
+      'Our effective products are specially formulated for the skin\'s daily care, and are used by professionals in beauty salons, spas, and aesthetics clinics, and are available to both the professional and consumer market.\n\n'
+      'Our product lines include handheld anti-aging devices, skincare formulations, professional facial and body equipment, and accessories.';
 
   @override
   Widget build(BuildContext context) {

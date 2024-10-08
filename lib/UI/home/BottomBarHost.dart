@@ -430,7 +430,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                                                 height: MediaQuery.of(context)
                                                         .size
                                                         .height /
-                                                    2.2,
+                                                    2.6,
                                                 margin:
                                                     EdgeInsets.only(top: 20),
                                                 width: MediaQuery.of(context)
@@ -1359,20 +1359,24 @@ class _BottomBarHost extends State<BottomBarHost> {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
+
                     // Access 'thumbnail' using dot notation
                     video.thumbnail != null
                         ? Image.network(
-                            video.thumbnail!,
-                            fit: BoxFit.fill,
-                            width:
-                                double.infinity, // Ensure it takes full width
-                            height:
-                                double.infinity, // Ensure it takes full height
-                            errorBuilder: (context, error, stackTrace) {
-                              return Icon(Icons
-                                  .error); // Show error icon if image fails to load
-                            },
-                          )
+                     "https://opatra.fai-tech.online/${video.thumbnail}",
+                      fit: BoxFit.fill,
+                      width: double.infinity,
+                      height: double.infinity,
+                      errorBuilder: (context, error, stackTrace) {
+                        print('Error loading image: $error'); // Add this to debug errors
+                        return Icon(Icons.error); // Show error icon if image fails to load
+                      },
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(child: CircularProgressIndicator()); // Show loader while the image is loading
+                      },
+                    )
+
                         : Container(
                             color: Colors
                                 .grey, // Default background if thumbnail is missing
@@ -1719,12 +1723,13 @@ class _BottomBarHost extends State<BottomBarHost> {
   Widget buildName() {
     return Obx(() => home.value == true
         ? Text(
-            'Hello ${controller.userName}',
-            style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF333333)),
-          )
+      'Hello ${controller.userName.split(' ')[0]}', // Only take the first word
+      style: TextStyle(
+        fontSize: 15,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF333333),
+      ),
+    )
         : product.value == true
             ? const Text(
                 'All Products',
@@ -1788,12 +1793,12 @@ class _BottomBarHost extends State<BottomBarHost> {
         controller.isCurrencyDropDown.value = false;
       },
       child: Container(
-        margin: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+        margin: EdgeInsets.only(left: 20, right: 20, bottom: 05),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(10),
           color: Color(0xFFB7A06A),
         ),
-        height: 60,
+        height: 50,
         width: MediaQuery.of(context).size.width,
         child: Row(
           children: [
@@ -2325,6 +2330,7 @@ class _BottomBarHost extends State<BottomBarHost> {
           )
         : Container(
             height: 200,
+
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: controller.mdAllBanners!.data!.length,
@@ -2336,19 +2342,33 @@ class _BottomBarHost extends State<BottomBarHost> {
                   margin: EdgeInsets.only(left: 20, right: 20, top: 20),
                   width: containerWidth,
                   decoration: BoxDecoration(
-                    color: AppColors.appPrimaryBlackColor,
+                    border: Border.all(
+                      color: Colors.grey.shade200, // Change to any color you like
+                      width: 1.0,          // Adjust the thickness of the border
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2), // Shadow color with opacity
+                        spreadRadius: 2,  // How much the shadow spreads
+                        blurRadius: 8,    // Blur radius to soften the shadow
+                        offset: Offset(0, 4), // Shadow position (x, y) (Here it is below the container)
+                      ),
+                    ],
+                    color: AppColors.appWhiteColor,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Stack(
                     children: [
                       // Image filling the parent container
                       Positioned.fill(
+                        left: 100,
+                        top: 10,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: Image.network(
                             controller.mdAllBanners!.data![index].imageUrl!,
                             fit: BoxFit
-                                .cover, // Ensure the image covers the entire container
+                                .contain, // Ensure the image covers the entire container
                           ),
                         ),
                       ),
@@ -2359,21 +2379,21 @@ class _BottomBarHost extends State<BottomBarHost> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Container(
-                              color: Colors.black.withOpacity(0.5),
+                              color: Colors.grey.withOpacity(0.5),
                               padding: EdgeInsets.all(10),
                               child: Text(
                                 controller.mdAllBanners!.data![index].title!,
                                 style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
                                   color: Colors
-                                      .white, // White text color for better contrast
+                                      .black, // White text color for better contrast
                                 ),
                               ),
                             ),
-                            SizedBox(height: 5),
+                            SizedBox(height: 15),
                             Container(
-                              height: 50,
+                              height: 40,
                               width: 100,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(50),
@@ -2383,7 +2403,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                                 child: Text(
                                   'Shop now',
                                   style: TextStyle(
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: FontWeight.bold,
                                       fontSize: 12),
                                 ),
                               ),
@@ -2641,20 +2661,10 @@ class _BottomBarHost extends State<BottomBarHost> {
   }
 }
 
-class VideoGridWidget extends StatefulWidget {
+class VideoGridWidget extends StatelessWidget {
   final List<Videos> videos;
 
   VideoGridWidget({required this.videos});
-
-  @override
-  _VideoGridWidgetState createState() => _VideoGridWidgetState();
-}
-
-class _VideoGridWidgetState extends State<VideoGridWidget> {
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
   // Function to play video using URL launcher
   void _playVideo(String videoUrl) async {
@@ -2664,16 +2674,13 @@ class _VideoGridWidgetState extends State<VideoGridWidget> {
     }
 
     try {
-      // Ensure the video URL is a valid URL before trying to launch
       final Uri videoUri = Uri.parse(Uri.encodeFull(videoUrl));
       if (await canLaunchUrl(videoUri)) {
-        // Launch the URL using the system's default browser or app
         await launchUrl(videoUri, mode: LaunchMode.externalApplication);
       } else {
         print('Could not launch $videoUrl');
       }
     } catch (e) {
-      // Handle any errors or exceptions that occur during URL launch
       print('Exception while launching video URL: $e');
     }
   }
@@ -2681,7 +2688,7 @@ class _VideoGridWidgetState extends State<VideoGridWidget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+      padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -2691,12 +2698,12 @@ class _VideoGridWidgetState extends State<VideoGridWidget> {
           mainAxisSpacing: 20.0,
           childAspectRatio: 1.2,
         ),
-        itemCount: widget.videos.length,
+        itemCount: videos.length,
         itemBuilder: (context, index) {
-          final video = widget.videos[index];
-          final videoUrl = video.videoUrl ?? ''; // Use empty string if null
+          final video = videos[index];
+          final videoUrl = video.videoUrl ?? '';
           final thumbnailUrl =
-              video.thumbnail ?? ''; // Use empty string if null
+          video.thumbnail != null ? 'https://opatra.fai-tech.online/${video.thumbnail}' : '';
 
           return GestureDetector(
             onTap: () {
@@ -2710,48 +2717,30 @@ class _VideoGridWidgetState extends State<VideoGridWidget> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  // Display thumbnail if available, else show a placeholder container
+                  // Display thumbnail with FadeInImage for a smoother image loading experience
                   thumbnailUrl.isNotEmpty
-                      ? Image.network(
-                          thumbnailUrl,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) {
-                              return child;
-                            }
-                            return Center(
-                              child: CircularProgressIndicator(
-                                color: Color(0xFFB7A06A),
-                                value: loadingProgress.expectedTotalBytes !=
-                                        null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        (loadingProgress.expectedTotalBytes ??
-                                            1)
-                                    : null,
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            print('Error loading image: $error');
-                            print('Stack trace: $stackTrace');
-                            print(
-                                'Thumbnail URL: $thumbnailUrl'); // Log the URL for debugging
-                            return Container(
-                              color: Colors.grey.shade300,
-                              child: Center(
-                                child: Icon(Icons.error, color: Colors.red),
-                              ),
-                            );
-                          },
-                        )
-                      : Container(
-                          color: Colors.grey.shade300,
-                          child: Center(
-                            child: Icon(Icons.error, color: Colors.red),
-                          ),
+                      ? FadeInImage.assetNetwork(
+                    placeholder: 'assets/images/youtubeLogo.png',
+                    image: thumbnailUrl,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    imageErrorBuilder: (context, error, stackTrace) {
+                      print('Error loading image: $error');
+                      return Container(
+                        color: Colors.grey.shade300,
+                        child: const Center(
+                          child: Icon(Icons.error, color: Colors.red),
                         ),
+                      );
+                    },
+                  )
+                      : Container(
+                    color: Colors.grey.shade300,
+                    child: const Center(
+                      child: Icon(Icons.error, color: Colors.red),
+                    ),
+                  ),
                   // Play icon overlay
                   const Icon(
                     Icons.play_circle_fill,
@@ -2767,6 +2756,7 @@ class _VideoGridWidgetState extends State<VideoGridWidget> {
     );
   }
 }
+
 
 class CenteredExpandingPageView extends StatefulWidget {
   @override

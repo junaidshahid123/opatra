@@ -12,7 +12,12 @@
           "package_name": "com.example.opatra"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1024991048436-it2tcsnnpoe4ulfgliaj45m0a9tq09pg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBRp6SJsLxDzWy9UBsz9EwdDvF_QPkBhvw"
@@ -20,7 +25,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1024991048436-it2tcsnnpoe4ulfgliaj45m0a9tq09pg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
