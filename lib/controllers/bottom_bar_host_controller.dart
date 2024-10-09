@@ -130,6 +130,7 @@ class BottomBarHostController extends GetxController {
 
       if (response.statusCode == 200) {
         isLoading.value = false;
+        isLoading.value = false;
         final data = jsonDecode(response.body);
         print('mdVideosByCategory: $data');
         mdVideosByCategory = MDVideosByCategory.fromJson(data);
@@ -222,6 +223,7 @@ class BottomBarHostController extends GetxController {
     }
   }
 
+
   Future<void> fetchAllVideos() async {
     final url = Uri.parse('https://opatra.fai-tech.online/api/video');
 
@@ -246,6 +248,7 @@ class BottomBarHostController extends GetxController {
         print('Videos: $data');
         final allVideos = MDAllVideos.fromJson(data); // Parse JSON data
         mdAllVideos = allVideos.data;
+        update();
         print(
             'mdAllVideos=========${mdAllVideos}'); // Set the fetched video list
       } else {

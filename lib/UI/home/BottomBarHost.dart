@@ -588,11 +588,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                                       ? buildSearchField()
                                       : Container(),
                                 ),
-                                Obx(
-                                  () => video.value == true
-                                      ? buildCategoriesForVideos()
-                                      : Container(),
-                                ),
+
                                 Obx(() => product.value == true
                                     ? buildSkinCareAndDevicesOptions()
                                     : Container()),
@@ -680,20 +676,26 @@ class _BottomBarHost extends State<BottomBarHost> {
                                         return buildProductGridViewPopular();
                                       })
                                     : Container()),
-                                Obx(() => video.value == true
-                                    ? controller.mdVideosByCategory == null
-                                        ? Center(
-                                            child: CircularProgressIndicator(
-                                              color: Color(0xFFB7A06A),
-                                            ),
-                                          )
-                                        : VideoGridWidget(
-                                            videos: controller
-                                                .mdVideosByCategory!
-                                                .data!
-                                                .videos!,
-                                          )
-                                    : Container())
+                                //video heading
+                                Obx(
+                                      () => video.value == true
+                                      ? buildCategoriesForVideos()
+                                      : Container(),
+                                ),
+                                // Inside the Obx that controls showing videos based on selected category
+                                Obx(() {
+                                  return video.value == true
+                                      ? controller.mdVideosByCategory == null
+                                      ? Center(
+                                    child: CircularProgressIndicator(
+                                      color: Color(0xFFB7A06A),
+                                    ),
+                                  )
+                                      : VideoGridWidget(
+                                    videos: controller.mdVideosByCategory!.data!.videos!,
+                                  )
+                                      : Container(); // Empty container if the video value is false
+                                }),
                               ],
                             ),
                           ),

@@ -79,11 +79,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               buildProductName(),
                               buildDescription(),
                               buildAddToBagButton(),
-                              buildVideoList(),
-                              buildBeforeYouStart(),
-                              buildApplication(),
-                              buildTreatmentRegimen(),
-                              buildReviews()
+
                             ],
                           )
                   ],
@@ -187,128 +183,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  Widget buildVideoList() {
-    return Container(
-      // color: AppColors.appGrayColor,
-      height: 200,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          // Adjusting width to account for left and right margins
-          double containerWidth = MediaQuery.of(context).size.width - 40;
 
-          return Container(
-            margin: EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20),
-            width: containerWidth,
-            decoration: BoxDecoration(
-              color: AppColors.appPrimaryBlackColor,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Image.asset(
-                  'assets/images/skinCareDummy.png',
-                  width: containerWidth,
-                  fit: BoxFit.cover,
-                ),
-                Image.asset(
-                  'assets/images/youtubeLogo.png',
-                  width: 40,
-                  fit: BoxFit.cover,
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
 
-  Widget buildBeforeYouStart() {
-    return Container(
-      margin: EdgeInsets.only(left: 20, right: 20),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Text(
-                'Before You Start',
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.appPrimaryBlackColor),
-              )
-            ],
-          ),
-          Text(
-            dummyText,
-            style: TextStyle(
-                color: Color(0xFF797E86),
-                fontWeight: FontWeight.w500,
-                fontSize: 13),
-          )
-        ],
-      ),
-    );
-  }
 
-  Widget buildApplication() {
-    return Container(
-      margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Text(
-                'Application',
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.appPrimaryBlackColor),
-              )
-            ],
-          ),
-          Text(
-            dummyText,
-            style: TextStyle(
-                color: Color(0xFF797E86),
-                fontWeight: FontWeight.w500,
-                fontSize: 13),
-          )
-        ],
-      ),
-    );
-  }
 
-  Widget buildTreatmentRegimen() {
-    return Container(
-      margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Text(
-                'Treatment Regimen',
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.appPrimaryBlackColor),
-              )
-            ],
-          ),
-          Text(
-            dummyText,
-            style: TextStyle(
-                color: Color(0xFF797E86),
-                fontWeight: FontWeight.w500,
-                fontSize: 13),
-          )
-        ],
-      ),
-    );
-  }
 
   Widget buildDescription() {
     String bodyHtml = controller.mdProductDetail!.product!.bodyHtml!;
@@ -460,12 +338,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               controller.mdProductDetail!.product!.variants!.length >
                   usDollarIndex)
           ? '\$ ${controller.mdProductDetail!.product!.variants![usDollarIndex].price ?? '0.00'} USD'
-          : '\$ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} Pound';
+          : '\$ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} ';
     } else if (widget.currency == 'Euro') {
       price = (controller.mdProductDetail!.product!.variants != null &&
               controller.mdProductDetail!.product!.variants!.length > euroIndex)
           ? '€ ${controller.mdProductDetail!.product!.variants![euroIndex].price ?? '0.00'} Euro'
-          : '€ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} Pound';
+          : '€ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'}';
     } else {
       price = (controller.mdProductDetail!.product!.variants != null &&
               controller.mdProductDetail!.product!.variants!.length >
@@ -487,7 +365,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     controller.mdProductDetail!.product!.title!,
                     style: TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                         color: Color(0xFF333333)),
                   ),
                 ],
@@ -528,56 +406,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           // Assuming widget.currency is a state that affects the price display
           Container(
             margin: EdgeInsets.only(
-              right: 20,
+              right: 15,
             ),
             child: Text(
               price,
               style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
                 color: Color(0xFFB7A06A),
               ),
             ),
           )
-          // Obx(() {
-          //   // Define the indexes for each currency
-          //   int usDollarIndex = 6;
-          //   int euroIndex = 4;
-          //   int poundIndex = 0;
-          //
-          //   // Determine the price based on the selected currency and its variant availability
-          //   String price;
-          //   if (widget.currency == 'US Dollar') {
-          //     price = (controller.mdProductDetail!.product!.variants != null &&
-          //         controller.mdProductDetail!.product!.variants!.length > usDollarIndex)
-          //         ? '\$ ${controller.mdProductDetail!.product!.variants![usDollarIndex].price ?? '0.00'} USD'
-          //         : '\$ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} Pound';
-          //   } else if (widget.currency == 'Euro') {
-          //     price = (controller.mdProductDetail!.product!.variants != null &&
-          //         controller.mdProductDetail!.product!.variants!.length > euroIndex)
-          //         ? '€ ${controller.mdProductDetail!.product!.variants![euroIndex].price ?? '0.00'} Euro'
-          //         : '€ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} Pound';
-          //   } else {
-          //     price = (controller.mdProductDetail!.product!.variants != null &&
-          //         controller.mdProductDetail!.product!.variants!.length > poundIndex)
-          //         ? '£ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} Pound'
-          //         : '£ 0.00 Pound';
-          //   }
-          //
-          //   return Container(
-          //     margin: EdgeInsets.only(
-          //       right: 20,
-          //     ),
-          //     child: Text(
-          //       price,
-          //       style: TextStyle(
-          //         fontSize: 20,
-          //         fontWeight: FontWeight.w600,
-          //         color: Color(0xFFB7A06A),
-          //       ),
-          //     ),
-          //   );
-          // }),
         ],
       ),
     );
