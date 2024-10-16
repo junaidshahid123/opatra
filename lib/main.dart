@@ -2,14 +2,19 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:opatra/UI/Splash%20Screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'UI/auth/login/login_logic.dart';
+import 'UI/auth/signup/signup_logic.dart';
 import 'constant/AppColors.dart';
 import 'fcm_handle.dart';
 import 'firebase_options.dart';
 
 String? fcmToken;
+
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
 }
@@ -22,14 +27,14 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await FirebaseMessaging.instance.requestPermission();
 
-
+  Get.put(LoginLogic());
+  Get.put(SignUpLogic());
   runApp(const MyApp());
 }
+
 final _firebaseMessaging = FirebaseMessaging.instance;
 
-
-
-Future<void>  initNotifications() async {
+Future<void> initNotifications() async {
   await _firebaseMessaging.requestPermission();
   fcmToken = await _firebaseMessaging.getToken();
   print('fcmToken>>>>>>>>>>>>>>>>>>>>>>>${fcmToken}<<<<<<<<<<<<<<<<<<<<<<<<<');
@@ -55,7 +60,7 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver  {
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   final _messagingService = MessagingService();
   RemoteMessage? _initialMessage;
   bool _isSplashDone = false;
@@ -111,7 +116,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver  {
         .removeObserver(this); // Remove observer to prevent memory leaks
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {

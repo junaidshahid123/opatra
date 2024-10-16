@@ -1,41 +1,44 @@
 import 'dart:convert';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../main.dart';
-import '../../home/BottomBarHost.dart';
 
-class LoginLogic extends GetxController {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  RxBool isPassword = true.obs;
-  RxBool rememberMe = false.obs;
-  final formKeyForSignIn = GlobalKey<FormState>();
-  final RxList<int> selectedIndices = <int>[].obs;
+class SignUpLogic extends GetxController {
   RxBool isLoading = false.obs;
+  final formKeyForSingUp = GlobalKey<FormState>();
+  final nameController = TextEditingController(),
+      passwordController = TextEditingController(),
+      emailController = TextEditingController(),
+      confirmPasswordController = TextEditingController(),
+      lastNameController = TextEditingController(),
+      phoneController = TextEditingController();
   AutovalidateMode autoValidateMode = AutovalidateMode.disabled;
 
-  Future<void> onLoginTap({bool fromSplash = false}) async {
+  RxBool isPasswordA = true.obs;
+  RxBool isConfirmPassword = true.obs;
 
+  Future<void> onSignUpTap({bool fromSplash = false}) async {
     if (!fromSplash) {
       autoValidateMode = AutovalidateMode.onUserInteraction;
       update();
 
-      final isValid = formKeyForSignIn.currentState!.validate();
+      final isValid = formKeyForSingUp.currentState!.validate();
       if (!isValid) return;
     }
-
-    isLoading(true);
-
     isLoading.value = true;
-    final String url = 'https://opatra.fai-tech.online/api/login';
+    final String url = 'https://opatra.fai-tech.online/api/register';
 
     Map<String, String> requestBody = {
+      "name": nameController.text,
+      // "last_name": _lastNameController.text,
+      // "username": _nameController.text,
       "email": emailController.text,
       "password": passwordController.text,
+      "phone": phoneController.text,
+      "password_confirmation": confirmPasswordController.text,
       "device_token": fcmToken!,
     };
 
@@ -50,16 +53,15 @@ class LoginLogic extends GetxController {
         headers: headers,
         body: requestBody,
       );
-      print('requestBody========${requestBody}');
+
+      isLoading.value = false; // Stop loading spinner
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        isLoading.value = false; // Stop loading spinner
-
         final Map<String, dynamic> responseData = json.decode(response.body);
-        print('responseData========${responseData}');
+        print('responseData=${responseData}');
 
         // Extract token, name, and email
-        var token = responseData['authorization']['token'] ?? "";
+        var token = responseData['token'] ?? "";
         var userName =
             responseData['user']['name'] ?? ""; // Fallback to empty string
         var userEmail =
@@ -71,12 +73,11 @@ class LoginLogic extends GetxController {
         await prefs.setString('userName', userName);
         await prefs.setString('userEmail', userEmail);
 
-        Get.snackbar('Success', 'User Login successfully!',
-            backgroundColor: Color(0xFFB7A06A), colorText: Colors.white);
-        Get.offAll(BottomBarHost());
+        // Get.offAll(OtpVerification(
+        //   email: _emailController.text,
+        //   isFromSignUp: true,
+        // ));
       } else {
-        isLoading.value = false; // Stop loading spinner
-
         // Handle errors
         final Map<String, dynamic> responseData = json.decode(response.body);
         String errorMessage =
@@ -99,6 +100,8 @@ class LoginLogic extends GetxController {
     }
   }
 
+  final RxList<int> selectedIndices = <int>[].obs;
+
   bool isValidEmail(String email) {
     // Regular expression for validating an email
     final RegExp emailRegExp = RegExp(
@@ -109,16 +112,13 @@ class LoginLogic extends GetxController {
     return emailRegExp.hasMatch(email);
   }
 
-  onEyeButtonTap() {
-    isPassword.value = !isPassword.value;
+  onPasswordTap() {
+    print('jdfbjsdjb');
+    isPasswordA.value = !isPasswordA.value;
   }
 
-  // onForgotPasswordTap() {
-  //   pSetRout(page: () => const ForgotPasswordView());
-  // }
-
-  onRememberMeChange(bool? value) {
-    rememberMe.toggle();
+  onConfirmPasswordTap() {
+    isConfirmPassword.value = !isConfirmPassword.value;
   }
 
 // onSignupTap() {

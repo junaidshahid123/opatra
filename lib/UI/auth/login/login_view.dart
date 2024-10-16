@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:opatra/UI/auth/forgot_password.dart';
-import 'package:opatra/UI/auth/signup.dart';
 import 'package:opatra/constant/AppColors.dart';
 
+import '../signup/signup_view.dart';
 import 'login_logic.dart';
 
 class LoginView extends StatelessWidget {
@@ -57,15 +57,18 @@ class LoginView extends StatelessWidget {
                       ),
                       child: Container(
                         margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-                        child: Column(
-                          children: [
-                            buildWelcomeText(),
-                            buildEmailField(logic),
-                            buildPasswordField(logic),
-                            buildForgotPasswordText(),
-                            buildSignInButton(context, logic),
-                            buildDontHaveAnAccount()
-                          ],
+                        child: Form(
+                          key: logic.formKeyForSignIn,
+                          child: Column(
+                            children: [
+                              buildWelcomeText(),
+                              buildEmailField(logic),
+                              buildPasswordField(logic),
+                              buildForgotPasswordText(),
+                              buildSignInButton(context, logic),
+                              buildDontHaveAnAccount()
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -101,7 +104,7 @@ class LoginView extends StatelessWidget {
     );
   }
 
-  Widget buildSignInButton(BuildContext context, logic) {
+  Widget buildSignInButton(BuildContext context, LoginLogic logic) {
     return Obx(() => InkWell(
           onTap: () {
             // // Check if the email field is empty
@@ -129,6 +132,7 @@ class LoginView extends StatelessWidget {
             //   return; // Return early to avoid further checks
             // }
             // loginUser();
+            logic.onLoginTap();
           },
           child: Container(
               margin: EdgeInsets.only(bottom: 20, top: 50),
@@ -159,7 +163,7 @@ class LoginView extends StatelessWidget {
   Widget buildDontHaveAnAccount() {
     return InkWell(
       onTap: () {
-        Get.to(() => SignUp());
+        Get.to(() => SignupView());
       },
       child: Container(
         margin: EdgeInsets.only(bottom: 20),
@@ -189,7 +193,7 @@ class LoginView extends StatelessWidget {
     );
   }
 
-  Widget buildPasswordField(logic) {
+  Widget buildPasswordField(LoginLogic logic) {
     return Obx(() => Container(
           height: 45,
           margin: EdgeInsets.only(top: 20),
@@ -238,7 +242,7 @@ class LoginView extends StatelessWidget {
         ));
   }
 
-  Widget buildEmailField(logic) {
+  Widget buildEmailField(LoginLogic logic) {
     return Container(
       margin: EdgeInsets.only(top: 20),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
