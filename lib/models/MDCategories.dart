@@ -120,7 +120,7 @@ class Rules {
 
 class Image {
   String? createdAt;
-  Null? alt;
+  Null alt;
   int? width;
   int? height;
   String? src;

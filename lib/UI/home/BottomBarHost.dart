@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
-import 'package:opatra/UI/auth/login.dart';
+import 'package:opatra/UI/auth/login/login_view.dart';
 import 'package:opatra/UI/home/about_us.dart';
 import 'package:opatra/UI/home/ask_our_experts.dart';
 import 'package:opatra/UI/home/bag.dart';
@@ -86,7 +83,7 @@ class _BottomBarHost extends State<BottomBarHost> {
         print('responseData========${responseData}');
         prefs.remove('token');
         Get.snackbar('Success', 'Log Out Successfully');
-        Get.offAll(Login());
+        Get.offAll(LoginView());
       } else {
         isLoading.value = false; // Stop loading spinner
 

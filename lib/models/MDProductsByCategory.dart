@@ -148,7 +148,7 @@ class Options {
 
 class Images {
   int? id;
-  Null? alt;
+  Null alt;
   int? position;
   int? productId;
   String? createdAt;

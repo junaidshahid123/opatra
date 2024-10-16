@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
+import 'package:opatra/UI/auth/login/login_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../UI/auth/login.dart';
 import '../UI/home/BottomBarHost.dart';
 
 class SplashController extends GetxController {
@@ -23,7 +22,7 @@ class SplashController extends GetxController {
       Get.offAll(() => BottomBarHost());
     } else {
       // No token found, navigate to Login
-      Get.offAll(() => Login());
+      Get.offAll(() => LoginView());
     }
   }
 }

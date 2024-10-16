@@ -138,8 +138,8 @@ class Variants {
   String? inventoryPolicy;
   String? compareAtPrice;
   String? option1;
-  Null? option2;
-  Null? option3;
+  Null option2;
+  Null option3;
   String? createdAt;
   String? updatedAt;
   bool? taxable;
@@ -155,7 +155,7 @@ class Variants {
   int? inventoryQuantity;
   int? oldInventoryQuantity;
   String? adminGraphqlApiId;
-  Null? imageId;
+  Null imageId;
 
   Variants(
       {this.id,

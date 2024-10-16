@@ -1,10 +1,8 @@
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http;
-import 'package:opatra/UI/auth/login.dart';
+import 'package:opatra/UI/auth/login/login_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../constant/AppColors.dart';
 
@@ -59,7 +57,7 @@ class _NewPasswordState extends State<NewPassword> {
         final Map<String, dynamic> responseData = json.decode(response.body);
         print('responseData=${responseData}');
         Get.snackbar('Success', 'New Password Created Successfully');
-        Get.offAll(() => Login());
+        Get.offAll(() => LoginView());
       } else {
         // Handle errors
         final Map<String, dynamic> responseData = json.decode(response.body);
