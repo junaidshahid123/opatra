@@ -1,10 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:opatra/UI/auth/login/login_view.dart';
 import 'package:opatra/UI/auth/signup/signup_logic.dart';
 import 'package:opatra/constant/AppColors.dart';
-import 'package:http/http.dart' as http;
 
 class SignupView extends StatelessWidget {
   const SignupView({super.key});
@@ -58,7 +56,8 @@ class SignupView extends StatelessWidget {
                           ),
                         ),
                         child: Container(
-                            margin: EdgeInsets.only(left: 20, right: 20, top: 20),
+                            margin:
+                                EdgeInsets.only(left: 20, right: 20, top: 20),
                             child: SingleChildScrollView(
                               child: Column(
                                 children: [
@@ -154,7 +153,7 @@ class SignupView extends StatelessWidget {
             // registerUser();
             // If all checks pass, proceed to the next screen or perform the action
             // Get.to(() => OtpVerification());
-            logic.onSignUpTap(fromSplash: true);
+            logic.onSignUpTap();
           },
           child: Container(
               margin: EdgeInsets.only(
@@ -202,7 +201,8 @@ class SignupView extends StatelessWidget {
           ),
           InkWell(
             onTap: () {
-              Get.to(() => LoginView());
+// From SignupView to LoginView
+              Get.off(() => LoginView());
             },
             child: Text(
               "Sign In",
@@ -221,24 +221,22 @@ class SignupView extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(top: 20),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-      height: 45,
-      child: TextField(
-        controller: logic.nameController,
-        cursorColor: AppColors.appPrimaryBlackColor,
-        style: TextStyle(color: AppColors.appPrimaryBlackColor),
-        decoration: InputDecoration(
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Color(0xFF989898),
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Color(0xFF989898),
-            ),
-          ),
-          label: RichText(
-              text: TextSpan(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            controller: logic.nameController,
+            cursorColor: AppColors.appPrimaryBlackColor,
+            style: TextStyle(color: AppColors.appPrimaryBlackColor),
+            decoration: InputDecoration(
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF989898)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF989898)),
+              ),
+              label: RichText(
+                text: TextSpan(
                   text: 'Username ',
                   style: TextStyle(
                     color: Color(0xFF989898),
@@ -246,223 +244,314 @@ class SignupView extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                   children: [
-                TextSpan(
-                  text: '*',
-                  style: TextStyle(
-                    color: Colors.brown, // Set the asterisk color here
-                    fontWeight: FontWeight.bold,
+                    TextSpan(
+                      text: '*',
+                      style: TextStyle(
+                        color: Colors.brown, // Set the asterisk color here
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              hintText: 'Enter your username',
+              hintStyle: TextStyle(color: Color(0xFF989898)),
+              suffixIcon: Container(
+                height: 10,
+                width: 10,
+                child: Container(
+                  margin: EdgeInsets.all(15),
+                  child: Image.asset(
+                    'assets/images/userProfileIcon.png',
                   ),
                 ),
-              ])),
-          hintText: 'Enter your username',
-          hintStyle: TextStyle(
-            color: Color(0xFF989898),
-          ),
-          suffixIcon: Container(
-            height: 10, // Specific height
-            width: 10, // Specific width
-            child: Container(
-              margin: EdgeInsets.all(15),
-              child: Image.asset(
-                'assets/images/userProfileIcon.png', // Adjust the image within the container
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20.0),
               ),
             ),
+            // Validator for the TextFormField
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Username cannot be empty';
+              }
+              return null; // Return null if no error
+            },
           ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-        ),
+          SizedBox(height: 4), // Space for validation message
+        ],
       ),
     );
   }
 
   Widget buildConfirmPasswordField(SignUpLogic logic) {
     return Obx(() => Container(
-          height: 45,
-          margin: EdgeInsets.only(top: 20),
-          child: TextField(
-            obscureText: logic.isConfirmPassword == true ? true : false,
+      margin: EdgeInsets.only(top: 20),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            controller: logic.confirmPasswordController,
             cursorColor: AppColors.appPrimaryBlackColor,
             style: TextStyle(color: AppColors.appPrimaryBlackColor),
-            controller: logic.confirmPasswordController,
+            obscureText: logic.isPasswordA.value, // Obscure text if true
             decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Color(0xFF989898),
-                ),
+                borderSide: BorderSide(color: Color(0xFF989898)),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Color(0xFF989898),
-                ),
+                borderSide: BorderSide(color: Color(0xFF989898)),
               ),
               label: RichText(
-                  text: TextSpan(
-                text: 'Confirm Password',
-                style: TextStyle(
-                  color: Color(0xFF989898),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              )),
-              suffixIcon: Container(
-                height: 10, // Specific height
-                width: 10, // Specific width
-                child: Container(
-                  child: IconButton(
-                    icon: Icon(logic.isConfirmPassword.value
-                        ? Icons.visibility_off
-                        : Icons.visibility),
-                    onPressed: () => logic.onConfirmPasswordTap(),
+                text: TextSpan(
+                  text: 'Confirm Password ',
+                  style: TextStyle(
+                    color: Color(0xFF989898),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
+                  children: [
+                    TextSpan(
+                      text: '*',
+                      style: TextStyle(
+                        color: Colors.brown, // Set the asterisk color here
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+              hintText: '***********',
+              hintStyle: TextStyle(color: Color(0xFF989898)),
+              suffixIcon: IconButton(
+                icon: Icon(logic.isPasswordA.value
+                    ? Icons.visibility_off
+                    : Icons.visibility),
+                onPressed: () => logic.onPasswordTap(),
               ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
+                borderRadius: BorderRadius.circular(20.0),
               ),
             ),
+            // Validator for the TextFormField
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Confirm Password cannot be empty';
+              }
+              // Check if the password and confirm password match
+              if (value != logic.passwordController.text) {
+                return 'Passwords do not match';
+              }
+              return null; // Return null if no error
+            },
           ),
-        ));
+          SizedBox(height: 4), // Space for validation message
+        ],
+      ),
+    ));
   }
 
   Widget buildPhoneField(SignUpLogic logic) {
     return Container(
-      height: 45,
       margin: EdgeInsets.only(top: 20),
-      child: TextField(
-        controller: logic.phoneController,
-        cursorColor: AppColors.appPrimaryBlackColor,
-        style: TextStyle(color: AppColors.appPrimaryBlackColor),
-        decoration: InputDecoration(
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Color(0xFF989898),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            controller: logic.phoneController,
+            cursorColor: AppColors.appPrimaryBlackColor,
+            style: TextStyle(color: AppColors.appPrimaryBlackColor),
+            decoration: InputDecoration(
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF989898)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF989898)),
+              ),
+              label: RichText(
+                text: TextSpan(
+                  text: 'Phone ',
+                  style: TextStyle(
+                    color: Color(0xFF989898),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: '*',
+                      style: TextStyle(
+                        color: Colors.brown, // Set the asterisk color here
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              hintText: '0033 373733 33',
+              hintStyle: TextStyle(color: Color(0xFF989898)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20.0),
+              ),
             ),
+            // Validator for the TextFormField
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Phone cannot be empty';
+              }
+              // Add an additional check for valid phone number format
+              final phonePattern = r'^\+?[0-9\s]+$'; // Adjust this regex based on your phone number format
+              final regex = RegExp(phonePattern);
+              if (!regex.hasMatch(value)) {
+                return 'Enter a valid phone number';
+              }
+              return null; // Return null if no error
+            },
           ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Color(0xFF989898),
-            ),
-          ),
-          label: RichText(
-              text: TextSpan(
-            text: 'Phone',
-            style: TextStyle(
-              color: Color(0xFF989898),
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-          )),
-          // suffixIcon: Container(
-          //   height: 10, // Specific height
-          //   width: 10, // Specific width
-          //   child: Container(
-          //     margin: EdgeInsets.all(15),
-          //     child: Image.asset(
-          //       'assets/images/userProfileIcon.png', // Adjust the image within the container
-          //     ),
-          //   ),
-          // ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-        ),
+          SizedBox(height: 4), // Space for validation message
+        ],
       ),
     );
   }
 
   Widget buildPasswordField(SignUpLogic logic) {
     return Obx(() => Container(
-          height: 45,
-          margin: EdgeInsets.only(top: 20),
-          child: TextField(
-            obscureText: logic.isPasswordA == true ? true : false,
+      margin: EdgeInsets.only(top: 20),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            controller: logic.passwordController,
             cursorColor: AppColors.appPrimaryBlackColor,
             style: TextStyle(color: AppColors.appPrimaryBlackColor),
-            controller: logic.passwordController,
+            obscureText: logic.isPasswordA.value, // Obscure text if true
             decoration: InputDecoration(
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Color(0xFF989898),
-                ),
+                borderSide: BorderSide(color: Color(0xFF989898)),
               ),
               focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Color(0xFF989898),
-                ),
+                borderSide: BorderSide(color: Color(0xFF989898)),
               ),
               label: RichText(
-                  text: TextSpan(
-                text: 'Password',
-                style: TextStyle(
-                  color: Color(0xFF989898),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              )),
-              suffixIcon: Container(
-                height: 10, // Specific height
-                width: 10, // Specific width
-                child: Container(
-                  child: IconButton(
-                    icon: Icon(logic.isPasswordA.value
-                        ? Icons.visibility_off
-                        : Icons.visibility),
-                    onPressed: () => logic.onPasswordTap(),
+                text: TextSpan(
+                  text: 'Password ',
+                  style: TextStyle(
+                    color: Color(0xFF989898),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
+                  children: [
+                    TextSpan(
+                      text: '*',
+                      style: TextStyle(
+                        color: Colors.brown, // Set the asterisk color here
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+              hintText: '***********',
+              hintStyle: TextStyle(color: Color(0xFF989898)),
+              suffixIcon: IconButton(
+                icon: Icon(logic.isPasswordA.value
+                    ? Icons.visibility_off
+                    : Icons.visibility),
+                onPressed: () => logic.onPasswordTap(),
               ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
+                borderRadius: BorderRadius.circular(20.0),
               ),
             ),
+            // Validator for the TextFormField
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Password cannot be empty';
+              }
+              if (value.length < 8) {
+                return 'Password must be at least 8 characters';
+              }
+              // Add any other password rules you want to enforce here
+              return null; // Return null if no error
+            },
           ),
-        ));
+          SizedBox(height: 4), // Space for validation message
+        ],
+      ),
+    ));
   }
 
   Widget buildEmailField(SignUpLogic logic) {
     return Container(
       margin: EdgeInsets.only(top: 20),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-      height: 45,
-      child: TextField(
-        cursorColor: AppColors.appPrimaryBlackColor,
-        style: TextStyle(color: AppColors.appPrimaryBlackColor),
-        controller: logic.emailController,
-        decoration: InputDecoration(
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Color(0xFF989898),
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Color(0xFF989898),
-            ),
-          ),
-          label: RichText(
-              text: TextSpan(
-            text: 'Email',
-            style: TextStyle(
-              color: Color(0xFF989898),
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-            ),
-          )),
-          suffixIcon: Container(
-            height: 10, // Specific height
-            width: 10, // Specific width
-            child: Container(
-              margin: EdgeInsets.all(15),
-              child: Image.asset(
-                'assets/images/emailIcon.png', // Adjust the image within the container
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            controller: logic.emailController,
+            cursorColor: AppColors.appPrimaryBlackColor,
+            style: TextStyle(color: AppColors.appPrimaryBlackColor),
+            decoration: InputDecoration(
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF989898)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF989898)),
+              ),
+              label: RichText(
+                text: TextSpan(
+                  text: 'Email ',
+                  style: TextStyle(
+                    color: Color(0xFF989898),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: '*',
+                      style: TextStyle(
+                        color: Colors.brown, // Set the asterisk color here
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              hintText: 'a12@gmail.com',
+              hintStyle: TextStyle(color: Color(0xFF989898)),
+              suffixIcon: Container(
+                height: 10, // Specific height
+                width: 10, // Specific width
+                child: Container(
+                  margin: EdgeInsets.all(15),
+                  child: Image.asset(
+                    'assets/images/emailIcon.png', // Adjust the image within the container
+                  ),
+                ),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20.0),
               ),
             ),
+            // Validator for the TextFormField
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Email cannot be empty';
+              }
+              // Add an additional check for valid email format
+              final emailPattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
+              final regex = RegExp(emailPattern);
+              if (!regex.hasMatch(value)) {
+                return 'Enter a valid email address';
+              }
+              return null; // Return null if no error
+            },
           ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-        ),
+          SizedBox(height: 4), // Space for validation message
+        ],
       ),
     );
   }
@@ -497,4 +586,3 @@ class SignupView extends StatelessWidget {
     );
   }
 }
-

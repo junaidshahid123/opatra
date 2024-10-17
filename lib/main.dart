@@ -26,9 +26,6 @@ void main() async {
   await initNotifications();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await FirebaseMessaging.instance.requestPermission();
-
-  Get.put(LoginLogic());
-  Get.put(SignUpLogic());
   runApp(const MyApp());
 }
 

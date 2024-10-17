@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:opatra/UI/auth/forgot_password.dart';
 import 'package:opatra/constant/AppColors.dart';
-
 import '../signup/signup_view.dart';
 import 'login_logic.dart';
 
@@ -18,47 +17,47 @@ class LoginView extends StatelessWidget {
             backgroundColor: Colors.white,
             // Replace with your AppColors.appWhiteColor
             body: SafeArea(
-              child: Stack(
-                alignment: Alignment.bottomCenter,
-                children: [
-                  Stack(
-                    alignment: Alignment.topCenter,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Color(0xFFB7A06A),
+              child: Form(
+                key: logic.formKeyForSignIn,
+                child: Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    Stack(
+                      alignment: Alignment.topCenter,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Color(0xFFB7A06A),
+                          ),
                         ),
-                      ),
-                      Container(
-                        child: Image.asset(
-                          'assets/images/splashLogo.png',
-                          color: AppColors.appWhiteColor,
-                          height: MediaQuery.of(context).size.height / 4,
-                          width: MediaQuery.of(context).size.height / 4,
-                        ),
-                      )
-                    ],
-                  ),
-                  Positioned(
-                    bottom: 0,
-                    child: Container(
-                      width: MediaQuery.of(context)
-                          .size
-                          .width, // Full width of the screen
-                      height: MediaQuery.of(context).size.height /
-                          1.5, // Adjust the height as needed
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        // Background color for the container
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(40),
-                          topLeft: Radius.circular(40),
-                        ),
-                      ),
+                        Container(
+                          child: Image.asset(
+                            'assets/images/splashLogo.png',
+                            color: AppColors.appWhiteColor,
+                            height: MediaQuery.of(context).size.height / 4,
+                            width: MediaQuery.of(context).size.height / 4,
+                          ),
+                        )
+                      ],
+                    ),
+                    Positioned(
+                      bottom: 0,
                       child: Container(
-                        margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-                        child: Form(
-                          key: logic.formKeyForSignIn,
+                        width: MediaQuery.of(context)
+                            .size
+                            .width, // Full width of the screen
+                        height: MediaQuery.of(context).size.height /
+                            1.5, // Adjust the height as needed
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          // Background color for the container
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(40),
+                            topLeft: Radius.circular(40),
+                          ),
+                        ),
+                        child: Container(
+                          margin: EdgeInsets.only(left: 20, right: 20, top: 20),
                           child: Column(
                             children: [
                               buildWelcomeText(),
@@ -72,8 +71,8 @@ class LoginView extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           );
@@ -163,7 +162,8 @@ class LoginView extends StatelessWidget {
   Widget buildDontHaveAnAccount() {
     return InkWell(
       onTap: () {
-        Get.to(() => SignupView());
+      // From LoginView to SignupView
+        Get.off(() => SignupView());
       },
       child: Container(
         margin: EdgeInsets.only(bottom: 20),

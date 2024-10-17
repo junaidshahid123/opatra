@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../main.dart';
+import '../otp_verification.dart';
 
 class SignUpLogic extends GetxController {
   RxBool isLoading = false.obs;
@@ -20,26 +21,31 @@ class SignUpLogic extends GetxController {
   RxBool isPasswordA = true.obs;
   RxBool isConfirmPassword = true.obs;
 
-  Future<void> onSignUpTap({bool fromSplash = false}) async {
-    if (!fromSplash) {
-      autoValidateMode = AutovalidateMode.onUserInteraction;
-      update();
+  Future<void> onSignUpTap() async {
+    // Validate the form using formKey
+    final isValid = formKeyForSingUp.currentState!.validate();
 
-      final isValid = formKeyForSingUp.currentState!.validate();
-      if (!isValid) return;
+    // If the form is not valid, show validation errors and stop further execution
+    if (!isValid) {
+      autoValidateMode =
+          AutovalidateMode.onUserInteraction; // Enable auto validation
+      update(); // Call update() to refresh the UI
+      return; // Stop execution here since the form is invalid
     }
+
+    // Show loading spinner
     isLoading.value = true;
+
     final String url = 'https://opatra.fai-tech.online/api/register';
 
+    // Prepare request body
     Map<String, String> requestBody = {
       "name": nameController.text,
-      // "last_name": _lastNameController.text,
-      // "username": _nameController.text,
       "email": emailController.text,
       "password": passwordController.text,
       "phone": phoneController.text,
       "password_confirmation": confirmPasswordController.text,
-      "device_token": fcmToken!,
+      "device_token": fcmToken!, // Assuming fcmToken is non-null
     };
 
     Map<String, String> headers = {
@@ -48,41 +54,43 @@ class SignUpLogic extends GetxController {
 
     try {
       final client = http.Client();
+
+      // Send the HTTP POST request
       final http.Response response = await client.post(
         Uri.parse(url),
         headers: headers,
         body: requestBody,
       );
 
-      isLoading.value = false; // Stop loading spinner
+      // Stop the loading spinner
+      isLoading.value = false;
 
+      // Check if the response status is success
       if (response.statusCode == 200 || response.statusCode == 201) {
         final Map<String, dynamic> responseData = json.decode(response.body);
         print('responseData=${responseData}');
 
-        // Extract token, name, and email
+        // Extract the token, user name, and user email
         var token = responseData['token'] ?? "";
-        var userName =
-            responseData['user']['name'] ?? ""; // Fallback to empty string
-        var userEmail =
-            responseData['user']['email'] ?? ""; // Fallback to empty string
+        var userName = responseData['user']['name'] ?? "";
+        var userEmail = responseData['user']['email'] ?? "";
 
-        // Store data in shared preferences
+        // Store the data in SharedPreferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token);
         await prefs.setString('userName', userName);
         await prefs.setString('userEmail', userEmail);
 
-        // Get.offAll(OtpVerification(
-        //   email: _emailController.text,
-        //   isFromSignUp: true,
-        // ));
+        // Optionally navigate to the OTP verification screen
+        Get.offAll(
+            OtpVerification(email: emailController.text, isFromSignUp: true));
       } else {
-        // Handle errors
+        // Handle any errors from the API response
         final Map<String, dynamic> responseData = json.decode(response.body);
         String errorMessage =
             responseData['message'] ?? 'Failed to register user';
 
+        // If there are detailed error messages in the response
         if (responseData.containsKey('errors')) {
           final errors = responseData['errors'] as Map<String, dynamic>;
           errors.forEach((key, value) {
@@ -90,11 +98,13 @@ class SignUpLogic extends GetxController {
           });
         }
 
+        // Show an error message using Get.snackbar
         Get.snackbar('Error', errorMessage,
             backgroundColor: Colors.red, colorText: Colors.white);
       }
     } catch (e) {
-      isLoading.value = false; // Stop loading spinner
+      // Handle any exceptions during the API call
+      isLoading.value = false;
       Get.snackbar('Error', 'An error occurred: $e',
           backgroundColor: Colors.red, colorText: Colors.white);
     }
@@ -113,7 +123,6 @@ class SignUpLogic extends GetxController {
   }
 
   onPasswordTap() {
-    print('jdfbjsdjb');
     isPasswordA.value = !isPasswordA.value;
   }
 
