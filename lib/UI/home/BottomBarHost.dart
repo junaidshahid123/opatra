@@ -5,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:opatra/UI/auth/login/login_view.dart';
 import 'package:opatra/UI/home/about_us.dart';
-import 'package:opatra/UI/home/ask_our_experts.dart';
 import 'package:opatra/UI/home/bag.dart';
 import 'package:opatra/UI/home/product_detail.dart';
 import 'package:opatra/UI/home/register_your_own_product.dart';
@@ -18,6 +17,7 @@ import '../../controllers/bottom_bar_host_controller.dart';
 import '../../models/MDAllVideos.dart';
 import '../../models/MDProductsByCategory.dart';
 import '../../models/MDVideosByCategory.dart';
+import 'ask_ouur_experts/ask_our_experts_view.dart';
 import 'contact_us.dart';
 import 'live_stream.dart';
 import 'notifications.dart';
@@ -1150,7 +1150,7 @@ class _BottomBarHost extends State<BottomBarHost> {
       highlightColor: Colors.transparent,
       onTap: () {
         selectedIndex.value = 3;
-        Get.to(() => AskOurExperts());
+        Get.to(() => AskOurExpertsView());
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),

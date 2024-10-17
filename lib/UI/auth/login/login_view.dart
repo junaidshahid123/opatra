@@ -162,7 +162,7 @@ class LoginView extends StatelessWidget {
   Widget buildDontHaveAnAccount() {
     return InkWell(
       onTap: () {
-      // From LoginView to SignupView
+        // From LoginView to SignupView
         Get.off(() => SignupView());
       },
       child: Container(
@@ -195,95 +195,168 @@ class LoginView extends StatelessWidget {
 
   Widget buildPasswordField(LoginLogic logic) {
     return Obx(() => Container(
-          height: 45,
           margin: EdgeInsets.only(top: 20),
-          child: TextField(
-            obscureText: logic.isPassword == true ? true : false,
-            cursorColor: AppColors.appPrimaryBlackColor,
-            style: TextStyle(color: AppColors.appPrimaryBlackColor),
-            controller: logic.passwordController,
-            decoration: InputDecoration(
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Color(0xFF989898),
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Color(0xFF989898),
-                ),
-              ),
-              labelText: 'Password',
-              labelStyle: TextStyle(
-                color: Color(0xFF989898),
-              ),
-              hintText: 'Enter your password',
-              hintStyle: TextStyle(
-                color: Color(0xFF989898),
-              ),
-              suffixIcon: Container(
-                height: 10, // Specific height
-                width: 10, // Specific width
-                child: Container(
-                  // margin: EdgeInsets.all(15),
-                  child: IconButton(
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                controller: logic.passwordController,
+                cursorColor: AppColors.appPrimaryBlackColor,
+                style: TextStyle(color: AppColors.appPrimaryBlackColor),
+                obscureText: logic.isPassword.value,
+                // Obscure text if true
+                decoration: InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF989898)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF989898)),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red, width: 2.0),
+                    // Red border on error
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red, width: 2.0),
+                    // Red border when focused and in error
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                  errorStyle: TextStyle(
+                    color: Colors.red, // Error message in red color
+                  ),
+                  label: RichText(
+                    text: TextSpan(
+                      text: 'Password ',
+                      style: TextStyle(
+                        color: Color(0xFF989898),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: '*',
+                          style: TextStyle(
+                            color: Colors.brown,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  hintText: '*********',
+                  hintStyle: TextStyle(color: Color(0xFF989898)),
+                  suffixIcon: IconButton(
                     icon: Icon(logic.isPassword.value
                         ? Icons.visibility_off
                         : Icons.visibility),
-                    onPressed: () => logic.onEyeButtonTap(),
+                    onPressed: () => logic.onEyeButtonTap,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0),
                   ),
                 ),
+                // Validator for the TextFormField
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Password cannot be empty';
+                  }
+                  if (value.length < 8) {
+                    return 'Password must be at least 8 characters';
+                  }
+                  // Add any other password rules you want to enforce here
+                  return null; // Return null if no error
+                },
               ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-            ),
+              SizedBox(height: 4), // Space for validation message
+            ],
           ),
         ));
   }
 
   Widget buildEmailField(LoginLogic logic) {
-    return Container(
+    return
+      Container(
       margin: EdgeInsets.only(top: 20),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-      height: 45,
-      child: TextField(
-        cursorColor: AppColors.appPrimaryBlackColor,
-        style: TextStyle(color: AppColors.appPrimaryBlackColor),
-        controller: logic.emailController,
-        decoration: InputDecoration(
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Color(0xFF989898),
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Color(0xFF989898),
-            ),
-          ),
-          labelText: 'Email',
-          labelStyle: TextStyle(
-            color: Color(0xFF989898),
-          ),
-          hintText: 'Enter your email',
-          hintStyle: TextStyle(
-            color: Color(0xFF989898),
-          ),
-          suffixIcon: Container(
-            height: 10, // Specific height
-            width: 10, // Specific width
-            child: Container(
-              margin: EdgeInsets.all(15),
-              child: Image.asset(
-                'assets/images/emailIcon.png', // Adjust the image within the container
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            controller: logic.emailController,
+            cursorColor: AppColors.appPrimaryBlackColor,
+            style: TextStyle(color: AppColors.appPrimaryBlackColor),
+            decoration: InputDecoration(
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF989898)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF989898)),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.red, width: 2.0),
+                // Red border on error
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.red, width: 2.0),
+                // Red border when focused and in error
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+              errorStyle: TextStyle(
+                color: Colors.red, // Error message in red color
+              ),
+              label: RichText(
+                text: TextSpan(
+                  text: 'Email ',
+                  style: TextStyle(
+                    color: Color(0xFF989898),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: '*',
+                      style: TextStyle(
+                        color: Colors.brown,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              hintText: 'a12@gmail.com',
+              hintStyle: TextStyle(color: Color(0xFF989898)),
+              suffixIcon: Container(
+                height: 10,
+                width: 10,
+                child: Container(
+                  margin: EdgeInsets.all(15),
+                  child: Image.asset(
+                    'assets/images/emailIcon.png',
+                  ),
+                ),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20.0),
               ),
             ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Email cannot be empty';
+              }
+              final emailPattern =
+                  r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
+              final regex = RegExp(emailPattern);
+              if (!regex.hasMatch(value)) {
+                return 'Enter a valid email address';
+              }
+              return null;
+            },
           ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-        ),
+          SizedBox(height: 4), // Space for validation message
+        ],
       ),
     );
   }

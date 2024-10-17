@@ -165,7 +165,8 @@ class SignupView extends StatelessWidget {
                 color: Color(0xFFB7A06A),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Center(
+              child:
+              Center(
                   child: logic.isLoading.value == true
                       ? SizedBox(
                           width: 20.0, // Adjust the width
@@ -416,7 +417,8 @@ class SignupView extends StatelessWidget {
   }
 
   Widget buildPasswordField(SignUpLogic logic) {
-    return Obx(() => Container(
+    return
+      Obx(() => Container(
       margin: EdgeInsets.only(top: 20),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
       child: Column(
@@ -484,7 +486,8 @@ class SignupView extends StatelessWidget {
   }
 
   Widget buildEmailField(SignUpLogic logic) {
-    return Container(
+    return
+      Container(
       margin: EdgeInsets.only(top: 20),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
       child: Column(
