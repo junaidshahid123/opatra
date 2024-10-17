@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:opatra/UI/auth/login/login_view.dart';
 import 'package:opatra/UI/home/about_us.dart';
 import 'package:opatra/UI/home/bag.dart';
+import 'package:opatra/UI/home/contact_us/contact_us_view.dart';
 import 'package:opatra/UI/home/product_detail.dart';
 import 'package:opatra/UI/home/register_your_own_product.dart';
 import 'package:opatra/UI/home/treatment.dart';
@@ -18,7 +19,6 @@ import '../../models/MDAllVideos.dart';
 import '../../models/MDProductsByCategory.dart';
 import '../../models/MDVideosByCategory.dart';
 import 'ask_ouur_experts/ask_our_experts_view.dart';
-import 'contact_us.dart';
 import 'live_stream.dart';
 import 'notifications.dart';
 import 'package:http/http.dart' as http;
@@ -1062,7 +1062,7 @@ class _BottomBarHost extends State<BottomBarHost> {
       highlightColor: Colors.transparent,
       onTap: () {
         selectedIndex.value = 5;
-        Get.to(() => ContactUs());
+        Get.to(() => ContactUsView());
       },
       child: Container(
         margin: EdgeInsets.only(

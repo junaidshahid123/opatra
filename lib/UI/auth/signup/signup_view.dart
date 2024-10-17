@@ -165,8 +165,7 @@ class SignupView extends StatelessWidget {
                 color: Color(0xFFB7A06A),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child:
-              Center(
+              child: Center(
                   child: logic.isLoading.value == true
                       ? SizedBox(
                           width: 20.0, // Adjust the width
@@ -287,70 +286,71 @@ class SignupView extends StatelessWidget {
 
   Widget buildConfirmPasswordField(SignUpLogic logic) {
     return Obx(() => Container(
-      margin: EdgeInsets.only(top: 20),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextFormField(
-            controller: logic.confirmPasswordController,
-            cursorColor: AppColors.appPrimaryBlackColor,
-            style: TextStyle(color: AppColors.appPrimaryBlackColor),
-            obscureText: logic.isPasswordA.value, // Obscure text if true
-            decoration: InputDecoration(
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF989898)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF989898)),
-              ),
-              label: RichText(
-                text: TextSpan(
-                  text: 'Confirm Password ',
-                  style: TextStyle(
-                    color: Color(0xFF989898),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+          margin: EdgeInsets.only(top: 20),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                controller: logic.confirmPasswordController,
+                cursorColor: AppColors.appPrimaryBlackColor,
+                style: TextStyle(color: AppColors.appPrimaryBlackColor),
+                obscureText: logic.isConfirmPassword.value,
+                // Obscure text if true
+                decoration: InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF989898)),
                   ),
-                  children: [
-                    TextSpan(
-                      text: '*',
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF989898)),
+                  ),
+                  label: RichText(
+                    text: TextSpan(
+                      text: 'Confirm Password ',
                       style: TextStyle(
-                        color: Colors.brown, // Set the asterisk color here
-                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF989898),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                       ),
+                      children: [
+                        TextSpan(
+                          text: '*',
+                          style: TextStyle(
+                            color: Colors.brown, // Set the asterisk color here
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                  hintText: '***********',
+                  hintStyle: TextStyle(color: Color(0xFF989898)),
+                  suffixIcon: IconButton(
+                    icon: Icon(logic.isConfirmPassword.value
+                        ? Icons.visibility_off
+                        : Icons.visibility),
+                    onPressed: () => logic.onConfirmPasswordTap(),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
                 ),
+                // Validator for the TextFormField
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Confirm Password cannot be empty';
+                  }
+                  // Check if the password and confirm password match
+                  if (value != logic.passwordController.text) {
+                    return 'Passwords do not match';
+                  }
+                  return null; // Return null if no error
+                },
               ),
-              hintText: '***********',
-              hintStyle: TextStyle(color: Color(0xFF989898)),
-              suffixIcon: IconButton(
-                icon: Icon(logic.isPasswordA.value
-                    ? Icons.visibility_off
-                    : Icons.visibility),
-                onPressed: () => logic.onPasswordTap(),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20.0),
-              ),
-            ),
-            // Validator for the TextFormField
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Confirm Password cannot be empty';
-              }
-              // Check if the password and confirm password match
-              if (value != logic.passwordController.text) {
-                return 'Passwords do not match';
-              }
-              return null; // Return null if no error
-            },
+              SizedBox(height: 4), // Space for validation message
+            ],
           ),
-          SizedBox(height: 4), // Space for validation message
-        ],
-      ),
-    ));
+        ));
   }
 
   Widget buildPhoneField(SignUpLogic logic) {
@@ -402,7 +402,8 @@ class SignupView extends StatelessWidget {
                 return 'Phone cannot be empty';
               }
               // Add an additional check for valid phone number format
-              final phonePattern = r'^\+?[0-9\s]+$'; // Adjust this regex based on your phone number format
+              final phonePattern =
+                  r'^\+?[0-9\s]+$'; // Adjust this regex based on your phone number format
               final regex = RegExp(phonePattern);
               if (!regex.hasMatch(value)) {
                 return 'Enter a valid phone number';
@@ -417,77 +418,77 @@ class SignupView extends StatelessWidget {
   }
 
   Widget buildPasswordField(SignUpLogic logic) {
-    return
-      Obx(() => Container(
-      margin: EdgeInsets.only(top: 20),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          TextFormField(
-            controller: logic.passwordController,
-            cursorColor: AppColors.appPrimaryBlackColor,
-            style: TextStyle(color: AppColors.appPrimaryBlackColor),
-            obscureText: logic.isPasswordA.value, // Obscure text if true
-            decoration: InputDecoration(
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF989898)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF989898)),
-              ),
-              label: RichText(
-                text: TextSpan(
-                  text: 'Password ',
-                  style: TextStyle(
-                    color: Color(0xFF989898),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+    return Obx(() => Container(
+          margin: EdgeInsets.only(top: 20),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextFormField(
+                controller: logic.passwordController,
+                cursorColor: AppColors.appPrimaryBlackColor,
+                style: TextStyle(color: AppColors.appPrimaryBlackColor),
+                obscureText: logic.isPasswordA.value,
+                // Obscure text if true
+                decoration: InputDecoration(
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF989898)),
                   ),
-                  children: [
-                    TextSpan(
-                      text: '*',
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFF989898)),
+                  ),
+                  label: RichText(
+                    text: TextSpan(
+                      text: 'Password ',
                       style: TextStyle(
-                        color: Colors.brown, // Set the asterisk color here
-                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF989898),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                       ),
+                      children: [
+                        TextSpan(
+                          text: '*',
+                          style: TextStyle(
+                            color: Colors.brown,
+                            // Set the asterisk color here
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+                  hintText: '***********',
+                  hintStyle: TextStyle(color: Color(0xFF989898)),
+                  suffixIcon: IconButton(
+                    icon: Icon(logic.isPasswordA.value
+                        ? Icons.visibility_off
+                        : Icons.visibility),
+                    onPressed: () => logic.onPasswordTap(),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
                 ),
+                // Validator for the TextFormField
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Password cannot be empty';
+                  }
+                  if (value.length < 8) {
+                    return 'Password must be at least 8 characters';
+                  }
+                  // Add any other password rules you want to enforce here
+                  return null; // Return null if no error
+                },
               ),
-              hintText: '***********',
-              hintStyle: TextStyle(color: Color(0xFF989898)),
-              suffixIcon: IconButton(
-                icon: Icon(logic.isPasswordA.value
-                    ? Icons.visibility_off
-                    : Icons.visibility),
-                onPressed: () => logic.onPasswordTap(),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20.0),
-              ),
-            ),
-            // Validator for the TextFormField
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Password cannot be empty';
-              }
-              if (value.length < 8) {
-                return 'Password must be at least 8 characters';
-              }
-              // Add any other password rules you want to enforce here
-              return null; // Return null if no error
-            },
+              SizedBox(height: 4), // Space for validation message
+            ],
           ),
-          SizedBox(height: 4), // Space for validation message
-        ],
-      ),
-    ));
+        ));
   }
 
   Widget buildEmailField(SignUpLogic logic) {
-    return
-      Container(
+    return Container(
       margin: EdgeInsets.only(top: 20),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
       child: Column(
@@ -545,7 +546,8 @@ class SignupView extends StatelessWidget {
                 return 'Email cannot be empty';
               }
               // Add an additional check for valid email format
-              final emailPattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
+              final emailPattern =
+                  r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
               final regex = RegExp(emailPattern);
               if (!regex.hasMatch(value)) {
                 return 'Enter a valid email address';

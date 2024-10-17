@@ -108,6 +108,7 @@ class LoginLogic extends GetxController {
   }
 
   onEyeButtonTap() {
+    print('kdfbvfahbafvjkfv');
     isPassword.value = !isPassword.value;
   }
 

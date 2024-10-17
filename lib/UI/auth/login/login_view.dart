@@ -251,7 +251,8 @@ class LoginView extends StatelessWidget {
                     icon: Icon(logic.isPassword.value
                         ? Icons.visibility_off
                         : Icons.visibility),
-                    onPressed: () => logic.onEyeButtonTap,
+                    onPressed: () => logic.onEyeButtonTap(),
+
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20.0),
