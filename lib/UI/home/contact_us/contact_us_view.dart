@@ -433,7 +433,10 @@ class ContactUsView extends StatelessWidget {
               onChanged: (phone) {
                 // Update the selected country code whenever it changes
                 logic.selectedCountryCode.value = phone.countryCode;
+                 logic.fullPhoneNumber =
+                    '${logic.selectedCountryCode.value}${logic.phoneController.text}';
 
+                print('Full Phone Number: ${logic.fullPhoneNumber}');
               },
               validator: (value) {
                 if (value == null || value.completeNumber.isEmpty) {

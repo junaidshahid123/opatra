@@ -18,12 +18,9 @@ class ContactUsController extends GetxController {
   AutovalidateMode autoValidateMode = AutovalidateMode.disabled;
   var selectedCountryCode = ''.obs; // Default country code
   bool isPhoneValid = true; // Track phone validation state
-
+  String fullPhoneNumber='';
 
   Future<void> sendData() async {
-    String fullPhoneNumber = '${selectedCountryCode.value}${phoneController.text}';
-
-    print('Full Phone Number: $fullPhoneNumber');
 
 
     // Validate the form using formKey
@@ -47,9 +44,9 @@ class ContactUsController extends GetxController {
       "subject": subjectController.text,
       "name": nameController.text,
       "email": emailController.text,
-      "phone": phoneController.text,
+      "phone": fullPhoneNumber,
       "message": messageController.text,
-      "notified_by": emailOption.value==true ? 'email' : 'phone',
+      "notified_by": emailOption.value == true ? 'email' : 'phone',
     };
     print('data===${data}');
 
