@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import '../constant/AppLinks.dart';
 import '../models/MDProductDetail.dart';
 import '../models/MDProductDetailImages.dart';
 
@@ -18,7 +19,7 @@ class ProductDetailController extends GetxController {
 
 
   Future<void> fetchProductDetail(int id) async {
-    final url = Uri.parse('https://opatra.fai-tech.online/api/product/${id}');
+    final url = Uri.parse('${ApiUrls.baseUrl}/product/${id}');
 
     // Retrieve token from SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();

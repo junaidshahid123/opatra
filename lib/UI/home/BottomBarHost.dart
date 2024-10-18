@@ -676,7 +676,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                                     : Container()),
                                 //video heading
                                 Obx(
-                                      () => video.value == true
+                                  () => video.value == true
                                       ? buildCategoriesForVideos()
                                       : Container(),
                                 ),
@@ -684,14 +684,29 @@ class _BottomBarHost extends State<BottomBarHost> {
                                 Obx(() {
                                   return video.value == true
                                       ? controller.mdVideosByCategory == null
-                                      ? Center(
-                                    child: CircularProgressIndicator(
-                                      color: Color(0xFFB7A06A),
+                                          ? Container(
+                                     margin: EdgeInsets.only(top: 20),
+                                            child: Center(
+                                                child: CircularProgressIndicator(
+                                                  color: Color(0xFFB7A06A),
+                                                ),
+                                              ),
+                                          )
+                                          : controller.isLoading.value == true
+                                              ? Container(
+                                    margin: EdgeInsets.only(top: 20),
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        color: Color(0xFFB7A06A),
+                                      ),
                                     ),
                                   )
-                                      : VideoGridWidget(
-                                    videos: controller.mdVideosByCategory!.data!.videos!,
-                                  )
+                                              : VideoGridWidget(
+                                                  videos: controller
+                                                      .mdVideosByCategory!
+                                                      .data!
+                                                      .videos!,
+                                                )
                                       : Container(); // Empty container if the video value is false
                                 }),
                               ],
@@ -1359,24 +1374,26 @@ class _BottomBarHost extends State<BottomBarHost> {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-
                     // Access 'thumbnail' using dot notation
                     video.thumbnail != null
                         ? Image.network(
-                     "https://opatra.fai-tech.online/${video.thumbnail}",
-                      fit: BoxFit.fill,
-                      width: double.infinity,
-                      height: double.infinity,
-                      errorBuilder: (context, error, stackTrace) {
-                        print('Error loading image: $error'); // Add this to debug errors
-                        return Icon(Icons.error); // Show error icon if image fails to load
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(child: CircularProgressIndicator()); // Show loader while the image is loading
-                      },
-                    )
-
+                            "https://opatra.fai-tech.online/${video.thumbnail}",
+                            fit: BoxFit.fill,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              print(
+                                  'Error loading image: $error'); // Add this to debug errors
+                              return Icon(Icons
+                                  .error); // Show error icon if image fails to load
+                            },
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                  child:
+                                      CircularProgressIndicator()); // Show loader while the image is loading
+                            },
+                          )
                         : Container(
                             color: Colors
                                 .grey, // Default background if thumbnail is missing
@@ -1418,8 +1435,8 @@ class _BottomBarHost extends State<BottomBarHost> {
                   onTap: () {
                     searchTextController.clear();
                     selectedCategoryForVideo.value = index;
-                    controller.fetchProductByCategory(
-                        controller.mdCategories!.smartCollections![index].id!);
+                    controller.fetchVideoByCategory(
+                        controller.mdAllVideoCategories!.data![index].id!);
                   },
                   child: Obx(
                     () => Container(
@@ -1543,9 +1560,10 @@ class _BottomBarHost extends State<BottomBarHost> {
                         // width: 60,
                         decoration: BoxDecoration(
                             border: Border.all(
-                                color: selectedCategoryForSkinCare.value == index
-                                    ? Colors.transparent
-                                    : Color(0xFFFBF3D7)),
+                                color:
+                                    selectedCategoryForSkinCare.value == index
+                                        ? Colors.transparent
+                                        : Color(0xFFFBF3D7)),
                             borderRadius: BorderRadius.circular(20),
                             color: selectedCategoryForSkinCare.value == index
                                 ? Color(0xFFB7A06A)
@@ -1558,9 +1576,10 @@ class _BottomBarHost extends State<BottomBarHost> {
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
-                                color: selectedCategoryForSkinCare.value == index
-                                    ? AppColors.appWhiteColor
-                                    : AppColors.appPrimaryBlackColor),
+                                color:
+                                    selectedCategoryForSkinCare.value == index
+                                        ? AppColors.appWhiteColor
+                                        : AppColors.appPrimaryBlackColor),
                           ),
                         ))),
                   ),
@@ -1723,13 +1742,13 @@ class _BottomBarHost extends State<BottomBarHost> {
   Widget buildName() {
     return Obx(() => home.value == true
         ? Text(
-      'Hello ${controller.userName.split(' ')[0]}', // Only take the first word
-      style: TextStyle(
-        fontSize: 15,
-        fontWeight: FontWeight.bold,
-        color: Color(0xFF333333),
-      ),
-    )
+            'Hello ${controller.userName.split(' ')[0]}', // Only take the first word
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF333333),
+            ),
+          )
         : product.value == true
             ? const Text(
                 'All Products',
@@ -2330,7 +2349,6 @@ class _BottomBarHost extends State<BottomBarHost> {
           )
         : Container(
             height: 200,
-
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: controller.mdAllBanners!.data!.length,
@@ -2343,15 +2361,20 @@ class _BottomBarHost extends State<BottomBarHost> {
                   width: containerWidth,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: Colors.grey.shade200, // Change to any color you like
-                      width: 1.0,          // Adjust the thickness of the border
+                      color:
+                          Colors.grey.shade200, // Change to any color you like
+                      width: 1.0, // Adjust the thickness of the border
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.2), // Shadow color with opacity
-                        spreadRadius: 2,  // How much the shadow spreads
-                        blurRadius: 8,    // Blur radius to soften the shadow
-                        offset: Offset(0, 4), // Shadow position (x, y) (Here it is below the container)
+                        color: Colors.grey.withOpacity(0.2),
+                        // Shadow color with opacity
+                        spreadRadius: 2,
+                        // How much the shadow spreads
+                        blurRadius: 8,
+                        // Blur radius to soften the shadow
+                        offset: Offset(0,
+                            4), // Shadow position (x, y) (Here it is below the container)
                       ),
                     ],
                     color: AppColors.appWhiteColor,
@@ -2703,7 +2726,8 @@ class VideoGridWidget extends StatelessWidget {
           final video = videos[index];
           final videoUrl = video.videoUrl ?? '';
           final thumbnailUrl =
-          video.thumbnail != null ? 'https://opatra.fai-tech.online/${video.thumbnail}' : '';
+              video.thumbnail != null ? '${video.thumbnail}' : '';
+          print('This is video Thumbnail==========${video.thumbnail}');
 
           return GestureDetector(
             onTap: () {
@@ -2720,27 +2744,27 @@ class VideoGridWidget extends StatelessWidget {
                   // Display thumbnail with FadeInImage for a smoother image loading experience
                   thumbnailUrl.isNotEmpty
                       ? FadeInImage.assetNetwork(
-                    placeholder: 'assets/images/youtubeLogo.png',
-                    image: thumbnailUrl,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    imageErrorBuilder: (context, error, stackTrace) {
-                      print('Error loading image: $error');
-                      return Container(
-                        color: Colors.grey.shade300,
-                        child: const Center(
-                          child: Icon(Icons.error, color: Colors.red),
-                        ),
-                      );
-                    },
-                  )
+                          placeholder: 'assets/images/youtubeLogo.png',
+                          image: thumbnailUrl,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                          imageErrorBuilder: (context, error, stackTrace) {
+                            print('Error loading image: $error');
+                            return Container(
+                              color: Colors.grey.shade300,
+                              child: const Center(
+                                child: Icon(Icons.error, color: Colors.red),
+                              ),
+                            );
+                          },
+                        )
                       : Container(
-                    color: Colors.grey.shade300,
-                    child: const Center(
-                      child: Icon(Icons.error, color: Colors.red),
-                    ),
-                  ),
+                          color: Colors.grey.shade300,
+                          child: const Center(
+                            child: Icon(Icons.error, color: Colors.red),
+                          ),
+                        ),
                   // Play icon overlay
                   const Icon(
                     Icons.play_circle_fill,
@@ -2756,7 +2780,6 @@ class VideoGridWidget extends StatelessWidget {
     );
   }
 }
-
 
 class CenteredExpandingPageView extends StatefulWidget {
   @override

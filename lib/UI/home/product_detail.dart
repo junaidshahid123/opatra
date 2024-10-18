@@ -76,7 +76,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               buildProductName(),
                               buildDescription(),
                               buildAddToBagButton(),
-
                             ],
                           )
                   ],
@@ -179,11 +178,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       }),
     );
   }
-
-
-
-
-
 
   Widget buildDescription() {
     String bodyHtml = controller.mdProductDetail!.product!.bodyHtml!;
@@ -359,12 +353,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               Row(
                 children: [
                   Text(
-                    controller.mdProductDetail!.product!.title!,
+                    controller.mdProductDetail!.product!.title!.length > 30
+                        ? controller.mdProductDetail!.product!.title!.substring(0, 30) + '...'
+                        : controller.mdProductDetail!.product!.title!,
                     style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xFF333333)),
-                  ),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF333333),
+                    ),
+                  )
+
                 ],
               ),
               Row(
@@ -530,10 +528,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget buildName() {
-    return Text(
-      controller.mdProductDetail!.product!.title!,
-      style: TextStyle(
-          fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF333333)),
+    return Expanded(
+      child: Text(
+        controller.mdProductDetail!.product!.title!.length > 10
+            ? controller.mdProductDetail!.product!.title!.substring(0, 10) +
+                '...'
+            : controller.mdProductDetail!.product!.title!,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF333333)),
+      ),
     );
   }
 }
