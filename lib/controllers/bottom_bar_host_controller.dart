@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../constant/AppLinks.dart';
 import '../models/MDAllBanners.dart';
 import '../models/MDAllVideoCategories.dart';
 import '../models/MDAllVideos.dart';
@@ -149,7 +150,7 @@ class BottomBarHostController extends GetxController {
   }
 
   Future<void> fetchProductByCategory(int id) async {
-    mdProductsByCategory=null;
+    mdProductsByCategory = null;
     searchQuery.value = '';
     isLoading.value = true;
     final url =
@@ -190,7 +191,7 @@ class BottomBarHostController extends GetxController {
   }
 
   Future<void> fetchAllBanners() async {
-    final url = Uri.parse('https://opatra.fai-tech.online/api/banner');
+    final url = Uri.parse(ApiUrls.banner);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -222,7 +223,6 @@ class BottomBarHostController extends GetxController {
       print('Error: $e');
     }
   }
-
 
   Future<void> fetchAllVideos() async {
     final url = Uri.parse('https://opatra.fai-tech.online/api/video');
@@ -261,8 +261,7 @@ class BottomBarHostController extends GetxController {
   }
 
   Future<void> fetchProductCategories() async {
-    final url =
-        Uri.parse('https://opatra.fai-tech.online/api/product-category');
+    final url = Uri.parse(ApiUrls.productCategory);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
@@ -313,8 +312,8 @@ class BottomBarHostController extends GetxController {
           print('title============${mdCategories!.smartCollections![i].title}');
         }
 
-          fetchProductByCategory(skinCareCategories[0].id!);
-          update();
+        fetchProductByCategory(skinCareCategories[0].id!);
+        update();
 
         update();
       } else {
@@ -327,7 +326,7 @@ class BottomBarHostController extends GetxController {
   }
 
   Future<void> fetchVideoCategories() async {
-    final url = Uri.parse('https://opatra.fai-tech.online/api/video-category');
+    final url = Uri.parse(ApiUrls.videoCategory);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
@@ -364,7 +363,7 @@ class BottomBarHostController extends GetxController {
   }
 
   Future<void> fetchAllProducts() async {
-    final url = Uri.parse('https://opatra.fai-tech.online/api/products');
+    final url = Uri.parse(ApiUrls.products);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
@@ -388,9 +387,8 @@ class BottomBarHostController extends GetxController {
         mdProducts = MDProducts.fromJson(data);
         print('mdProducts: $mdProducts');
         update();
-        for(int i=0;i<mdProducts!.products!.length;i++){
+        for (int i = 0; i < mdProducts!.products!.length; i++) {
           print('title============${mdProducts!.products![i].title}');
-
         }
       } else {
         print('Failed to load products. Status Code: ${response.statusCode}');
@@ -401,7 +399,7 @@ class BottomBarHostController extends GetxController {
   }
 
   Future<void> fetchLatestProducts() async {
-    final url = Uri.parse('https://opatra.fai-tech.online/api/latest-products');
+    final url = Uri.parse(ApiUrls.getLatestProducts);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs

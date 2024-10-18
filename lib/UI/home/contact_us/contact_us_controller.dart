@@ -1,9 +1,9 @@
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import '../../../constant/AppLinks.dart';
 import '../BottomBarHost.dart';
 
 class ContactUsController extends GetxController {
@@ -18,11 +18,9 @@ class ContactUsController extends GetxController {
   AutovalidateMode autoValidateMode = AutovalidateMode.disabled;
   var selectedCountryCode = ''.obs; // Default country code
   bool isPhoneValid = true; // Track phone validation state
-  String fullPhoneNumber='';
+  String fullPhoneNumber = '';
 
   Future<void> sendData() async {
-
-
     // Validate the form using formKey
     final isValid = contactUs.currentState!.validate();
 
@@ -36,8 +34,7 @@ class ContactUsController extends GetxController {
 
     // Show loading spinner
     isLoading.value = true;
-    final url = Uri.parse(
-        'https://opatra.fai-tech.online/api/contact-us'); // API endpoint
+    final url = Uri.parse(ApiUrls.contactUsUrl);
 
     // Data to be sent in the POST request
     final Map<String, dynamic> data = {

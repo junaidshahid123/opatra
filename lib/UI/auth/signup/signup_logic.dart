@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../constant/AppLinks.dart';
 import '../../../main.dart';
 import '../otp_verification.dart';
 
@@ -35,7 +36,7 @@ class SignUpLogic extends GetxController {
     // Show loading spinner
     isLoading.value = true;
 
-    final String url = 'https://opatra.fai-tech.online/api/register';
+    final url = Uri.parse(ApiUrls.signUpUrl);
 
     // Prepare request body
     Map<String, String> requestBody = {
@@ -56,7 +57,7 @@ class SignUpLogic extends GetxController {
 
       // Send the HTTP POST request
       final http.Response response = await client.post(
-        Uri.parse(url),
+        url,
         headers: headers,
         body: requestBody,
       );

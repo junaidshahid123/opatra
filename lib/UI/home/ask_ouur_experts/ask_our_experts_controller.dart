@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:opatra/UI/home/BottomBarHost.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../constant/AppLinks.dart';
+
 class AskOurExpertsController extends GetxController {
   RxBool isLoading = false.obs;
 
@@ -30,8 +32,7 @@ class AskOurExpertsController extends GetxController {
 
     // Show loading spinner
     isLoading.value = true;
-    final url = Uri.parse(
-        'https://opatra.fai-tech.online/api/ask-expert'); // API endpoint
+    final url = Uri.parse(ApiUrls.askExpert);
 
     // Data to be sent in the POST request
     final Map<String, dynamic> data = {

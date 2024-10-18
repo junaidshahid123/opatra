@@ -14,6 +14,7 @@ import 'package:opatra/UI/home/warranty_claim.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../constant/AppLinks.dart';
 import '../../controllers/bottom_bar_host_controller.dart';
 import '../../models/MDAllVideos.dart';
 import '../../models/MDProductsByCategory.dart';
@@ -52,7 +53,7 @@ class _BottomBarHost extends State<BottomBarHost> {
 
   Future<void> logOut() async {
     isLoading.value = true;
-    final String url = 'https://opatra.fai-tech.online/api/logout';
+    final url = Uri.parse(ApiUrls.logoutUrl);
     // Retrieve token from SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
@@ -72,7 +73,7 @@ class _BottomBarHost extends State<BottomBarHost> {
     try {
       final client = http.Client();
       final http.Response response = await client.post(
-        Uri.parse(url),
+        url,
         headers: headers,
       );
 
