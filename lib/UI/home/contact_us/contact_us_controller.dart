@@ -16,8 +16,16 @@ class ContactUsController extends GetxController {
   final contactUs = GlobalKey<FormState>();
   RxBool emailOption = false.obs;
   AutovalidateMode autoValidateMode = AutovalidateMode.disabled;
+  var selectedCountryCode = ''.obs; // Default country code
+  bool isPhoneValid = true; // Track phone validation state
+
 
   Future<void> sendData() async {
+    String fullPhoneNumber = '${selectedCountryCode.value}${phoneController.text}';
+
+    print('Full Phone Number: $fullPhoneNumber');
+
+
     // Validate the form using formKey
     final isValid = contactUs.currentState!.validate();
 
@@ -43,6 +51,7 @@ class ContactUsController extends GetxController {
       "message": messageController.text,
       "notified_by": emailOption.value==true ? 'email' : 'phone',
     };
+    print('data===${data}');
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs

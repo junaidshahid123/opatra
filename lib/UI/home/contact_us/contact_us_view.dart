@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:opatra/UI/home/contact_us/contact_us_controller.dart';
 import '../../../constant/AppColors.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 
 class ContactUsView extends StatelessWidget {
   ContactUsView({super.key});
@@ -367,16 +368,12 @@ class ContactUsView extends StatelessWidget {
           ),
           SizedBox(height: 5),
           Container(
-            height: 65, // Adjust height to accommodate validation message
-            width: double.infinity, // Full width
-            child: TextFormField(
-              style: TextStyle(color: AppColors.appPrimaryBlackColor),
-              controller: logic.phoneController,
-              // Ensure you have a controller
-              keyboardType: TextInputType.phone,
+            height: 80,
+            width: double.infinity,
+            child: IntlPhoneField(
+              enabled: true,
+              flagsButtonPadding: EdgeInsets.only(left: 10),
               decoration: InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(
                     color: Color(0xFFEDEDED),
@@ -395,53 +392,57 @@ class ContactUsView extends StatelessWidget {
                 errorBorder: OutlineInputBorder(
                   borderSide: BorderSide(
                     color: Colors.red,
-                    // Red border for validation errors
                     width: 1.5,
                   ),
                 ),
                 focusedErrorBorder: OutlineInputBorder(
                   borderSide: BorderSide(
                     color: Colors.red,
-                    // Red border when focused and error exists
                     width: 1.5,
                   ),
                 ),
                 errorStyle: TextStyle(
-                  color: Colors.red, // Red color for the error message
-                  fontSize: 12, // Optional: Adjust the error message text size
+                  color: Colors.red,
+                  fontSize: 12,
                 ),
-                prefixIcon: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        '+32', // Default country code
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                        ),
+                      SizedBox(width: 10),
+                      Icon(
+                        Icons.phone,
+                        color: Colors.black,
+                        size: 20,
                       ),
-                      SizedBox(width: 20),
-                      Container(
-                        height: 20,
-                        width: 20,
-                        child: Image.asset(
-                          'assets/images/downIcon.png', // Adjust the image within the container
-                        ),
-                      ),
+                      SizedBox(width: 10),
                     ],
                   ),
                 ),
               ),
+              initialCountryCode: 'GB',
+              controller: logic.phoneController,
+              showDropdownIcon: true,
+              dropdownTextStyle: TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+              ),
+              keyboardType: TextInputType.phone,
+              style: TextStyle(color: AppColors.appPrimaryBlackColor),
+              onChanged: (phone) {
+                // Update the selected country code whenever it changes
+                logic.selectedCountryCode.value = phone.countryCode;
+
+              },
               validator: (value) {
-                if (value == null || value.isEmpty) {
+                if (value == null || value.completeNumber.isEmpty) {
                   return 'Phone number cannot be empty';
                 }
-                if (!RegExp(r'^[0-9]{10,15}$').hasMatch(value)) {
+                if (!RegExp(r'^[0-9]{10,15}$').hasMatch(value.number)) {
                   return 'Enter a valid phone number (10-15 digits)';
                 }
-                return null; // No error if input is valid
+                return null;
               },
             ),
           ),
@@ -453,6 +454,7 @@ class ContactUsView extends StatelessWidget {
   Widget buildSubmitButton(BuildContext context, ContactUsController logic) {
     return Obx(() => InkWell(
           onTap: () {
+            // Now call sendData where the phone number will be fully updated
             logic.sendData();
           },
           child: Container(
