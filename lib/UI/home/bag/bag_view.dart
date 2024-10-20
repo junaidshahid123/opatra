@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:opatra/UI/home/bag/bag_controller.dart';
 import 'package:opatra/models/MDProductDetail.dart';
-
 import '../../../constant/AppColors.dart';
 
 class BagView extends StatelessWidget {
@@ -22,7 +21,10 @@ class BagView extends StatelessWidget {
                   buildAppBar(),
                   buildListOfProducts(logic),
                   Container(
-                    height: MediaQuery.of(context).size.height / 3,
+                    height: MediaQuery
+                        .of(context)
+                        .size
+                        .height / 3,
                     margin: EdgeInsets.only(
                         left: 20, right: 20, bottom: 20, top: 20),
                     decoration: BoxDecoration(
@@ -163,7 +165,10 @@ class BagView extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(top: 10),
       height: 0.2,
-      width: MediaQuery.of(context).size.width,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
       decoration: BoxDecoration(
         color: AppColors.appWhiteColor,
       ),
@@ -177,7 +182,10 @@ class BagView extends StatelessWidget {
       },
       child: Container(
           margin: EdgeInsets.only(bottom: 20),
-          width: MediaQuery.of(context).size.width,
+          width: MediaQuery
+              .of(context)
+              .size
+              .width,
           height: 45,
           decoration: BoxDecoration(
             color: Color(0xFFFBF3D7),
@@ -195,7 +203,8 @@ class BagView extends StatelessWidget {
     );
   }
 
-  Widget buildNameAndTime(Product product, int quantity, BagController logic) {
+  Widget buildNameAndTime(ProductA product, int quantity, BagController logic) {
+    print('product.selectedCurrency======${product.selectedCurrency}');
     return Container(
       margin: EdgeInsets.only(left: 20),
       child: Column(
@@ -212,21 +221,27 @@ class BagView extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
             overflow:
-                TextOverflow.ellipsis, // Add ellipsis if the text overflows
+            TextOverflow.ellipsis, // Add ellipsis if the text overflows
           ),
           SizedBox(
             height: 5,
           ),
           Row(
             children: [
+              // Currency icon based on selected currency
+              _getCurrencyIcon(product.selectedCurrency),
+              SizedBox(width: 5), // Space between icon and price
               Text(
-                '\$ ${product.variants![0].price!}',
+                '${product.price}',
                 // Assuming Product has a 'price' property
                 style: TextStyle(
                   color: Color(0xFFB7A06A),
                   fontWeight: FontWeight.w600,
                   fontSize: 20,
                 ),
+              ),
+              SizedBox(
+                width: 20,
               ),
               Row(
                 children: [
@@ -295,8 +310,7 @@ class BagView extends StatelessWidget {
     );
   }
 
-  Widget buildImage(Product product) {
-    print('product.image!.src !====${product.image!.src}'); // Check the value of src
+  Widget buildImage(ProductA product) {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
@@ -304,32 +318,35 @@ class BagView extends StatelessWidget {
       ),
       height: 100,
       width: 100,
-      child: product.image != null && product.image!.src != null && product.image!.src!.isNotEmpty
+      child: product.image != null &&
+          product.image!.src != null &&
+          product.image!.src!.isNotEmpty
           ? Image.network(
         product.image!.src!, // Product image path
-        fit: BoxFit.cover, // Adjusts the image to cover the entire container
+        fit: BoxFit
+            .cover, // Adjusts the image to cover the entire container
       )
           : Image.asset(
         'assets/images/skinCareDummy.png', // Path to your placeholder image
-        fit: BoxFit.cover, // Adjusts the image to cover the entire container
+        fit: BoxFit
+            .cover, // Adjusts the image to cover the entire container
       ),
     );
   }
 
-
   Widget buildListOfProducts(BagController logic) {
-    final bagItems = logic.getBagItems(); // Get the bag items
+    final cartItems = logic.getCartItems(); // Get the cart items
 
     return Expanded(
       child: Container(
         margin: EdgeInsets.only(left: 20, right: 20, top: 20),
         child: ListView.builder(
           scrollDirection: Axis.vertical,
-          itemCount: bagItems.length,
+          itemCount: cartItems.length,
           itemBuilder: (context, index) {
-            final productEntry = bagItems.entries.elementAt(index);
-            final product = productEntry.key; // The Product instance
-            final quantity = productEntry.value; // The quantity
+            final product = cartItems[index]; // Get the ProductA instance
+            final quantity =
+                product.quantity ?? 0; // Get the quantity for this product
 
             return Container(
               margin: EdgeInsets.only(top: 10),
@@ -342,7 +359,7 @@ class BagView extends StatelessWidget {
                 child: Row(
                   children: [
                     buildImage(product),
-                    // Pass the product to buildImage
+                    // Pass the ProductA instance to buildImage
                     buildNameAndTime(product, quantity, logic),
                     // Pass product and quantity to buildNameAndTime
                   ],
@@ -392,5 +409,23 @@ class BagView extends StatelessWidget {
       style: TextStyle(
           fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF333333)),
     );
+  }
+
+  // Method to get the currency icon based on selected currency
+  Widget _getCurrencyIcon(String? selectedCurrency) {
+    switch (selectedCurrency) {
+      case 'US Dollar':
+        return Icon(
+            Icons.attach_money, color: Color(0xFFB7A06A), size: 20); // Dollar icon
+      case 'Euro':
+        return Icon(
+            Icons.euro_symbol,  color: Color(0xFFB7A06A), size: 20); // Euro icon
+      case 'Pound':
+        return Icon(
+            Icons.currency_pound,     color: Color(0xFFB7A06A), size: 20); // Rupee icon
+    // Add more currencies as needed
+      default:
+        return SizedBox(); // Return an empty widget for unknown currency
+    }
   }
 }

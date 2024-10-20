@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
@@ -6,6 +8,7 @@ import 'package:opatra/UI/home/bag/bag_view.dart';
 import 'package:opatra/UI/home/product_detail/product_detail_controller.dart';
 import 'package:opatra/constant/AppColors.dart';
 
+import '../../../models/MDProductDetail.dart';
 import '../bag/bag_controller.dart';
 
 class ProductDetailView extends StatefulWidget {
@@ -218,15 +221,48 @@ class _ProductDetailViewState extends State<ProductDetailView> {
     );
   }
 
-    Widget buildAddToBagButton(ProductDetailController logic) {
-      return InkWell(
-        onTap: () {
-          print(
-              'controller.mdProductDetail.product.id====${controller.mdProductDetail!.product!.id}');
-          if (controller.mdProductDetail!.product != null) {
-            controller.addToBag(controller.mdProductDetail!.product);
-          print(
-              'Product added to bag: ${controller.mdProductDetail!.product!.id}');
+  Widget buildAddToBagButton(ProductDetailController logic) {
+    return InkWell(
+      onTap: () {
+        print(
+            'controller.mdProductDetail.product.id====${controller.mdProductDetail!.product!.id}');
+        print('controller.quantity.value====${controller.quantity.value}');
+        print('widget.currency====${widget.currency}');
+        int usDollarIndex = 6;
+        int euroIndex = 4;
+        int poundIndex = 0;
+        if (widget.currency == 'Pound') {
+          controller.price =
+              controller.mdProductDetail!.product!.variants![poundIndex].price!;
+        }
+        if (widget.currency == 'Euro') {
+          controller.price =
+              controller.mdProductDetail!.product!.variants![euroIndex].price!;
+        }
+        if (widget.currency == 'US Dollar') {
+          controller.price = controller
+              .mdProductDetail!.product!.variants![usDollarIndex].price!;
+        }
+        print('price====${controller.price}');
+// Ensure controller.price is a String that can be parsed as a double
+        var priceA = controller.quantity.value *
+            double.tryParse(controller.price!)!; // Safely parse the price
+
+        print('priceA====${priceA}');
+
+        if (controller.mdProductDetail!.product != null) {
+          // Create a new ProductA instance from the existing product data
+          ProductA productToAdd = ProductA(
+              id: controller.mdProductDetail!.product!.id,
+              title: controller.mdProductDetail!.product!.title,
+              image: controller.mdProductDetail!.product!.image,
+              // Ensure this is of type Images
+              price: priceA.toDouble(),
+              // Make sure this is a double
+              quantity: controller.quantity.value,
+              selectedCurrency: widget.currency);
+          controller.addToBag(productToAdd, widget.currency);
+
           Get.to(() => BagView());
         } else {
           print('No product found to add to the bag.');

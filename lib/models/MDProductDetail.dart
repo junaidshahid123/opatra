@@ -1,10 +1,13 @@
+import 'dart:ffi';
+
 class MDProductDetail {
   Product? product;
 
   MDProductDetail({this.product});
 
   MDProductDetail.fromJson(Map<String, dynamic> json) {
-    product = json['product'] != null ? Product.fromJson(json['product']) : null;
+    product =
+        json['product'] != null ? Product.fromJson(json['product']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -73,10 +76,12 @@ class Product {
     status = json['status'];
     adminGraphqlApiId = json['admin_graphql_api_id'];
     if (json['variants'] != null) {
-      variants = (json['variants'] as List).map((v) => Variants.fromJson(v)).toList();
+      variants =
+          (json['variants'] as List).map((v) => Variants.fromJson(v)).toList();
     }
     if (json['options'] != null) {
-      options = (json['options'] as List).map((v) => Options.fromJson(v)).toList();
+      options =
+          (json['options'] as List).map((v) => Options.fromJson(v)).toList();
     }
     if (json['images'] != null) {
       images = (json['images'] as List).map((v) => Images.fromJson(v)).toList();
@@ -323,5 +328,25 @@ class Images {
     data['src'] = src;
     data['variant_ids'] = variantIds;
     return data;
+  }
+}
+
+class ProductA {
+  int? id;
+  String? title;
+  Images? image;
+  double? price;
+  int? quantity;
+  String? selectedCurrency;
+
+  ProductA({this.id, this.title, this.image, this.price, this.quantity,this.selectedCurrency});
+
+  ProductA.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    title = json['title'];
+    image = json['image'] != null ? Images.fromJson(json['image']) : null;
+    price = json['price'];
+    quantity = json['quantity'];
+    selectedCurrency = json['selectedCurrency'];
   }
 }

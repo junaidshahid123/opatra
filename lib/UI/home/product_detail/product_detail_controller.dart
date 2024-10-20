@@ -13,7 +13,7 @@ class ProductDetailController extends GetxController {
   MDProductDetailImages? mdProductDetailImages;
   RxInt quantity = 1.obs;
   var productDetail = MDProductDetail().obs;
-
+  var price ;
   tapOnDecrement() {
     if (quantity.value > 1) {
       quantity.value--;
@@ -32,8 +32,10 @@ class ProductDetailController extends GetxController {
     update();
   }
 
-  void addToBag(Product? product) {
-    Get.find<BagController>().addProductToBag(product!, quantity.value);
+   void addToBag(ProductA? product, String selectedCurrency)
+{
+  print('addToBag');
+    Get.find<BagController>().addProductToBag(product!, quantity.value,selectedCurrency);
     print('Product added to bag: ${product.id}, Quantity: ${quantity.value}');
   }
 
