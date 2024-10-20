@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:opatra/UI/Splash%20Screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'UI/home/bag/bag_controller.dart';
 import 'constant/AppColors.dart';
 import 'fcm_handle.dart';
 import 'firebase_options.dart';
@@ -23,6 +24,8 @@ void main() async {
   await initNotifications();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await FirebaseMessaging.instance.requestPermission();
+  Get.put(BagController());
+
   runApp(const MyApp());
 }
 

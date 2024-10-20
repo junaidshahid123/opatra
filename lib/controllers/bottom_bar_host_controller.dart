@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../UI/auth/login/login_view.dart';
 import '../constant/AppLinks.dart';
 import '../models/MDAllBanners.dart';
 import '../models/MDAllVideoCategories.dart';
@@ -106,6 +107,65 @@ class BottomBarHostController extends GetxController {
 
     isLoading.value = false; // Stop loading
   }
+  Future<void> logOut() async {
+    isLoading.value = true;
+    final url = Uri.parse(ApiUrls.logoutUrl);
+    // Retrieve token from SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token'); // Get the token from shared prefs
+
+    //  Ensure the token exists before proceeding
+    if (token == null || token.isEmpty) {
+      isLoading.value = false;
+      Get.snackbar('Error', 'No token found. Please log in again.',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return;
+    }
+    Map<String, String> headers = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $token", // Include the Bearer token in headers
+    };
+
+    try {
+      final client = http.Client();
+      final http.Response response = await client.post(
+        url,
+        headers: headers,
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        isLoading.value = false; // Stop loading spinner
+
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        print('responseData========${responseData}');
+        prefs.remove('token');
+        Get.snackbar('Success', 'Log Out Successfully');
+        Get.offAll(LoginView());
+      } else {
+        isLoading.value = false; // Stop loading spinner
+
+        // Handle errors
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        String errorMessage =
+            responseData['message'] ?? 'Failed to log out user';
+
+        if (responseData.containsKey('errors')) {
+          final errors = responseData['errors'] as Map<String, dynamic>;
+          errors.forEach((key, value) {
+            errorMessage += '\n${value.join(', ')}';
+          });
+        }
+
+        Get.snackbar('Error', errorMessage,
+            backgroundColor: Colors.red, colorText: Colors.white);
+      }
+    } catch (e) {
+      isLoading.value = false; // Stop loading spinner
+      Get.snackbar('Error', 'An error occurred: $e',
+          backgroundColor: Colors.red, colorText: Colors.white);
+    }
+  }
+
 
   Future<void> fetchVideoByCategory(int id) async {
     searchQuery.value = '';

@@ -1,20 +1,18 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:opatra/UI/auth/login/login_view.dart';
 import 'package:opatra/UI/home/about_us.dart';
 import 'package:opatra/UI/home/bag.dart';
+import 'package:opatra/UI/home/bag/bag_view.dart';
 import 'package:opatra/UI/home/contact_us/contact_us_view.dart';
-import 'package:opatra/UI/home/product_detail.dart';
+import 'package:opatra/UI/home/product_detail/product_detail_view.dart';
 import 'package:opatra/UI/home/register_your_own_product.dart';
 import 'package:opatra/UI/home/treatment.dart';
 import 'package:opatra/UI/home/warranty_claim.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../constant/AppLinks.dart';
 import '../../controllers/bottom_bar_host_controller.dart';
 import '../../models/MDAllVideos.dart';
 import '../../models/MDProductsByCategory.dart';
@@ -22,7 +20,6 @@ import '../../models/MDVideosByCategory.dart';
 import 'ask_ouur_experts/ask_our_experts_view.dart';
 import 'live_stream.dart';
 import 'notifications.dart';
-import 'package:http/http.dart' as http;
 
 class BottomBarHost extends StatefulWidget {
   const BottomBarHost({super.key});
@@ -50,65 +47,6 @@ class _BottomBarHost extends State<BottomBarHost> {
 
 // Declare a Timer variable to manage the debounce timing
   Timer? _debounce;
-
-  Future<void> logOut() async {
-    isLoading.value = true;
-    final url = Uri.parse(ApiUrls.logoutUrl);
-    // Retrieve token from SharedPreferences
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token'); // Get the token from shared prefs
-
-    //  Ensure the token exists before proceeding
-    if (token == null || token.isEmpty) {
-      isLoading.value = false;
-      Get.snackbar('Error', 'No token found. Please log in again.',
-          backgroundColor: Colors.red, colorText: Colors.white);
-      return;
-    }
-    Map<String, String> headers = {
-      "Accept": "application/json",
-      "Authorization": "Bearer $token", // Include the Bearer token in headers
-    };
-
-    try {
-      final client = http.Client();
-      final http.Response response = await client.post(
-        url,
-        headers: headers,
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        isLoading.value = false; // Stop loading spinner
-
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        print('responseData========${responseData}');
-        prefs.remove('token');
-        Get.snackbar('Success', 'Log Out Successfully');
-        Get.offAll(LoginView());
-      } else {
-        isLoading.value = false; // Stop loading spinner
-
-        // Handle errors
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        String errorMessage =
-            responseData['message'] ?? 'Failed to log out user';
-
-        if (responseData.containsKey('errors')) {
-          final errors = responseData['errors'] as Map<String, dynamic>;
-          errors.forEach((key, value) {
-            errorMessage += '\n${value.join(', ')}';
-          });
-        }
-
-        Get.snackbar('Error', errorMessage,
-            backgroundColor: Colors.red, colorText: Colors.white);
-      }
-    } catch (e) {
-      isLoading.value = false; // Stop loading spinner
-      Get.snackbar('Error', 'An error occurred: $e',
-          backgroundColor: Colors.red, colorText: Colors.white);
-    }
-  }
 
   void _showDialogForCurrency(BuildContext context) {
     showDialog(
@@ -339,7 +277,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                             InkWell(
                               onTap: () {
                                 // Add your logout functionality here
-                                logOut();
+                                controller.logOut();
                               },
                               child: Container(
                                   height: 50,
@@ -685,22 +623,25 @@ class _BottomBarHost extends State<BottomBarHost> {
                                   return video.value == true
                                       ? controller.mdVideosByCategory == null
                                           ? Container(
-                                     margin: EdgeInsets.only(top: 20),
-                                            child: Center(
-                                                child: CircularProgressIndicator(
+                                              margin: EdgeInsets.only(top: 20),
+                                              child: Center(
+                                                child:
+                                                    CircularProgressIndicator(
                                                   color: Color(0xFFB7A06A),
                                                 ),
                                               ),
-                                          )
+                                            )
                                           : controller.isLoading.value == true
                                               ? Container(
-                                    margin: EdgeInsets.only(top: 20),
-                                    child: Center(
-                                      child: CircularProgressIndicator(
-                                        color: Color(0xFFB7A06A),
-                                      ),
-                                    ),
-                                  )
+                                                  margin:
+                                                      EdgeInsets.only(top: 20),
+                                                  child: Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      color: Color(0xFFB7A06A),
+                                                    ),
+                                                  ),
+                                                )
                                               : VideoGridWidget(
                                                   videos: controller
                                                       .mdVideosByCategory!
@@ -1696,7 +1637,7 @@ class _BottomBarHost extends State<BottomBarHost> {
   Widget buildCartOption() {
     return InkWell(
       onTap: () {
-        Get.to(() => Bag());
+        Get.to(() => BagView());
       },
       child: Stack(
         alignment: Alignment.center,
@@ -2070,7 +2011,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                     // Navigate to ProductDetailScreen
                     int? id = smartCollection.id;
                     print('id=====${id}');
-                    Get.to(() => ProductDetailScreen(
+                    Get.to(() => ProductDetailView(
                           productId: id!,
                           currency: smartCollection.variants![0].title ==
                                   'Default Title'
@@ -2193,7 +2134,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                     // Navigate to ProductDetailScreen
                     int? id = smartCollection.id;
                     print('id=====${id}');
-                    Get.to(() => ProductDetailScreen(
+                    Get.to(() => ProductDetailView(
                           productId: id!,
                           currency: smartCollection.variants![0].title ==
                                   'Default Title'
@@ -2553,7 +2494,7 @@ class _BottomBarHost extends State<BottomBarHost> {
 
                     int? id = smartCollection.id;
                     print('id=====${id}');
-                    Get.to(() => ProductDetailScreen(
+                    Get.to(() => ProductDetailView(
                           productId: controller
                               .mdProductsByCategory!.products![index].id!,
                           currency: 'Pound',

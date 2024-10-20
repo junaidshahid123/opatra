@@ -2,25 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
+import 'package:opatra/UI/home/bag/bag_view.dart';
+import 'package:opatra/UI/home/product_detail/product_detail_controller.dart';
 import 'package:opatra/constant/AppColors.dart';
-import '../../controllers/product_detail_controller.dart';
-import 'bag.dart';
 
-class ProductDetailScreen extends StatefulWidget {
+import '../bag/bag_controller.dart';
+
+class ProductDetailView extends StatefulWidget {
   final int productId; // Example value you want to pass
   final String currency; // Example value you want to pass
 
-  const ProductDetailScreen(
+  const ProductDetailView(
       {super.key, required this.productId, required this.currency});
 
   @override
-  State<ProductDetailScreen> createState() => _ProductDetailScreenState();
+  State<ProductDetailView> createState() => _ProductDetailViewState();
 }
 
-class _ProductDetailScreenState extends State<ProductDetailScreen> {
+class _ProductDetailViewState extends State<ProductDetailView> {
   final ProductDetailController controller =
       Get.put(ProductDetailController()); // Initialize the controller
-  RxInt quantity = 1.obs;
   final PageController _pageController = PageController();
   int _currentPage = 0;
   bool isExpanded = false;
@@ -56,7 +57,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget build(BuildContext context) {
     return GetBuilder<ProductDetailController>(
         init: ProductDetailController(),
-        builder: (ProductDetailController) {
+        builder: (logic) {
           return Scaffold(
             backgroundColor: AppColors.appWhiteColor,
             body: SafeArea(
@@ -75,7 +76,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               buildPreviewProductImages(),
                               buildProductName(),
                               buildDescription(),
-                              buildAddToBagButton(),
+                              buildAddToBagButton(logic),
                             ],
                           )
                   ],
@@ -217,10 +218,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  Widget buildAddToBagButton() {
-    return InkWell(
-      onTap: () {
-        Get.to(() => Bag());
+    Widget buildAddToBagButton(ProductDetailController logic) {
+      return InkWell(
+        onTap: () {
+          print(
+              'controller.mdProductDetail.product.id====${controller.mdProductDetail!.product!.id}');
+          if (controller.mdProductDetail!.product != null) {
+            controller.addToBag(controller.mdProductDetail!.product);
+          print(
+              'Product added to bag: ${controller.mdProductDetail!.product!.id}');
+          Get.to(() => BagView());
+        } else {
+          print('No product found to add to the bag.');
+        }
       },
       child: Container(
         margin: EdgeInsets.only(right: 20),
@@ -263,9 +273,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
             InkWell(
               onTap: () {
-                if (quantity.value > 1) {
-                  quantity.value--;
-                }
+                logic.tapOnDecrement();
               },
               child: Container(
                   height: 45,
@@ -284,7 +292,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
             Obx(
               () => Text(
-                quantity.value.toString(),
+                logic.quantity.value.toString(),
                 style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -296,7 +304,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
             InkWell(
               onTap: () {
-                quantity.value++;
+                logic.tapOnIncrement();
               },
               child: Container(
                   height: 45,
@@ -354,7 +362,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 children: [
                   Text(
                     controller.mdProductDetail!.product!.title!.length > 30
-                        ? controller.mdProductDetail!.product!.title!.substring(0, 30) + '...'
+                        ? controller.mdProductDetail!.product!.title!
+                                .substring(0, 30) +
+                            '...'
                         : controller.mdProductDetail!.product!.title!,
                     style: TextStyle(
                       fontSize: 14,
@@ -362,7 +372,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       color: Color(0xFF333333),
                     ),
                   )
-
                 ],
               ),
               Row(
