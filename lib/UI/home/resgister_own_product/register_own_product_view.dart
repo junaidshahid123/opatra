@@ -653,7 +653,8 @@ Widget buildSubjectField() {
 }
 
 Widget buildFastNameField(BuildContext context,
-    RegisterYourOwnProductController logic) {
+    RegisterYourOwnProductController logic)
+{
   return Container(
     margin: EdgeInsets.only(top: 20, right: 20),
     child: Column(
@@ -743,7 +744,8 @@ Widget buildFastNameField(BuildContext context,
 }
 
 Widget buildLastNameField(BuildContext context,
-    RegisterYourOwnProductController logic) {
+    RegisterYourOwnProductController logic)
+{
   return Container(
     margin: EdgeInsets.only(top: 20, right: 20),
     child: Column(
@@ -833,7 +835,8 @@ Widget buildLastNameField(BuildContext context,
 }
 
 Widget buildAddressField(BuildContext context,
-    RegisterYourOwnProductController logic) {
+    RegisterYourOwnProductController logic)
+{
   return Container(
     margin: EdgeInsets.only(top: 20, right: 20),
     child: Column(
@@ -1085,7 +1088,8 @@ Widget buildAdvisorNameField(BuildContext context, RegisterYourOwnProductControl
 }
 
 Widget buildReceiptNumberField(BuildContext context,
-    RegisterYourOwnProductController logic) {
+    RegisterYourOwnProductController logic)
+{
   return Container(
     margin: EdgeInsets.only(top: 20, right: 20),
     child: Column(
@@ -1170,7 +1174,8 @@ Widget buildReceiptNumberField(BuildContext context,
 }
 
 Widget buildPlaceOfPurchaseField(BuildContext context,
-    RegisterYourOwnProductController logic) {
+    RegisterYourOwnProductController logic)
+{
   return Container(
     margin: EdgeInsets.only(top: 20, right: 20),
     child: Column(
@@ -1289,7 +1294,8 @@ Widget buildSelectProductField() {
 }
 
 Widget buildCountryField(RxString selectedCountry,
-    Function(String) onCountrySelected) {
+    Function(String) onCountrySelected)
+{
   return Obx(() =>
       Container(
         margin: EdgeInsets.only(top: 20, right: 20),
@@ -1367,7 +1373,8 @@ Widget buildCountryField(RxString selectedCountry,
 }
 
 Widget buildDateOfBirthField(Function onBirthdayTap,
-    RegisterYourOwnProductController logic) {
+    RegisterYourOwnProductController logic)
+{
   String formattedDate = logic.dateOfBirth != null
       ? DateFormat('dd/MM/yyyy').format(logic.dateOfBirth!)
       : 'Select Date of Birth';
@@ -1434,7 +1441,8 @@ Widget buildDateOfBirthField(Function onBirthdayTap,
 }
 
 Widget buildDateOfPurchaseField(Function onPurchaseTap,
-    RegisterYourOwnProductController logic) {
+    RegisterYourOwnProductController logic)
+{
   String formattedDate = logic.dateOfPurchase != null
       ? DateFormat('dd/MM/yyyy').format(logic.dateOfPurchase!)
       : 'Select Date of Purchase';
