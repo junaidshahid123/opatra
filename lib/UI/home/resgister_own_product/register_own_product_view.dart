@@ -1,27 +1,28 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import '../../constant/AppColors.dart';
+import 'package:intl/intl.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:opatra/UI/home/resgister_own_product/register_own_product_logic.dart';
+import '../../../constant/AppColors.dart';
 
-class RegisterYourOwnProduct extends StatefulWidget {
-  const RegisterYourOwnProduct({super.key});
-
-  @override
-  State<RegisterYourOwnProduct> createState() => _RegisterYourOwnProductState();
-}
-
-class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
-  RxBool yesOption = false.obs;
+class RegisterYourOwnProductView extends StatelessWidget {
+  const RegisterYourOwnProductView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.appWhiteColor,
-      body: SafeArea(
-          child: Column(
-        children: [buildAppBar(), buildForm()],
-      )),
-    );
+    return GetBuilder<RegisterYourOwnProductController>(
+        init: RegisterYourOwnProductController(),
+        builder: (logic) {
+          return Scaffold(
+            backgroundColor: AppColors.appWhiteColor,
+            body: SafeArea(
+                child: Column(
+              children: [buildAppBar(), buildForm(context, logic)],
+            )),
+          );
+        });
   }
 
   Widget buildAppBar() {
@@ -92,7 +93,8 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
     );
   }
 
-  Widget buildForm() {
+  Widget buildForm(
+      BuildContext context, RegisterYourOwnProductController logic) {
     return Expanded(
       child: SingleChildScrollView(
         child: Container(
@@ -103,20 +105,23 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
               buildFastNameField(),
               buildLastNameField(),
               buildAddressField(),
-              buildCountryField(),
-              buildPhoneField(),
-              buildDateOFBirthField(),
+              buildCountryField(
+                logic.selectedCountry,
+                logic.setSelectedCountry,
+              ),
+              buildPhoneField(context, logic),
+              buildDateOfBirthField(logic.onBirthdayTap, logic),
               buildProductDetails(),
               buildSelectProductField(),
               buildSelectedList(),
               buildPlaceOfPurchaseField(),
-              buildDateOfPurchaseField(),
+              buildDateOfPurchaseField(logic.onPurchaseTap, logic),
               buildReceiptNumberField(),
               buildAdvisorNameField(),
               buildQuestion(),
-              buildYesAndNoButtons(),
+              buildYesAndNoButtons(logic),
               buildMessage(),
-              buildSubmitButton()
+              buildSubmitButton(context)
             ],
           ),
         ),
@@ -124,7 +129,7 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
     );
   }
 
-  Widget buildSubmitButton() {
+  Widget buildSubmitButton(BuildContext context) {
     return Container(
         margin: EdgeInsets.only(top: 50, right: 20),
         width: MediaQuery.of(context).size.width,
@@ -154,14 +159,14 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
     );
   }
 
-  Widget buildYesAndNoButtons() {
+  Widget buildYesAndNoButtons(RegisterYourOwnProductController logic) {
     return Obx(() => Container(
           margin: EdgeInsets.only(top: 20),
           child: Row(
             children: [
               InkWell(
                 onTap: () {
-                  yesOption.value = true;
+                  logic.yesOption.value = true;
                 },
                 child: Container(
                   child: Row(
@@ -174,7 +179,7 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
                             border: Border.all(
                               color: Color(0xFFEDEDED),
                             ),
-                            color: yesOption.value == true
+                            color: logic.yesOption.value == true
                                 ? Color(0xFFB7A06A)
                                 : Colors.transparent),
                       ),
@@ -197,7 +202,7 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
               ),
               InkWell(
                 onTap: () {
-                  yesOption.value = false;
+                  logic.yesOption.value = false;
                 },
                 child: Container(
                   child: Row(
@@ -210,7 +215,7 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
                             border: Border.all(
                               color: Color(0xFFEDEDED),
                             ),
-                            color: yesOption.value == false
+                            color: logic.yesOption.value == false
                                 ? Color(0xFFB7A06A)
                                 : Colors.transparent),
                       ),
@@ -220,7 +225,7 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
                       Text(
                         'No',
                         style: TextStyle(
-                            color: yesOption.value == false
+                            color: logic.yesOption.value == false
                                 ? Color(0xFFB7A06A)
                                 : Colors.transparent,
                             fontWeight: FontWeight.w400,
@@ -638,39 +643,38 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
     );
   }
 
-  Widget buildPhoneField() {
+  Widget buildPhoneField(
+      BuildContext context, RegisterYourOwnProductController logic) {
     return Container(
       margin: EdgeInsets.only(top: 20, right: 20),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Text(
-                'Phone',
+                'Your Phone Number',
                 style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 12,
-                    color: Color(0xFF666666)),
+                  fontWeight: FontWeight.w400,
+                  fontSize: 12,
+                  color: Color(0xFF666666),
+                ),
               ),
-              SizedBox(
-                width: 5,
-              ),
+              SizedBox(width: 5),
               Text(
                 '*',
                 style: TextStyle(color: Colors.red),
-              )
+              ),
             ],
           ),
-          SizedBox(
-            height: 5,
-          ),
+          SizedBox(height: 5),
           Container(
-            height: 45,
-            width: double.infinity, // Full width
-            child: TextField(
+            height: 80,
+            width: double.infinity,
+            child: IntlPhoneField(
+              enabled: true,
+              flagsButtonPadding: EdgeInsets.only(left: 10),
               decoration: InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(
                     color: Color(0xFFEDEDED),
@@ -686,9 +690,66 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
                     color: Color(0xFFEDEDED),
                   ),
                 ),
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.red,
+                    width: 1.5,
+                  ),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.red,
+                    width: 1.5,
+                  ),
+                ),
+                errorStyle: TextStyle(
+                  color: Colors.red,
+                  fontSize: 12,
+                ),
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(width: 10),
+                      Icon(
+                        Icons.phone,
+                        color: Colors.black,
+                        size: 20,
+                      ),
+                      SizedBox(width: 10),
+                    ],
+                  ),
+                ),
               ),
+              initialCountryCode: 'GB',
+              controller: logic.phoneController,
+              showDropdownIcon: true,
+              dropdownTextStyle: TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+              ),
+              keyboardType: TextInputType.phone,
+              style: TextStyle(color: AppColors.appPrimaryBlackColor),
+              onChanged: (phone) {
+                // Update the selected country code whenever it changes
+                logic.selectedCountryCode.value = phone.countryCode;
+                logic.fullPhoneNumber =
+                    '${logic.selectedCountryCode.value}${logic.phoneController.text}';
+
+                print('Full Phone Number: ${logic.fullPhoneNumber}');
+              },
+              validator: (value) {
+                if (value == null || value.completeNumber.isEmpty) {
+                  return 'Phone number cannot be empty';
+                }
+                if (!RegExp(r'^[0-9]{10,15}$').hasMatch(value.number)) {
+                  return 'Enter a valid phone number (10-15 digits)';
+                }
+                return null;
+              },
             ),
-          )
+          ),
         ],
       ),
     );
@@ -914,199 +975,216 @@ class _RegisterYourOwnProductState extends State<RegisterYourOwnProduct> {
     );
   }
 
-  Widget buildCountryField() {
-    return Container(
-      margin: EdgeInsets.only(top: 20, right: 20),
-      child: Column(
-        children: [
-          Row(
+  Widget buildCountryField(
+      RxString selectedCountry, Function(String) onCountrySelected) {
+    return Obx(() => Container(
+          margin: EdgeInsets.only(top: 20, right: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Country',
-                style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 12,
-                    color: Color(0xFF666666)),
-              ),
-              SizedBox(
-                width: 5,
-              ),
-              Text(
-                '*',
-                style: TextStyle(color: Colors.red),
-              )
-            ],
-          ),
-          SizedBox(
-            height: 5,
-          ),
-          Container(
-            height: 45,
-            width: double.infinity, // Full width
-            child: TextField(
-              decoration: InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFFEDEDED),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFFEDEDED),
-                  ),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFFEDEDED),
-                  ),
-                ),
-                suffixIcon: Container(
-                  height: 10, // Specific height
-                  width: 10, // Specific width
-                  child: Container(
-                    margin: EdgeInsets.all(15),
-                    child: Image.asset(
-                      'assets/images/downIcon.png', // Adjust the image within the container
+              Row(
+                children: [
+                  Text(
+                    'Country',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 12,
+                      color: Color(0xFF666666),
                     ),
                   ),
+                  SizedBox(width: 5),
+                  Text(
+                    '*',
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ],
+              ),
+              SizedBox(height: 5),
+              GestureDetector(
+                onTap: () {
+                  showCountryPicker(
+                    context: Get.context!,
+                    showPhoneCode: false,
+                    // optional, shows phone code before country name
+                    onSelect: (Country country) {
+                      onCountrySelected(
+                          country.name); // Call external state update function
+                    },
+                  );
+                },
+                child: Container(
+                  height: 45,
+                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Color(0xFFEDEDED),
+                    ),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          selectedCountry.value.isEmpty
+                              ? 'Select Country'
+                              : selectedCountry.value,
+                          style: TextStyle(
+                            color: selectedCountry.value.isEmpty
+                                ? Colors.grey
+                                : Colors.black,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.all(8),
+                        child: Image.asset(
+                          'assets/images/downIcon.png', // Adjust the image within the container
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget buildDateOfPurchaseField() {
-    return Container(
-      margin: EdgeInsets.only(top: 20, right: 20),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Text(
-                'Date of Purchase',
-                style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 12,
-                    color: Color(0xFF666666)),
-              ),
-              SizedBox(
-                width: 5,
-              ),
-              Text(
-                '*',
-                style: TextStyle(color: Colors.red),
-              )
             ],
           ),
-          SizedBox(
-            height: 5,
-          ),
-          Container(
-            height: 45,
-            width: double.infinity, // Full width
-            child: TextField(
-              decoration: InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFFEDEDED),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFFEDEDED),
-                  ),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFFEDEDED),
-                  ),
-                ),
-                suffixIcon: Container(
-                  height: 10, // Specific height
-                  width: 10, // Specific width
-                  child: Container(
-                    margin: EdgeInsets.all(15),
-                    child: Image.asset(
-                      'assets/images/calenderIcon.png', // Adjust the image within the container
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          )
-        ],
-      ),
-    );
+        ));
   }
 
-  Widget buildDateOFBirthField() {
+  Widget buildDateOfBirthField(
+      Function onBirthdayTap, RegisterYourOwnProductController logic) {
+    String formattedDate = logic.dateOfBirth != null
+        ? DateFormat('dd/MM/yyyy').format(logic.dateOfBirth!)
+        : 'Select Date of Birth';
+
     return Container(
       margin: EdgeInsets.only(top: 20, right: 20),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Text(
                 'Date of birth',
                 style: TextStyle(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 12,
-                    color: Color(0xFF666666)),
+                  fontWeight: FontWeight.w400,
+                  fontSize: 12,
+                  color: Color(0xFF666666),
+                ),
               ),
-              SizedBox(
-                width: 5,
-              ),
+              SizedBox(width: 5),
               Text(
                 '*',
                 style: TextStyle(color: Colors.red),
-              )
+              ),
             ],
           ),
-          SizedBox(
-            height: 5,
-          ),
-          Container(
-            height: 45,
-            width: double.infinity, // Full width
-            child: TextField(
-              decoration: InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFFEDEDED),
-                  ),
+          SizedBox(height: 5),
+          GestureDetector(
+            onTap: logic.onBirthdayTap, // Trigger the onBirthdayTap function
+            child: Container(
+              height: 45,
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Color(0xFFEDEDED),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFFEDEDED),
-                  ),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFFEDEDED),
-                  ),
-                ),
-                suffixIcon: Container(
-                  height: 10, // Specific height
-                  width: 10, // Specific width
-                  child: Container(
-                    margin: EdgeInsets.all(15),
-                    child: Image.asset(
-                      'assets/images/calenderIcon.png', // Adjust the image within the container
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    formattedDate,
+                    style: TextStyle(
+                      color: logic.dateOfBirth == null
+                          ? Colors.grey
+                          : Colors.black,
                     ),
                   ),
-                ),
+                  Container(
+                    margin: EdgeInsets.all(5),
+                    child: Image.asset(
+                      'assets/images/calenderIcon.png',
+                      width: 20, // Adjust icon size
+                      height: 20,
+                    ),
+                  ),
+                ],
               ),
             ),
-          )
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildDateOfPurchaseField(
+      Function onPurchaseTap, RegisterYourOwnProductController logic) {
+    print('logic.dateOfPurchase ======${logic.dateOfPurchase}');
+    print('logic.dateOfBirth ======${logic.dateOfBirth}');
+    String formattedDate = logic.dateOfPurchase != null
+        ? DateFormat('dd/MM/yyyy').format(logic.dateOfPurchase!)
+        : 'Select Date of Purchase';
+
+    return Container(
+      margin: EdgeInsets.only(top: 20, right: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                'Date of Purchase',
+                style: TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 12,
+                  color: Color(0xFF666666),
+                ),
+              ),
+              SizedBox(width: 5),
+              Text(
+                '*',
+                style: TextStyle(color: Colors.red),
+              ),
+            ],
+          ),
+          SizedBox(height: 5),
+          GestureDetector(
+            onTap: logic.onPurchaseTap, // Trigger the onPurchaseTap function
+            child: Container(
+              height: 45,
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Color(0xFFEDEDED),
+                ),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    formattedDate,
+                    style: TextStyle(
+                      color: logic.dateOfPurchase == null
+                          ? Colors.grey
+                          : Colors.black,
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.all(5),
+                    child: Image.asset(
+                      'assets/images/calenderIcon.png',
+                      width: 20, // Adjust icon size
+                      height: 20,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

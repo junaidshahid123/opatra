@@ -121,6 +121,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.0"
+  country_picker:
+    dependency: "direct main"
+    description:
+      name: country_picker
+      sha256: "327f5e15a76352089a6b5057abb761ee5202e7516c9440d8d6a7524139f9b14e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.26"
   crypto:
     dependency: transitive
     description:
@@ -981,6 +989,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+  universal_io:
+    dependency: transitive
+    description:
+      name: universal_io
+      sha256: "1722b2dcc462b4b2f3ee7d188dad008b6eb4c40bbd03a3de451d82c78bba9aad"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.2"
   url_launcher:
     dependency: "direct main"
     description:
@@ -1193,10 +1209,10 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: "2735daae5150e8b1dfeb3eb0544b4d3af0061e9e82cef063adcd583bdae4306a"
+      sha256: e1d0cc62e65dc2561f5071fcbccecf58ff20c344f8f3dc7d4922df372a11df1f
       url: "https://pub.dev"
     source: hosted
-    version: "5.7.0"
+    version: "5.7.1"
   xdg_directories:
     dependency: transitive
     description:

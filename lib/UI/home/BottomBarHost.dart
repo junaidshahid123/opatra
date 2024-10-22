@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:opatra/UI/home/about_us.dart';
-import 'package:opatra/UI/home/bag.dart';
 import 'package:opatra/UI/home/bag/bag_view.dart';
 import 'package:opatra/UI/home/contact_us/contact_us_view.dart';
 import 'package:opatra/UI/home/product_detail/product_detail_view.dart';
-import 'package:opatra/UI/home/register_your_own_product.dart';
+import 'package:opatra/UI/home/resgister_own_product/register_own_product_view.dart';
 import 'package:opatra/UI/home/treatment.dart';
 import 'package:opatra/UI/home/warranty_claim.dart';
 import 'package:opatra/constant/AppColors.dart';
@@ -978,7 +977,7 @@ class _BottomBarHost extends State<BottomBarHost> {
       highlightColor: Colors.transparent,
       onTap: () {
         selectedIndex.value = 6;
-        Get.to(() => RegisterYourOwnProduct());
+        Get.to(() => RegisterYourOwnProductView());
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),

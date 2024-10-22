@@ -416,7 +416,7 @@ class BagView extends StatelessWidget {
     switch (selectedCurrency) {
       case 'US Dollar':
         return Icon(
-            Icons.attach_money, color: Color(0xFFB7A06A), size: 20); // Dollar icon
+            Icons.attach_money, color: Color(0xFFB7A06A),  size: 20); // Dollar icon
       case 'Euro':
         return Icon(
             Icons.euro_symbol,  color: Color(0xFFB7A06A), size: 20); // Euro icon
