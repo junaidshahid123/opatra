@@ -17,11 +17,11 @@ class ApiUrls {
   static const String productListUrl = '$baseUrl/products';
   static const String getLatestProducts = '$baseUrl/latest-products';
   static const String products = '$baseUrl/products';
-  static const String productCategory= '$baseUrl/product-category';
-  static const String banner= '$baseUrl/banner';
-  static const String videoCategory= '$baseUrl/video-category';
-  static const String userNotifications= '$baseUrl/user-notifications';
-  static const String askExpert= '$baseUrl/ask-expert';
+  static const String productCategory = '$baseUrl/product-category';
+  static const String banner = '$baseUrl/banner';
+  static const String videoCategory = '$baseUrl/video-category';
+  static const String userNotifications = '$baseUrl/user-notifications';
+  static const String askExpert = '$baseUrl/ask-expert';
 
   static String productDetailsUrl(int id) => '$baseUrl/products/$id';
 
@@ -32,6 +32,7 @@ class ApiUrls {
 
   // Contact us URL
   static const String contactUsUrl = '$baseUrl/contact-us';
+  static const String registerProduct = '$baseUrl/register-product';
 
   // Other URLs
   static const String termsAndConditionsUrl = '$baseUrl/terms-and-conditions';
