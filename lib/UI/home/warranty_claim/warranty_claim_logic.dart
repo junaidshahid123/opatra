@@ -11,6 +11,7 @@ import '../../../constant/AppLinks.dart';
 import '../BottomBarHost.dart';
 
 class WarrantyClaimController extends GetxController {
+  RxString selectedProduct = ''.obs;
   RxBool isLoading = false.obs;
   RxBool yesOption = false.obs;
   RxString selectedCountry = 'United Kingdom'.obs;
@@ -37,6 +38,68 @@ class WarrantyClaimController extends GetxController {
   var selectedImage = ''.obs; // To hold the path of the selected image
   var base64Image = ''.obs; // To hold the Base64 representation of the image
   final ScrollController scrollController = ScrollController();
+  final List<String> itemNames = [
+    'AIR FLOSS',
+    'CAVISHAPER',
+    'CYROFACE',
+    'CELLUSHAPER',
+    'CLEO GOLD MASK',
+    'CLEANLIFT',
+    'CAPSULATE CHAIR',
+    'CLEAN PRO5',
+    'COOL GLOBE',
+    'DERMISONIC',
+    'DERMISONIC II',
+    'DERMINECK',
+    'DERMIEYE',
+    'DERMIEYE PLUS',
+    'DERMILIGHT',
+    'DERMISYSTEM',
+    'DERMILIPS',
+    'DERMIPORES',
+    'DERMISTEAM',
+    'DERMIBRASION',
+    'EYEPOD',
+    'FACECARE +',
+    'FLEXILED',
+    'GLAMBRUSH',
+    'GLOW MASK',
+    'GLOW MASK PRO',
+    'HANDYLIGHT',
+    'HANDYSPA',
+    'IBROW',
+    'LIGHT MASK',
+    'LUX BRUSH',
+    'LUMICAP',
+    'LUMIQUARTZ FACE WAND',
+    'MICROLIFT',
+    'NECOLLAGE',
+    'OPATRA LIGHT MACHINE (COMPACT)',
+    'OPATRA LIGHT PRO MACHINE',
+    'OPULENCE BRUSH',
+    'PURE BRUSH',
+    'PURE DUO',
+    'PULSE',
+    'PULSE NECK',
+    'PROSHAPER',
+    'PURIFY BRUSH',
+    'ROBOLIGHT',
+    'SYNERGY FACE',
+    'SYNERGY NECK',
+    'SYNERGY EYE',
+    'SYNERGY COLLECTION SUITCASE',
+    'SMILE TEETH WHITENING',
+    'SYNERGY MARBLE',
+    'SYNERGY MARBLE EYE',
+    'SYNERGY MARBLE ROSE QUARTZ',
+    'THERAPAD',
+    ' VITA+',
+  ];
+
+  void updateProduct(selectedItem) {
+    selectedProduct.value = selectedItem;
+    update();
+  }
 
   // Scroll to the first error field
   void _scrollToFirstError() {

@@ -135,91 +135,59 @@ class RegisterYourOwnProductView extends StatelessWidget {
 
   Widget buildSelectedList(RegisterYourOwnProductController logic) {
     return Container(
-      margin: EdgeInsets.only(top: 20, right: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Container for DropdownButton to control width and height
-          Container(
-            height: 45,
-            // Set the height of the dropdown field
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            // Padding inside the container
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.appGrayColor),
-              // Border for dropdown
-              borderRadius: BorderRadius.circular(10),
-              // Rounded corners
-              color: Colors
-                  .white, // Optional: Set a background color for the dropdown
-            ),
-            child: DropdownButtonHideUnderline(
-              // Hide the default underline
-              child: DropdownButton<String>(
-                isExpanded: true,
-                // Make dropdown take full width
-                hint: Text(
-                  "Select a product",
-                  style: TextStyle(color: AppColors.appPrimaryBlackColor),
-                ),
-                value: null,
-                // Initial selected value
-                items: logic.itemNames.map((String itemName) {
-                  return DropdownMenuItem<String>(
-                    value: itemName,
-                    child: Text(itemName),
-                  );
-                }).toList(),
-                onChanged: (String? selectedItem) {
-                  if (selectedItem != null) {
-                    logic.toggleSelection(selectedItem);
-                  }
-                },
-                icon: Icon(Icons.arrow_drop_down,
-                    color:
-                        AppColors.appPrimaryBlackColor), // Custom dropdown icon
-              ),
-            ),
-          ),
+        margin: EdgeInsets.only(top: 20),
+        child: ListView.builder(
+            shrinkWrap: true, // Prevents ListView from taking infinite height
+            physics: NeverScrollableScrollPhysics(), // Disable scrolling
+            itemCount: logic.itemNames.length, // Total item count
+            itemBuilder: (context, index) {
+              // Get the current item name
+              String itemName = logic.itemNames[index];
 
-          SizedBox(height: 20), // Add some spacing
-
-          // Show the selected items (similar to ListView.builder logic)
-          Wrap(
-            spacing: 10, // Spacing between items
-            runSpacing: 10, // Spacing between rows
-            children: logic.selectedItems.map((String selectedItem) {
-              int index = logic.itemNames.indexOf(selectedItem);
               return InkWell(
                 onTap: () {
-                  print('Selected item index: $index, Name: $selectedItem');
-                  logic.toggleSelection(selectedItem); // Toggle selection
+                  print(
+                      'index and itemName=======${index} ' + ' ${itemName}  ');
+                  logic.toggleSelection(itemName);
                 },
-                child: buildItemWithCross(selectedItem, index, logic),
+                child: Row(
+                  children: [
+                    buildItemWithCross(itemName, index, logic),
+                  ],
+                ),
               );
-            }).toList(),
-          ),
-        ],
-      ),
-    );
+            }));
   }
 
-  Widget buildItemWithCross(
-      String itemName, int index, RegisterYourOwnProductController logic) {
+  Widget buildItemWithCross(String itemName, int index,
+      RegisterYourOwnProductController logic)
+  {
     // Check if the item is selected
     bool isSelected = logic.selectedItems.contains(itemName);
 
     return Row(
-      mainAxisSize: MainAxisSize.min,
-      // Ensure the row only takes the needed space
       children: [
         // The square container that turns blue when selected
+        Container(
+          height: 20,
+          width: 20,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            color: isSelected ? Color(0xFFB7A06A) : Colors.transparent,
+            // Blue if selected
+            border: Border.all(
+              color: isSelected ? Colors.transparent : Color(0xFFB7A06A),
+            ),
+          ),
+        ),
+        // Main item container
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             color: Color(0xFFFBF3D7), // Background color for the item container
           ),
           margin: EdgeInsets.all(10),
+          // Optional: Add margin around the container
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -235,12 +203,11 @@ class RegisterYourOwnProductView extends StatelessWidget {
                 ),
                 SizedBox(width: 10),
                 // Space between the name and the cross icon
-
                 // Show the cross icon only if the item is selected
                 if (isSelected)
                   InkWell(
                     onTap: () {
-                      logic.toggleSelection(itemName);
+                      // logic.removeFromList(itemName);
                     },
                     child: Image.asset(
                       'assets/images/crossIcon.png',
@@ -255,6 +222,8 @@ class RegisterYourOwnProductView extends StatelessWidget {
       ],
     );
   }
+
+
 }
 
 Widget buildSubmitButton(

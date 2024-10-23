@@ -53,6 +53,7 @@ class WarrantyClaimView extends StatelessWidget {
               buildPhoneField(context, logic),
               buildDateOfBirthField(logic.onBirthdayTap, logic),
               buildProductDetails(),
+              buildSelectedList(logic),
               buildPlaceOfPurchaseField(context, logic),
               buildDateOfPurchaseField(logic.onPurchaseTap, logic),
               buildReceiptNumberField(context, logic),
@@ -64,6 +65,57 @@ class WarrantyClaimView extends StatelessWidget {
               buildMessage(),
               buildSubmitButton(context, logic)
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildSelectedList(WarrantyClaimController logic) {
+    return Container(
+      margin: EdgeInsets.only(top: 20, right: 20),
+      child: Container(
+        height: 65, // Fixed height to include space for potential error
+        // Set the height of the dropdown field
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        // Padding inside the container
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.appGrayColor),
+          // Border for dropdown
+          borderRadius: BorderRadius.circular(10),
+          // Rounded corners
+          color:
+              Colors.white, // Optional: Set a background color for the dropdown
+        ),
+        child: DropdownButtonHideUnderline(
+          // Hide the default underline
+          child: DropdownButton<String>(
+            isExpanded: true,
+            // Make dropdown take full width
+            hint: Text(
+              logic.selectedProduct.value.isEmpty
+                  ? "Select a product"
+                  : logic.selectedProduct.value,
+              style: TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 12,
+                  color: Color(0xFF666666)),
+            ),
+            value: null,
+            // Initial selected value
+            items: logic.itemNames.map((String itemName) {
+              return DropdownMenuItem<String>(
+                value: itemName,
+                child: Text(itemName),
+              );
+            }).toList(),
+            onChanged: (String? selectedItem) {
+              if (selectedItem != null) {
+                logic.updateProduct(selectedItem);
+              }
+            },
+            icon: Icon(Icons.arrow_drop_down,
+                color: AppColors.appPrimaryBlackColor), // Custom dropdown icon
           ),
         ),
       ),
@@ -886,7 +938,6 @@ class WarrantyClaimView extends StatelessWidget {
             width: double.infinity, // Full width
             child: TextField(
               style: TextStyle(color: AppColors.appPrimaryBlackColor),
-
               controller: logic.adviceController,
               decoration: InputDecoration(
                 contentPadding:
@@ -1029,7 +1080,6 @@ class WarrantyClaimView extends StatelessWidget {
             width: double.infinity, // Full width
             child: TextField(
               style: TextStyle(color: AppColors.appPrimaryBlackColor),
-
               decoration: InputDecoration(
                 contentPadding:
                     EdgeInsets.symmetric(vertical: 10, horizontal: 10),
