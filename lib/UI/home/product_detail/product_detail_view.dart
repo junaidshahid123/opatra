@@ -1,26 +1,30 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
+import 'package:opatra/UI/home/bag/bag_view.dart';
+import 'package:opatra/UI/home/product_detail/product_detail_controller.dart';
 import 'package:opatra/constant/AppColors.dart';
-import '../../controllers/product_detail_controller.dart';
-import 'bag.dart';
 
-class ProductDetailScreen extends StatefulWidget {
+import '../../../models/MDProductDetail.dart';
+import '../bag/bag_controller.dart';
+
+class ProductDetailView extends StatefulWidget {
   final int productId; // Example value you want to pass
   final String currency; // Example value you want to pass
 
-  const ProductDetailScreen(
+  const ProductDetailView(
       {super.key, required this.productId, required this.currency});
 
   @override
-  State<ProductDetailScreen> createState() => _ProductDetailScreenState();
+  State<ProductDetailView> createState() => _ProductDetailViewState();
 }
 
-class _ProductDetailScreenState extends State<ProductDetailScreen> {
+class _ProductDetailViewState extends State<ProductDetailView> {
   final ProductDetailController controller =
       Get.put(ProductDetailController()); // Initialize the controller
-  RxInt quantity = 1.obs;
   final PageController _pageController = PageController();
   int _currentPage = 0;
   bool isExpanded = false;
@@ -56,7 +60,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget build(BuildContext context) {
     return GetBuilder<ProductDetailController>(
         init: ProductDetailController(),
-        builder: (ProductDetailController) {
+        builder: (logic) {
           return Scaffold(
             backgroundColor: AppColors.appWhiteColor,
             body: SafeArea(
@@ -75,8 +79,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               buildPreviewProductImages(),
                               buildProductName(),
                               buildDescription(),
-                              buildAddToBagButton(),
-
+                              buildAddToBagButton(logic),
                             ],
                           )
                   ],
@@ -180,11 +183,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-
-
-
-
-
   Widget buildDescription() {
     String bodyHtml = controller.mdProductDetail!.product!.bodyHtml!;
 
@@ -223,10 +221,52 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     );
   }
 
-  Widget buildAddToBagButton() {
+  Widget buildAddToBagButton(ProductDetailController logic) {
     return InkWell(
       onTap: () {
-        Get.to(() => Bag());
+        print(
+            'controller.mdProductDetail.product.id====${controller.mdProductDetail!.product!.id}');
+        print('controller.quantity.value====${controller.quantity.value}');
+        print('widget.currency====${widget.currency}');
+        int usDollarIndex = 6;
+        int euroIndex = 4;
+        int poundIndex = 0;
+        if (widget.currency == 'Pound') {
+          controller.price =
+              controller.mdProductDetail!.product!.variants![poundIndex].price!;
+        }
+        if (widget.currency == 'Euro') {
+          controller.price =
+              controller.mdProductDetail!.product!.variants![euroIndex].price!;
+        }
+        if (widget.currency == 'US Dollar') {
+          controller.price = controller
+              .mdProductDetail!.product!.variants![usDollarIndex].price!;
+        }
+        print('price====${controller.price}');
+// Ensure controller.price is a String that can be parsed as a double
+        var priceA = controller.quantity.value *
+            double.tryParse(controller.price!)!; // Safely parse the price
+
+        print('priceA====${priceA}');
+
+        if (controller.mdProductDetail!.product != null) {
+          // Create a new ProductA instance from the existing product data
+          ProductA productToAdd = ProductA(
+              id: controller.mdProductDetail!.product!.id,
+              title: controller.mdProductDetail!.product!.title,
+              image: controller.mdProductDetail!.product!.image,
+              // Ensure this is of type Images
+              price: priceA.toDouble(),
+              // Make sure this is a double
+              quantity: controller.quantity.value,
+              selectedCurrency: widget.currency);
+          controller.addToBag(productToAdd, widget.currency);
+
+          Get.to(() => BagView());
+        } else {
+          print('No product found to add to the bag.');
+        }
       },
       child: Container(
         margin: EdgeInsets.only(right: 20),
@@ -269,9 +309,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
             InkWell(
               onTap: () {
-                if (quantity.value > 1) {
-                  quantity.value--;
-                }
+                logic.tapOnDecrement();
               },
               child: Container(
                   height: 45,
@@ -290,7 +328,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
             Obx(
               () => Text(
-                quantity.value.toString(),
+                logic.quantity.value.toString(),
                 style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -302,7 +340,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
             InkWell(
               onTap: () {
-                quantity.value++;
+                logic.tapOnIncrement();
               },
               child: Container(
                   height: 45,
@@ -359,12 +397,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               Row(
                 children: [
                   Text(
-                    controller.mdProductDetail!.product!.title!,
+                    controller.mdProductDetail!.product!.title!.length > 30
+                        ? controller.mdProductDetail!.product!.title!
+                                .substring(0, 30) +
+                            '...'
+                        : controller.mdProductDetail!.product!.title!,
                     style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        color: Color(0xFF333333)),
-                  ),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF333333),
+                    ),
+                  )
                 ],
               ),
               Row(
@@ -530,10 +573,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Widget buildName() {
-    return Text(
-      controller.mdProductDetail!.product!.title!,
-      style: TextStyle(
-          fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF333333)),
+    return Expanded(
+      child: Text(
+        controller.mdProductDetail!.product!.title!.length > 10
+            ? controller.mdProductDetail!.product!.title!.substring(0, 10) +
+                '...'
+            : controller.mdProductDetail!.product!.title!,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF333333)),
+      ),
     );
   }
 }

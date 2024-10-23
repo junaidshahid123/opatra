@@ -468,7 +468,8 @@ class ContactUsView extends StatelessWidget {
                 color: Color(0xFFB7A06A),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Center(
+              child:
+              Center(
                   child: logic.isLoading.value == true
                       ? SizedBox(
                           width: 20.0, // Adjust the width

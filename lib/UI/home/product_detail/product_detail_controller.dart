@@ -3,12 +3,28 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import '../models/MDProductDetail.dart';
-import '../models/MDProductDetailImages.dart';
+import '../../../constant/AppLinks.dart';
+import '../../../models/MDProductDetail.dart';
+import '../../../models/MDProductDetailImages.dart';
+import '../bag/bag_controller.dart';
 
 class ProductDetailController extends GetxController {
   MDProductDetail? mdProductDetail;
   MDProductDetailImages? mdProductDetailImages;
+  RxInt quantity = 1.obs;
+  var productDetail = MDProductDetail().obs;
+  var price ;
+  tapOnDecrement() {
+    if (quantity.value > 1) {
+      quantity.value--;
+      update();
+    }
+  }
+
+  tapOnIncrement() {
+    quantity.value++;
+    update();
+  }
 
   @override
   void onInit() {
@@ -16,9 +32,15 @@ class ProductDetailController extends GetxController {
     update();
   }
 
+   void addToBag(ProductA? product, String selectedCurrency)
+{
+  print('addToBag');
+    Get.find<BagController>().addProductToBag(product!, quantity.value,selectedCurrency);
+    print('Product added to bag: ${product.id}, Quantity: ${quantity.value}');
+  }
 
   Future<void> fetchProductDetail(int id) async {
-    final url = Uri.parse('https://opatra.fai-tech.online/api/product/${id}');
+    final url = Uri.parse('${ApiUrls.baseUrl}/product/${id}');
 
     // Retrieve token from SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();

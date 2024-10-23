@@ -1,16 +1,14 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:opatra/UI/auth/login/login_view.dart';
 import 'package:opatra/UI/home/about_us.dart';
-import 'package:opatra/UI/home/bag.dart';
+import 'package:opatra/UI/home/bag/bag_view.dart';
 import 'package:opatra/UI/home/contact_us/contact_us_view.dart';
-import 'package:opatra/UI/home/product_detail.dart';
-import 'package:opatra/UI/home/register_your_own_product.dart';
+import 'package:opatra/UI/home/product_detail/product_detail_view.dart';
+import 'package:opatra/UI/home/resgister_own_product/register_own_product_view.dart';
 import 'package:opatra/UI/home/treatment.dart';
-import 'package:opatra/UI/home/warranty_claim.dart';
+import 'package:opatra/UI/home/warranty_claim/warranty_claim_view.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -21,7 +19,6 @@ import '../../models/MDVideosByCategory.dart';
 import 'ask_ouur_experts/ask_our_experts_view.dart';
 import 'live_stream.dart';
 import 'notifications.dart';
-import 'package:http/http.dart' as http;
 
 class BottomBarHost extends StatefulWidget {
   const BottomBarHost({super.key});
@@ -49,65 +46,6 @@ class _BottomBarHost extends State<BottomBarHost> {
 
 // Declare a Timer variable to manage the debounce timing
   Timer? _debounce;
-
-  Future<void> logOut() async {
-    isLoading.value = true;
-    final String url = 'https://opatra.fai-tech.online/api/logout';
-    // Retrieve token from SharedPreferences
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token'); // Get the token from shared prefs
-
-    //  Ensure the token exists before proceeding
-    if (token == null || token.isEmpty) {
-      isLoading.value = false;
-      Get.snackbar('Error', 'No token found. Please log in again.',
-          backgroundColor: Colors.red, colorText: Colors.white);
-      return;
-    }
-    Map<String, String> headers = {
-      "Accept": "application/json",
-      "Authorization": "Bearer $token", // Include the Bearer token in headers
-    };
-
-    try {
-      final client = http.Client();
-      final http.Response response = await client.post(
-        Uri.parse(url),
-        headers: headers,
-      );
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        isLoading.value = false; // Stop loading spinner
-
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        print('responseData========${responseData}');
-        prefs.remove('token');
-        Get.snackbar('Success', 'Log Out Successfully');
-        Get.offAll(LoginView());
-      } else {
-        isLoading.value = false; // Stop loading spinner
-
-        // Handle errors
-        final Map<String, dynamic> responseData = json.decode(response.body);
-        String errorMessage =
-            responseData['message'] ?? 'Failed to log out user';
-
-        if (responseData.containsKey('errors')) {
-          final errors = responseData['errors'] as Map<String, dynamic>;
-          errors.forEach((key, value) {
-            errorMessage += '\n${value.join(', ')}';
-          });
-        }
-
-        Get.snackbar('Error', errorMessage,
-            backgroundColor: Colors.red, colorText: Colors.white);
-      }
-    } catch (e) {
-      isLoading.value = false; // Stop loading spinner
-      Get.snackbar('Error', 'An error occurred: $e',
-          backgroundColor: Colors.red, colorText: Colors.white);
-    }
-  }
 
   void _showDialogForCurrency(BuildContext context) {
     showDialog(
@@ -338,7 +276,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                             InkWell(
                               onTap: () {
                                 // Add your logout functionality here
-                                logOut();
+                                controller.logOut();
                               },
                               child: Container(
                                   height: 50,
@@ -675,7 +613,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                                     : Container()),
                                 //video heading
                                 Obx(
-                                      () => video.value == true
+                                  () => video.value == true
                                       ? buildCategoriesForVideos()
                                       : Container(),
                                 ),
@@ -683,14 +621,32 @@ class _BottomBarHost extends State<BottomBarHost> {
                                 Obx(() {
                                   return video.value == true
                                       ? controller.mdVideosByCategory == null
-                                      ? Center(
-                                    child: CircularProgressIndicator(
-                                      color: Color(0xFFB7A06A),
-                                    ),
-                                  )
-                                      : VideoGridWidget(
-                                    videos: controller.mdVideosByCategory!.data!.videos!,
-                                  )
+                                          ? Container(
+                                              margin: EdgeInsets.only(top: 20),
+                                              child: Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  color: Color(0xFFB7A06A),
+                                                ),
+                                              ),
+                                            )
+                                          : controller.isLoading.value == true
+                                              ? Container(
+                                                  margin:
+                                                      EdgeInsets.only(top: 20),
+                                                  child: Center(
+                                                    child:
+                                                        CircularProgressIndicator(
+                                                      color: Color(0xFFB7A06A),
+                                                    ),
+                                                  ),
+                                                )
+                                              : VideoGridWidget(
+                                                  videos: controller
+                                                      .mdVideosByCategory!
+                                                      .data!
+                                                      .videos!,
+                                                )
                                       : Container(); // Empty container if the video value is false
                                 }),
                               ],
@@ -980,7 +936,7 @@ class _BottomBarHost extends State<BottomBarHost> {
       highlightColor: Colors.transparent,
       onTap: () {
         selectedIndex.value = 7;
-        Get.to(() => WarrantyClaim());
+        Get.to(() => WarrantyClaimView());
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),
@@ -1021,7 +977,7 @@ class _BottomBarHost extends State<BottomBarHost> {
       highlightColor: Colors.transparent,
       onTap: () {
         selectedIndex.value = 6;
-        Get.to(() => RegisterYourOwnProduct());
+        Get.to(() => RegisterYourOwnProductView());
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),
@@ -1358,24 +1314,26 @@ class _BottomBarHost extends State<BottomBarHost> {
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-
                     // Access 'thumbnail' using dot notation
                     video.thumbnail != null
                         ? Image.network(
-                     "https://opatra.fai-tech.online/${video.thumbnail}",
-                      fit: BoxFit.fill,
-                      width: double.infinity,
-                      height: double.infinity,
-                      errorBuilder: (context, error, stackTrace) {
-                        print('Error loading image: $error'); // Add this to debug errors
-                        return Icon(Icons.error); // Show error icon if image fails to load
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(child: CircularProgressIndicator()); // Show loader while the image is loading
-                      },
-                    )
-
+                            "https://opatra.fai-tech.online/${video.thumbnail}",
+                            fit: BoxFit.fill,
+                            width: double.infinity,
+                            height: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              print(
+                                  'Error loading image: $error'); // Add this to debug errors
+                              return Icon(Icons
+                                  .error); // Show error icon if image fails to load
+                            },
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                  child:
+                                      CircularProgressIndicator()); // Show loader while the image is loading
+                            },
+                          )
                         : Container(
                             color: Colors
                                 .grey, // Default background if thumbnail is missing
@@ -1417,8 +1375,8 @@ class _BottomBarHost extends State<BottomBarHost> {
                   onTap: () {
                     searchTextController.clear();
                     selectedCategoryForVideo.value = index;
-                    controller.fetchProductByCategory(
-                        controller.mdCategories!.smartCollections![index].id!);
+                    controller.fetchVideoByCategory(
+                        controller.mdAllVideoCategories!.data![index].id!);
                   },
                   child: Obx(
                     () => Container(
@@ -1542,9 +1500,10 @@ class _BottomBarHost extends State<BottomBarHost> {
                         // width: 60,
                         decoration: BoxDecoration(
                             border: Border.all(
-                                color: selectedCategoryForSkinCare.value == index
-                                    ? Colors.transparent
-                                    : Color(0xFFFBF3D7)),
+                                color:
+                                    selectedCategoryForSkinCare.value == index
+                                        ? Colors.transparent
+                                        : Color(0xFFFBF3D7)),
                             borderRadius: BorderRadius.circular(20),
                             color: selectedCategoryForSkinCare.value == index
                                 ? Color(0xFFB7A06A)
@@ -1557,9 +1516,10 @@ class _BottomBarHost extends State<BottomBarHost> {
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
-                                color: selectedCategoryForSkinCare.value == index
-                                    ? AppColors.appWhiteColor
-                                    : AppColors.appPrimaryBlackColor),
+                                color:
+                                    selectedCategoryForSkinCare.value == index
+                                        ? AppColors.appWhiteColor
+                                        : AppColors.appPrimaryBlackColor),
                           ),
                         ))),
                   ),
@@ -1676,7 +1636,7 @@ class _BottomBarHost extends State<BottomBarHost> {
   Widget buildCartOption() {
     return InkWell(
       onTap: () {
-        Get.to(() => Bag());
+        Get.to(() => BagView());
       },
       child: Stack(
         alignment: Alignment.center,
@@ -1722,13 +1682,13 @@ class _BottomBarHost extends State<BottomBarHost> {
   Widget buildName() {
     return Obx(() => home.value == true
         ? Text(
-      'Hello ${controller.userName.split(' ')[0]}', // Only take the first word
-      style: TextStyle(
-        fontSize: 15,
-        fontWeight: FontWeight.bold,
-        color: Color(0xFF333333),
-      ),
-    )
+            'Hello ${controller.userName.split(' ')[0]}', // Only take the first word
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF333333),
+            ),
+          )
         : product.value == true
             ? const Text(
                 'All Products',
@@ -2050,7 +2010,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                     // Navigate to ProductDetailScreen
                     int? id = smartCollection.id;
                     print('id=====${id}');
-                    Get.to(() => ProductDetailScreen(
+                    Get.to(() => ProductDetailView(
                           productId: id!,
                           currency: smartCollection.variants![0].title ==
                                   'Default Title'
@@ -2173,7 +2133,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                     // Navigate to ProductDetailScreen
                     int? id = smartCollection.id;
                     print('id=====${id}');
-                    Get.to(() => ProductDetailScreen(
+                    Get.to(() => ProductDetailView(
                           productId: id!,
                           currency: smartCollection.variants![0].title ==
                                   'Default Title'
@@ -2329,7 +2289,6 @@ class _BottomBarHost extends State<BottomBarHost> {
           )
         : Container(
             height: 200,
-
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: controller.mdAllBanners!.data!.length,
@@ -2342,15 +2301,20 @@ class _BottomBarHost extends State<BottomBarHost> {
                   width: containerWidth,
                   decoration: BoxDecoration(
                     border: Border.all(
-                      color: Colors.grey.shade200, // Change to any color you like
-                      width: 1.0,          // Adjust the thickness of the border
+                      color:
+                          Colors.grey.shade200, // Change to any color you like
+                      width: 1.0, // Adjust the thickness of the border
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.2), // Shadow color with opacity
-                        spreadRadius: 2,  // How much the shadow spreads
-                        blurRadius: 8,    // Blur radius to soften the shadow
-                        offset: Offset(0, 4), // Shadow position (x, y) (Here it is below the container)
+                        color: Colors.grey.withOpacity(0.2),
+                        // Shadow color with opacity
+                        spreadRadius: 2,
+                        // How much the shadow spreads
+                        blurRadius: 8,
+                        // Blur radius to soften the shadow
+                        offset: Offset(0,
+                            4), // Shadow position (x, y) (Here it is below the container)
                       ),
                     ],
                     color: AppColors.appWhiteColor,
@@ -2529,7 +2493,7 @@ class _BottomBarHost extends State<BottomBarHost> {
 
                     int? id = smartCollection.id;
                     print('id=====${id}');
-                    Get.to(() => ProductDetailScreen(
+                    Get.to(() => ProductDetailView(
                           productId: controller
                               .mdProductsByCategory!.products![index].id!,
                           currency: 'Pound',
@@ -2702,7 +2666,8 @@ class VideoGridWidget extends StatelessWidget {
           final video = videos[index];
           final videoUrl = video.videoUrl ?? '';
           final thumbnailUrl =
-          video.thumbnail != null ? 'https://opatra.fai-tech.online/${video.thumbnail}' : '';
+              video.thumbnail != null ? '${video.thumbnail}' : '';
+          print('This is video Thumbnail==========${video.thumbnail}');
 
           return GestureDetector(
             onTap: () {
@@ -2719,27 +2684,27 @@ class VideoGridWidget extends StatelessWidget {
                   // Display thumbnail with FadeInImage for a smoother image loading experience
                   thumbnailUrl.isNotEmpty
                       ? FadeInImage.assetNetwork(
-                    placeholder: 'assets/images/youtubeLogo.png',
-                    image: thumbnailUrl,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    imageErrorBuilder: (context, error, stackTrace) {
-                      print('Error loading image: $error');
-                      return Container(
-                        color: Colors.grey.shade300,
-                        child: const Center(
-                          child: Icon(Icons.error, color: Colors.red),
-                        ),
-                      );
-                    },
-                  )
+                          placeholder: 'assets/images/youtubeLogo.png',
+                          image: thumbnailUrl,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                          imageErrorBuilder: (context, error, stackTrace) {
+                            print('Error loading image: $error');
+                            return Container(
+                              color: Colors.grey.shade300,
+                              child: const Center(
+                                child: Icon(Icons.error, color: Colors.red),
+                              ),
+                            );
+                          },
+                        )
                       : Container(
-                    color: Colors.grey.shade300,
-                    child: const Center(
-                      child: Icon(Icons.error, color: Colors.red),
-                    ),
-                  ),
+                          color: Colors.grey.shade300,
+                          child: const Center(
+                            child: Icon(Icons.error, color: Colors.red),
+                          ),
+                        ),
                   // Play icon overlay
                   const Icon(
                     Icons.play_circle_fill,
@@ -2755,7 +2720,6 @@ class VideoGridWidget extends StatelessWidget {
     );
   }
 }
-
 
 class CenteredExpandingPageView extends StatefulWidget {
   @override
