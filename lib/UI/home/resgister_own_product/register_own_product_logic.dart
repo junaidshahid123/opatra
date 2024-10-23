@@ -182,7 +182,8 @@ class RegisterYourOwnProductController extends GetxController {
 
     // If the form is not valid, show validation errors and stop further execution
     if (!isValid) {
-      autoValidateMode = AutovalidateMode.onUserInteraction; // Enable auto validation
+      autoValidateMode =
+          AutovalidateMode.onUserInteraction; // Enable auto validation
       _scrollToFirstError(); // Scroll to the first field with an error
 
       update(); // Call update() to refresh the UI
@@ -191,7 +192,8 @@ class RegisterYourOwnProductController extends GetxController {
 
     // Show loading spinner
     isLoading.value = true;
-    final url = Uri.parse(ApiUrls.registerProduct); // API endpoint for registering the product
+    final url = Uri.parse(
+        ApiUrls.registerProduct); // API endpoint for registering the product
 
     // Format dates
     String formattedDob = convertDateToCorrectFormat(dobController.text);
@@ -202,16 +204,24 @@ class RegisterYourOwnProductController extends GetxController {
       "product_name": selectedItems,
       "first_name": nameController.text,
       "last_name": lastNameController.text,
-      "email": "junaid459561@gmail.com", // Email hardcoded, replace if needed
+      "email": "junaid459561@gmail.com",
+      // Email hardcoded, replace if needed
       "address": addressController.text,
-      "phone": fullPhoneNumber, // Ensure phone number is validated before sending
-      "dob": formattedDob, // Date of Birth in correct format
+      "phone": fullPhoneNumber,
+      // Ensure phone number is validated before sending
+      "dob": formattedDob,
+      // Date of Birth in correct format
       "place_of_purchase": placeOfPurchaseController.text,
-      "date_of_purchase": formattedDoP, // Date of Purchase in correct format
+      "date_of_purchase": formattedDoP,
+      // Date of Purchase in correct format
       "recipient_number": receiptNumberController.text,
-      "advisor_name": adviceController.text.isEmpty ? "N/A" : adviceController.text, // Advisor name optional
-      "notification": yesOption.value == true ? true : false, // Check if the user agreed to receive notifications
-      "country_id": 1, // Country ID, change if dynamic based on selection
+      "advisor_name":
+          adviceController.text.isEmpty ? "N/A" : adviceController.text,
+      // Advisor name optional
+      "notification": yesOption.value == true ? true : false,
+      // Check if the user agreed to receive notifications
+      "country_id": 1,
+      // Country ID, change if dynamic based on selection
     };
 
     print('Data being sent: $data');
@@ -225,8 +235,10 @@ class RegisterYourOwnProductController extends GetxController {
       final response = await http.post(
         url,
         headers: {
-          "Content-Type": "application/json", // Ensure the content type is JSON
-          "Authorization": "Bearer $token", // Add Bearer token to the headers for authentication
+          "Content-Type": "application/json",
+          // Ensure the content type is JSON
+          "Authorization": "Bearer $token",
+          // Add Bearer token to the headers for authentication
         },
         body: jsonEncode(data), // Convert the data to a JSON string
       );
@@ -240,7 +252,8 @@ class RegisterYourOwnProductController extends GetxController {
           backgroundColor: Color(0xFFB7A06A),
           snackPosition: SnackPosition.BOTTOM,
         );
-        Get.offAll(BottomBarHost()); // Navigate to the bottom navigation bar after success
+        Get.offAll(
+            BottomBarHost()); // Navigate to the bottom navigation bar after success
         isLoading.value = false; // Hide loading spinner
       } else {
         isLoading.value = false; // Hide loading spinner
@@ -253,7 +266,8 @@ class RegisterYourOwnProductController extends GetxController {
           if (responseBody.containsKey('message')) {
             message = responseBody['message'];
           } else {
-            message = 'Failed to send data. Status code: ${response.statusCode}';
+            message =
+                'Failed to send data. Status code: ${response.statusCode}';
           }
         } catch (e) {
           message = 'Failed to parse server response.';
