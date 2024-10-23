@@ -35,6 +35,8 @@ class WarrantyClaimView extends StatelessWidget {
   Widget buildForm(BuildContext context, WarrantyClaimController logic) {
     return Expanded(
       child: SingleChildScrollView(
+        controller: logic.scrollController, // Attach ScrollController
+
         child: Container(
           margin: EdgeInsets.only(left: 20),
           child: Column(
@@ -180,44 +182,37 @@ class WarrantyClaimView extends StatelessWidget {
     );
   }
 
-  Widget buildSubmitButton(BuildContext context,
-      WarrantyClaimController logic)
-  {
-    return
-      Obx(()=> InkWell(
-        onTap: () {
-          logic.sendData();
-        },
-        child: Container(
-            margin: EdgeInsets.only(top: 50, right: 20),
-            width: MediaQuery
-                .of(context)
-                .size
-                .width,
-            height: 45,
-            decoration: BoxDecoration(
-              color: Color(0xFFB7A06A),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child:
-            Center(
-                child: logic.isLoading.value == true
-                    ? SizedBox(
-                  width: 20.0, // Adjust the width
-                  height: 20.0, // Adjust the height
-                  child: CircularProgressIndicator(
-                    strokeWidth: 5,
-                    color: AppColors.appWhiteColor,
-                  ),
-                )
-                    : Text(
-                  'Submit',
-                  style: TextStyle(
-                      fontWeight: FontWeight.w600, fontSize: 16),
-                ))),
-      ));
+  Widget buildSubmitButton(
+      BuildContext context, WarrantyClaimController logic) {
+    return Obx(() => InkWell(
+          onTap: () {
+            logic.sendData();
+          },
+          child: Container(
+              margin: EdgeInsets.only(top: 50, right: 20, bottom: 20),
+              width: MediaQuery.of(context).size.width,
+              height: 45,
+              decoration: BoxDecoration(
+                color: Color(0xFFB7A06A),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                  child: logic.isLoading.value == true
+                      ? SizedBox(
+                          width: 20.0, // Adjust the width
+                          height: 20.0, // Adjust the height
+                          child: CircularProgressIndicator(
+                            strokeWidth: 5,
+                            color: AppColors.appWhiteColor,
+                          ),
+                        )
+                      : Text(
+                          'Submit',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 16),
+                        ))),
+        ));
   }
-
 
   Widget buildYesAndNoButtons(
       BuildContext context, WarrantyClaimController logic) {
@@ -890,6 +885,8 @@ class WarrantyClaimView extends StatelessWidget {
             height: 45,
             width: double.infinity, // Full width
             child: TextField(
+              style: TextStyle(color: AppColors.appPrimaryBlackColor),
+
               controller: logic.adviceController,
               decoration: InputDecoration(
                 contentPadding:
@@ -1031,6 +1028,8 @@ class WarrantyClaimView extends StatelessWidget {
             height: 45,
             width: double.infinity, // Full width
             child: TextField(
+              style: TextStyle(color: AppColors.appPrimaryBlackColor),
+
               decoration: InputDecoration(
                 contentPadding:
                     EdgeInsets.symmetric(vertical: 10, horizontal: 10),

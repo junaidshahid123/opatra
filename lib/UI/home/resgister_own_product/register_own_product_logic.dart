@@ -32,8 +32,18 @@ class RegisterYourOwnProductController extends GetxController {
   List<String> selectedItems = [];
   AutovalidateMode autoValidateMode = AutovalidateMode.disabled;
   final registerProduct = GlobalKey<FormState>();
+  final ScrollController scrollController = ScrollController();
 
-
+  // Scroll to the first error field
+  void _scrollToFirstError() {
+    final firstErrorPosition =
+        registerProduct.currentContext!.findRenderObject()!.paintBounds.topLeft;
+    scrollController.animateTo(
+      firstErrorPosition.dy,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
 
   void toggleSelection(String itemName) {
     if (selectedItems.contains(itemName)) {
@@ -172,46 +182,51 @@ class RegisterYourOwnProductController extends GetxController {
 
     // If the form is not valid, show validation errors and stop further execution
     if (!isValid) {
-      autoValidateMode =
-          AutovalidateMode.onUserInteraction; // Enable auto validation
+      autoValidateMode = AutovalidateMode.onUserInteraction; // Enable auto validation
+      _scrollToFirstError(); // Scroll to the first field with an error
+
       update(); // Call update() to refresh the UI
       return; // Stop execution here since the form is invalid
     }
 
     // Show loading spinner
     isLoading.value = true;
-    final url = Uri.parse(ApiUrls.registerProduct);
+    final url = Uri.parse(ApiUrls.registerProduct); // API endpoint for registering the product
 
+    // Format dates
     String formattedDob = convertDateToCorrectFormat(dobController.text);
     String formattedDoP = convertDateToCorrectFormat(doPController.text);
 
-// Data to be sent in the POST request
+    // Data to be sent in the POST request
     final Map<String, dynamic> data = {
       "product_name": selectedItems,
       "first_name": nameController.text,
       "last_name": lastNameController.text,
-      "email": "junaid459561@gmail.com",
+      "email": "junaid459561@gmail.com", // Email hardcoded, replace if needed
       "address": addressController.text,
-      "phone": fullPhoneNumber,
-      "dob": formattedDob,
+      "phone": fullPhoneNumber, // Ensure phone number is validated before sending
+      "dob": formattedDob, // Date of Birth in correct format
       "place_of_purchase": placeOfPurchaseController.text,
-      "date_of_purchase": formattedDoP,
+      "date_of_purchase": formattedDoP, // Date of Purchase in correct format
       "recipient_number": receiptNumberController.text,
-      "advisor_name": "",
-      "notification": yesOption.value == true ? true : false,
-      "country_id": 1
+      "advisor_name": adviceController.text.isEmpty ? "N/A" : adviceController.text, // Advisor name optional
+      "notification": yesOption.value == true ? true : false, // Check if the user agreed to receive notifications
+      "country_id": 1, // Country ID, change if dynamic based on selection
     };
 
-    print('data===${data}');
+    print('Data being sent: $data');
 
+    // Fetch the saved token from SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
+
     try {
+      // Sending the POST request to the server
       final response = await http.post(
         url,
         headers: {
           "Content-Type": "application/json", // Ensure the content type is JSON
-          "Authorization": "Bearer $token", // Add Bearer token to the headers
+          "Authorization": "Bearer $token", // Add Bearer token to the headers for authentication
         },
         body: jsonEncode(data), // Convert the data to a JSON string
       );
@@ -223,16 +238,45 @@ class RegisterYourOwnProductController extends GetxController {
           'Success',
           'Request Submitted Successfully',
           backgroundColor: Color(0xFFB7A06A),
+          snackPosition: SnackPosition.BOTTOM,
         );
-        Get.offAll(BottomBarHost());
-        isLoading.value = false;
+        Get.offAll(BottomBarHost()); // Navigate to the bottom navigation bar after success
+        isLoading.value = false; // Hide loading spinner
       } else {
-        isLoading.value = false;
+        isLoading.value = false; // Hide loading spinner
         print('Failed to send data. Status code: ${response.statusCode}');
+
+        // Extract message from the server's response
+        String message;
+        try {
+          var responseBody = jsonDecode(response.body);
+          if (responseBody.containsKey('message')) {
+            message = responseBody['message'];
+          } else {
+            message = 'Failed to send data. Status code: ${response.statusCode}';
+          }
+        } catch (e) {
+          message = 'Failed to parse server response.';
+        }
+
+        Get.snackbar(
+          'Error',
+          message, // Show the extracted message
+          backgroundColor: Colors.red,
+          snackPosition: SnackPosition.BOTTOM,
+        );
       }
     } catch (e) {
-      isLoading.value = false;
+      // Handle any exceptions that occur during the POST request
+      isLoading.value = false; // Hide loading spinner
       print('Error sending data: $e');
+
+      Get.snackbar(
+        'Error',
+        'An error occurred: $e',
+        backgroundColor: Colors.red,
+        snackPosition: SnackPosition.BOTTOM,
+      );
     }
   }
 

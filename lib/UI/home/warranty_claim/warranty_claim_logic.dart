@@ -1,15 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart' as image_picker;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-
 import '../../../constant/AppLinks.dart';
 import '../BottomBarHost.dart';
 
@@ -39,6 +36,18 @@ class WarrantyClaimController extends GetxController {
   String fullPhoneNumber = '';
   var selectedImage = ''.obs; // To hold the path of the selected image
   var base64Image = ''.obs; // To hold the Base64 representation of the image
+  final ScrollController scrollController = ScrollController();
+
+  // Scroll to the first error field
+  void _scrollToFirstError() {
+    final firstErrorPosition =
+        warrantyClaims.currentContext!.findRenderObject()!.paintBounds.topLeft;
+    scrollController.animateTo(
+      firstErrorPosition.dy,
+      duration: Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
 
   void showImageSourceDialog(WarrantyClaimController logic) {
     showDialog(
@@ -167,6 +176,8 @@ class WarrantyClaimController extends GetxController {
     if (!isValid) {
       autoValidateMode =
           AutovalidateMode.onUserInteraction; // Enable auto validation
+      _scrollToFirstError();
+
       update(); // Call update() to refresh the UI
       return; // Stop execution here since the form is invalid
     }
@@ -180,55 +191,70 @@ class WarrantyClaimController extends GetxController {
 
     // Data to be sent in the POST request
     final Map<String, dynamic> data = {
-      "product_name": "Product 1", // Add this field
-      "first_name": nameController.text,
-      "last_name": lastNameController.text,
+      "product_name": "Product 1",
+      // Add this field
+      "first_name": "${nameController.text}",
+      // First name from controller
+      "last_name": "${lastNameController.text}",
+      // Last name from controller
       "email": "junaid459561@gmail.com",
-      "address": addressController.text,
-      "phone": fullPhoneNumber,
-      "dob": formattedDob,
-      "place_of_purchase": placeOfPurchaseController.text,
-      "date_of_purchase": formattedDoP,
-      "recipient_number": receiptNumberController.text,
-      "advisor_name": "", // You can set this based on your logic
+      // Email
+      "address": "${addressController.text}",
+      // Address from controller
+      "phone": "${fullPhoneNumber}",
+      // Phone number
+      "dob": "${formattedDob}",
+      // Date of birth
+      "place_of_purchase": "${placeOfPurchaseController.text}",
+      // Place of purchase
+      "date_of_purchase": "${formattedDoP}",
+      // Date of purchase
+      "recipient_number": "${receiptNumberController.text}",
+      // Receipt number
+      "advisor_name": adviceController.text,
+      // Advisor name (set based on your logic)
       "notification": yesOption.value == true ? true : false,
+      // Notification preference
       "country_id": 1,
-      "issue_found": 'bfchjbfchf', // Add this field
-      "image": base64Image.value, // Include the Base64 image
+      // Country ID
+      "issue_found": 'bfchjbfchf',
+      // Issue found
+      "image": "${base64Image.value}",
+      // Base64 image as a string
     };
 
     print('data===${data}');
 
-    // SharedPreferences prefs = await SharedPreferences.getInstance();
-    // String? token = prefs.getString('token'); // Get the token from shared prefs
-    // try {
-    //   final response = await http.post(
-    //     url,
-    //     headers: {
-    //       "Content-Type": "application/json", // Ensure the content type is JSON
-    //       "Authorization": "Bearer $token", // Add Bearer token to the headers
-    //     },
-    //     body: jsonEncode(data), // Convert the data to a JSON string
-    //   );
-    //
-    //   // Check if the POST request was successful
-    //   if (response.statusCode == 200 || response.statusCode == 201) {
-    //     print('Data sent successfully!');
-    //     Get.snackbar(
-    //       'Success',
-    //       'Request Submitted Successfully',
-    //       backgroundColor: Color(0xFFB7A06A),
-    //     );
-    //     Get.offAll(BottomBarHost());
-    //     isLoading.value = false;
-    //   } else {
-    //     isLoading.value = false;
-    //     print('Failed to send data. Status code: ${response.statusCode}');
-    //   }
-    // } catch (e) {
-    //   isLoading.value = false;
-    //   print('Error sending data: $e');
-    // }
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token'); // Get the token from shared prefs
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json", // Ensure the content type is JSON
+          "Authorization": "Bearer $token", // Add Bearer token to the headers
+        },
+        body: jsonEncode(data), // Convert the data to a JSON string
+      );
+
+      // Check if the POST request was successful
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('Data sent successfully!');
+        Get.snackbar(
+          'Success',
+          'Request Submitted Successfully',
+          backgroundColor: Color(0xFFB7A06A),
+        );
+        Get.offAll(BottomBarHost());
+        isLoading.value = false;
+      } else {
+        isLoading.value = false;
+        print('Failed to send data. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      isLoading.value = false;
+      print('Error sending data: $e');
+    }
   }
 
   String convertDateToCorrectFormat(String date) {

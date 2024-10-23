@@ -100,6 +100,7 @@ class RegisterYourOwnProductView extends StatelessWidget {
       RegisterYourOwnProductController logic) {
     return Expanded(
       child: SingleChildScrollView(
+        controller: logic.scrollController,
         child: Container(
           margin: EdgeInsets.only(top: 20, left: 20, bottom: 20),
           child: Column(
@@ -1060,6 +1061,8 @@ Widget buildAdvisorNameField(BuildContext context, RegisterYourOwnProductControl
           height: 45,
           width: double.infinity, // Full width
           child: TextField(
+            style: TextStyle(color: AppColors.appPrimaryBlackColor),
+
             controller: logic.adviceController,
             decoration: InputDecoration(
               contentPadding:
