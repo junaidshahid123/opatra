@@ -7,7 +7,7 @@ import 'package:opatra/UI/home/bag/bag_view.dart';
 import 'package:opatra/UI/home/contact_us/contact_us_view.dart';
 import 'package:opatra/UI/home/product_detail/product_detail_view.dart';
 import 'package:opatra/UI/home/resgister_own_product/register_own_product_view.dart';
-import 'package:opatra/UI/home/treatment.dart';
+import 'package:opatra/UI/home/treatment/treatment_view.dart';
 import 'package:opatra/UI/home/warranty_claim/warranty_claim_view.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1203,7 +1203,7 @@ class _BottomBarHost extends State<BottomBarHost> {
       highlightColor: Colors.transparent,
       onTap: () {
         selectedIndex.value = 1;
-        Get.to(() => Treatment());
+        Get.to(() => TreatmentView());
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),
