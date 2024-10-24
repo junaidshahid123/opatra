@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:opatra/UI/home/create_schedule/create_schedule_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../../../constant/AppLinks.dart';
@@ -16,6 +17,24 @@ class SelectDeviceController extends GetxController {
     // TODO: implement onInit
     super.onInit();
     fetchAllProducts();
+  }
+
+  // Function to handle the device selection and store it in SharedPreferences
+  Future<void> selectAndStoreDevice(int index) async {
+    // Get the current device object
+    var selectedDevice = devices[index];
+
+    // Serialize the object to JSON format
+    String deviceJson = jsonEncode(selectedDevice.toJson());
+
+    // Save the JSON string to SharedPreferences
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.setString('selectedDevice', deviceJson);
+
+    // For confirmation, print the device ID and the JSON
+    print('Selected Device ID: ${selectedDevice.id}');
+    print('Stored Device JSON: $deviceJson');
+    Get.to(() => CreateScheduleView());
   }
 
   Future<void> fetchAllProducts() async {

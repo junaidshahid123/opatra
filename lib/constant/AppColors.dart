@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 class AppColors {
-  static Color appPrimaryColor = HexColor('#3DAF72');
+  static Color appPrimaryColor = Color(0xFFB7A06A);
   static Color appPrimaryWhiteColor = Color(0xFFF8FFFB);
   static Color appPrimaryBlackColor = HexColor('#263238');
   static Color appGrayColor = HexColor('#F1F4F6');

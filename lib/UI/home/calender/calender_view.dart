@@ -2,40 +2,46 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:opatra/UI/home/calender/calender_logic.dart';
 import 'package:opatra/UI/home/treatment1.dart';
 import 'package:table_calendar/table_calendar.dart';
-import '../../constant/AppColors.dart';
+import '../../../constant/AppColors.dart';
 
-class CalenderScreen extends StatefulWidget {
-  const CalenderScreen({super.key});
+class CalenderView extends StatelessWidget {
 
-  @override
-  State<CalenderScreen> createState() => _CalenderScreenState();
-}
-
-class _CalenderScreenState extends State<CalenderScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.appWhiteColor,
-      body: SafeArea(
-        child: Column(
-          children: [
-            buildAppBar(),
-            buildNextTreatment(),
-            Container(
-                decoration: BoxDecoration(
-                    border: Border.all(color: Color(0xFFFBF3D7)),
-                    borderRadius: BorderRadius.circular(20)),
-                margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-                child: CustomizableCalendar(
-                  selectedDayColor: Color(0xFFB7A06A),
-                )),
-            buildStartTreatmentButton()
-          ],
-        ),
-      ),
-    );
+    final RxString selectedTime = Get.arguments;
+
+    return GetBuilder<CalenderController>(
+        init: CalenderController(),
+        builder: (logic) {
+          return Scaffold(
+            backgroundColor: AppColors.appWhiteColor,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  buildAppBar(),
+                  buildNextTreatment(),
+                  Container(
+                    decoration: BoxDecoration(
+                        border: Border.all(color: Color(0xFFFBF3D7)),
+                        borderRadius: BorderRadius.circular(20)),
+                    margin: EdgeInsets.only(left: 20, right: 20, top: 20),
+                    child: CustomizableCalendar(
+                      selectedDayColor: Color(0xFFB7A06A),
+                      onDaysSelected: (selectedDays) {
+                        logic.updateSelectedDays(
+                            selectedDays); // Update controller
+                      },
+                    ),
+                  ),
+                  buildStartTreatmentButton(context, logic,selectedTime)
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   Widget buildNextTreatment() {
@@ -127,10 +133,12 @@ class _CalenderScreenState extends State<CalenderScreen> {
     );
   }
 
-  Widget buildStartTreatmentButton() {
+  Widget buildStartTreatmentButton(
+      BuildContext context, CalenderController logic, RxString selectedTime) {
     return InkWell(
       onTap: () {
-        Get.to(() => Treatment1());
+        logic.deviceSchedule(selectedTime); // Pass the selected time value to the function
+
       },
       child: Container(
           margin: EdgeInsets.only(top: 50, bottom: 20, left: 20, right: 20),
@@ -141,11 +149,20 @@ class _CalenderScreenState extends State<CalenderScreen> {
             borderRadius: BorderRadius.circular(10),
           ),
           child: Center(
-            child: Text(
-              'Start Treatment',
-              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-            ),
-          )),
+              child: logic.isLoading.value == true
+                  ? SizedBox(
+                      width: 20.0, // Adjust the width
+                      height: 20.0, // Adjust the height
+                      child: CircularProgressIndicator(
+                        strokeWidth: 5,
+                        color: AppColors.appWhiteColor,
+                      ),
+                    )
+                  : Text(
+                      'Start Treatment',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                    ))),
     );
   }
 }
@@ -187,96 +204,12 @@ class _CustomizableCalendarState extends State<CustomizableCalendar> {
     _selectedDays = widget.initialSelectedDays ?? [];
   }
 
-  void _onLeftButtonPressed() {
-    setState(() {
-      _focusedDay = DateTime(
-        _focusedDay.year,
-        _focusedDay.month - 1,
-        _focusedDay.day,
-      );
-    });
-  }
-
-  void _onRightButtonPressed() {
-    setState(() {
-      _focusedDay = DateTime(
-        _focusedDay.year,
-        _focusedDay.month + 1,
-        _focusedDay.day,
-      );
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-          color: widget.headerColor ?? Colors.transparent,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    DateFormat('MMMM').format(_focusedDay), // Use month name
-                    style: widget.headerTextStyle ??
-                        TextStyle(
-                            color: Color(0xFF222B45),
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w500),
-                  ),
-                  Text(
-                    "${_focusedDay.year}",
-                    style: widget.headerTextStyle ??
-                        TextStyle(
-                          color: Color(0xFF8F9BB3),
-                          fontSize: 12.0,
-                        ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  InkWell(
-                    onTap: () {
-                      _onLeftButtonPressed();
-                    },
-                    child: Container(
-                        height: 30,
-                        width: 30,
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Color(0xFFCED3DE)),
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Container(
-                            margin: EdgeInsets.all(7),
-                            child: Image.asset('assets/images/arrowLeft.png'))),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  InkWell(
-                    onTap: () {
-                      _onRightButtonPressed();
-                    },
-                    child: Container(
-                        height: 30,
-                        width: 30,
-                        decoration: BoxDecoration(
-                            border: Border.all(color: Color(0xFFCED3DE)),
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Container(
-                            margin: EdgeInsets.all(7),
-                            child:
-                                Image.asset('assets/images/arrowRight.png'))),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+        // Your other calendar UI components here...
+
         TableCalendar(
           firstDay: DateTime.utc(2020, 1, 1),
           lastDay: DateTime.utc(2030, 12, 31),
@@ -284,15 +217,19 @@ class _CustomizableCalendarState extends State<CustomizableCalendar> {
           selectedDayPredicate: (day) => _selectedDays.contains(day),
           onDaySelected: (selectedDay, focusedDay) {
             setState(() {
+              // Toggle selection for the day
               if (_selectedDays.contains(selectedDay)) {
-                _selectedDays.remove(selectedDay);
+                _selectedDays.remove(selectedDay); // Remove if already selected
               } else {
-                _selectedDays.add(selectedDay);
+                _selectedDays.add(selectedDay); // Add if not selected
               }
               _focusedDay = focusedDay;
             });
+
+            // Update the selected days in the controller
             if (widget.onDaysSelected != null) {
-              widget.onDaysSelected!(_selectedDays);
+              widget.onDaysSelected!(
+                  _selectedDays); // Pass the updated list of selected days
             }
           },
           headerVisible: false,

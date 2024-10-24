@@ -97,21 +97,8 @@ class SelectDeviceView extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return InkWell(
                     onTap: () async {
-                      // Get the current device object
-                      var selectedDevice = logic.devices[index];
-
-                      // Serialize the object to JSON format
-                      String deviceJson = jsonEncode(selectedDevice.toJson());
-
-                      // Save the JSON string to SharedPreferences
-                      SharedPreferences sharedPreferences =
-                          await SharedPreferences.getInstance();
-                      await sharedPreferences.setString(
-                          'selectedDevice', deviceJson);
-
-                      // For confirmation, print the device ID and the JSON
-                      print('Selected Device ID: ${selectedDevice.id}');
-                      print('Stored Device JSON: $deviceJson');
+                      // Call the controller's function instead of writing the logic here
+                      await logic.selectAndStoreDevice(index);
                     },
                     child: Column(
                       children: [
