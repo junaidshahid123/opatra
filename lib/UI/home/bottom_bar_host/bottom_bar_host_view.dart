@@ -10,320 +10,37 @@ import 'package:opatra/UI/home/resgister_own_product/register_own_product_view.d
 import 'package:opatra/UI/home/treatment/treatment_view.dart';
 import 'package:opatra/UI/home/warranty_claim/warranty_claim_view.dart';
 import 'package:opatra/constant/AppColors.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../controllers/bottom_bar_host_controller.dart';
-import '../../models/MDAllVideos.dart';
-import '../../models/MDProductsByCategory.dart';
-import '../../models/MDVideosByCategory.dart';
-import 'ask_ouur_experts/ask_our_experts_view.dart';
-import 'live_stream.dart';
-import 'notifications.dart';
+import '../../../models/MDAllVideos.dart';
+import '../../../models/MDProductsByCategory.dart';
+import '../../../models/MDVideosByCategory.dart';
+import '../ask_ouur_experts/ask_our_experts_view.dart';
+import '../live_stream.dart';
+import '../notifications.dart';
+import 'bottom_bar_host_logic.dart';
 
-class BottomBarHost extends StatefulWidget {
-  const BottomBarHost({super.key});
+class BottomBarHostView extends StatefulWidget {
+  const BottomBarHostView({super.key});
 
   @override
-  State<BottomBarHost> createState() => _BottomBarHost();
+  State<BottomBarHostView> createState() => _BottomBarHostView();
 }
 
-class _BottomBarHost extends State<BottomBarHost> {
-  final BottomBarHostController controller =
-      Get.put(BottomBarHostController()); // Initialize the controller
+class _BottomBarHostView extends State<BottomBarHostView> {
   final PageController _controller = PageController(viewportFraction: 0.8);
-  int _currentIndex = 0;
-  RxBool home = true.obs;
-  RxBool product = true.obs;
-  RxBool video = true.obs;
-  RxBool skinCare = true.obs;
-  RxBool devices = true.obs;
-  RxInt selectedCategoryForSkinCare = 0.obs;
-  RxInt selectedCategoryForDevice = 0.obs;
-  RxInt selectedCategoryForVideo = 0.obs;
-  RxInt selectedIndex = 0.obs;
-  RxBool isLoading = false.obs;
-  TextEditingController searchTextController = TextEditingController();
 
 // Declare a Timer variable to manage the debounce timing
   Timer? _debounce;
-
-  void _showDialogForCurrency(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Color(0xFFB7A06A),
-          child: Material(
-            type: MaterialType.transparency,
-            child: StatefulBuilder(
-              builder: (context, setState) {
-                return Container(
-                  width: MediaQuery.of(context).size.width / 4,
-                  height: MediaQuery.of(context).size.height / 4,
-                  decoration: BoxDecoration(
-                    color: Color(0xFFB7A06A),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        margin: EdgeInsets.only(top: 20),
-                        child: Text(
-                          'Select Currency',
-                          style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.appWhiteColor),
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            InkWell(
-                              onTap: () {
-                                controller.makeUsDollar();
-                                Get.back();
-                              },
-                              child: Container(
-                                height: 40, // Oval shape height
-                                width: MediaQuery.of(context).size.width / 4,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.rectangle,
-                                  border: controller.usd.value == true
-                                      ? Border.all(color: Colors.transparent)
-                                      : Border.all(
-                                          color: AppColors.appWhiteColor),
-                                  borderRadius: BorderRadius.circular(20),
-                                  // Slightly more circular
-                                  color: controller.usd.value == true
-                                      ? AppColors.appWhiteColor
-                                      : Colors.transparent,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    'US Dollar',
-                                    style: TextStyle(
-                                      color: controller.usd.value == true
-                                          ? Color(0xFFB7A06A)
-                                          : AppColors.appWhiteColor,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                controller.makeEuro();
-                                Get.back();
-                              },
-                              child: Container(
-                                height: 40, // Oval shape height
-                                width: MediaQuery.of(context).size.width / 4,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.rectangle,
-                                  border: controller.euro.value == true
-                                      ? Border.all(color: Colors.transparent)
-                                      : Border.all(
-                                          color: AppColors.appWhiteColor),
-                                  borderRadius: BorderRadius.circular(20),
-                                  // Slightly more circular
-                                  color: controller.euro.value == true
-                                      ? AppColors.appWhiteColor
-                                      : Colors.transparent,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    'Euro',
-                                    style: TextStyle(
-                                      color: controller.euro.value == true
-                                          ? Color(0xFFB7A06A)
-                                          : AppColors.appWhiteColor,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            InkWell(
-                              onTap: () {
-                                controller.makePound();
-                                Get.back();
-                              },
-                              child: Container(
-                                height: 40, // Oval shape height
-                                width: MediaQuery.of(context).size.width / 4,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.rectangle,
-                                  border: controller.pound.value == true
-                                      ? Border.all(color: Colors.transparent)
-                                      : Border.all(
-                                          color: AppColors.appWhiteColor),
-                                  borderRadius: BorderRadius.circular(20),
-                                  // Slightly more circular
-                                  color: controller.pound.value == true
-                                      ? AppColors.appWhiteColor
-                                      : Colors.transparent,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    'Pound',
-                                    style: TextStyle(
-                                      color: controller.pound.value == true
-                                          ? Color(0xFFB7A06A)
-                                          : AppColors.appWhiteColor,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    home.value = true;
-    product.value = false;
-    video.value = false;
-    selectedIndex.value = -1;
-    skinCare.value = true;
-    devices.value = false;
-    _getUserName();
-  }
-
-  Future<String> _getUserName() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('userName') ??
-        'Guest'; // Default to 'Guest' if no value is found
-  }
-
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Obx(() => Dialog(
-              backgroundColor: Colors.transparent,
-              insetPadding: EdgeInsets.only(left: 20, right: 20),
-              child: Material(
-                type: MaterialType.transparency,
-                child: Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height /
-                      2.5, // Adjusted height for new content
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          "Are you sure you want to Log Out?",
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.appPrimaryBlackColor,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(height: 30),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            // No button
-                            InkWell(
-                              onTap: () {
-                                Get.back(); // Close the dialog
-                                selectedIndex.value = -1;
-                              },
-                              child: Container(
-                                height: 50,
-                                width: MediaQuery.of(context).size.width / 4,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey,
-                                  // Grey color for "No" button
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    'No',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.appWhiteColor,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            // Yes button
-                            InkWell(
-                              onTap: () {
-                                // Add your logout functionality here
-                                controller.logOut();
-                              },
-                              child: Container(
-                                  height: 50,
-                                  width: MediaQuery.of(context).size.width / 4,
-                                  decoration: BoxDecoration(
-                                    color: Color(0xFFB7A06A),
-                                    // Custom color for "Yes" button
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Center(
-                                      child: isLoading.value == true
-                                          ? SizedBox(
-                                              width: 20.0, // Adjust the width
-                                              height: 20.0, // Adjust the height
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 5,
-                                                color: AppColors.appWhiteColor,
-                                              ),
-                                            )
-                                          : Text(
-                                              'Yes',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 16),
-                                            ))),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ));
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<BottomBarHostController>(
         init: BottomBarHostController(),
-        builder: (BottomBarHostController) {
+        builder: (logic) {
           return Scaffold(
-            drawer: buildDrawer(),
+            drawer: buildDrawer(logic),
             onDrawerChanged: (isOpened) {
-              controller.isCurrencyDropDown.value = false;
+              logic.isCurrencyDropDown.value = false;
             },
             resizeToAvoidBottomInset: true,
             backgroundColor: AppColors.appWhiteColor,
@@ -332,14 +49,14 @@ class _BottomBarHost extends State<BottomBarHost> {
                 splashColor: Colors.transparent,
                 highlightColor: Colors.transparent,
                 onTap: () {
-                  controller.isCurrencyDropDown.value = false;
+                  logic.isCurrencyDropDown.value = false;
                 },
                 child: Stack(
                   alignment: Alignment.bottomCenter,
                   children: [
                     Column(
                       children: [
-                        buildAppBar(),
+                        buildAppBar(logic),
                         Expanded(
                           child: SingleChildScrollView(
                             padding: EdgeInsets.only(
@@ -349,18 +66,18 @@ class _BottomBarHost extends State<BottomBarHost> {
                             child: Column(
                               children: [
                                 Obx(
-                                  () => home.value == true
+                                  () => logic.home.value == true
                                       ? buildLatestProductsTextForHome()
                                       : Container(),
                                 ),
-                                controller.mdLatestProducts == null
+                                logic.mdLatestProducts == null
                                     ? Center(
                                         child: CircularProgressIndicator(
                                           color: AppColors.appPrimaryBlackColor,
                                         ),
                                       )
                                     : Obx(
-                                        () => home.value == true
+                                        () => logic.home.value == true
                                             ? Container(
                                                 height: MediaQuery.of(context)
                                                         .size
@@ -373,19 +90,20 @@ class _BottomBarHost extends State<BottomBarHost> {
                                                     .width,
                                                 child: PageView.builder(
                                                   controller: _controller,
-                                                  itemCount: controller
+                                                  itemCount: logic
                                                       .mdLatestProducts!
                                                       .products
                                                       .length,
                                                   onPageChanged: (int index) {
                                                     setState(() {
-                                                      _currentIndex = index;
+                                                      logic.currentIndex =
+                                                          index;
                                                     });
                                                   },
                                                   itemBuilder:
                                                       (context, index) {
-                                                    bool isCurrent =
-                                                        index == _currentIndex;
+                                                    bool isCurrent = index ==
+                                                        logic.currentIndex;
                                                     return AnimatedContainer(
                                                       duration: Duration(
                                                           milliseconds: 300),
@@ -426,20 +144,16 @@ class _BottomBarHost extends State<BottomBarHost> {
                                                         // Clip the image to the container's rounded corners
                                                         child: Stack(
                                                           children: [
-                                                            controller
-                                                                            .mdLatestProducts!
-                                                                            .products[
-                                                                                index]
-                                                                            .image !=
+                                                            logic.mdLatestProducts!.products[index].image !=
                                                                         null &&
-                                                                    controller
+                                                                    logic
                                                                             .mdLatestProducts!
                                                                             .products[index]
                                                                             .image!
                                                                             .src !=
                                                                         null
                                                                 ? Image.network(
-                                                                    controller
+                                                                    logic
                                                                         .mdLatestProducts!
                                                                         .products[
                                                                             index]
@@ -470,7 +184,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                                                               child: Column(
                                                                 children: [
                                                                   Text(
-                                                                    controller
+                                                                    logic
                                                                         .mdLatestProducts!
                                                                         .products[
                                                                             index]
@@ -484,7 +198,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                                                                             FontWeight.w600),
                                                                   ),
                                                                   Text(
-                                                                    controller
+                                                                    logic
                                                                         .mdLatestProducts!
                                                                         .products[
                                                                             index]
@@ -509,118 +223,132 @@ class _BottomBarHost extends State<BottomBarHost> {
                                             : Container(),
                                       ),
                                 Obx(
-                                  () => home.value == true
+                                  () => logic.home.value == true
                                       ? buildHeadingTextForHome()
                                       : Container(),
                                 ),
-                                Obx(() => home.value == true
-                                    ? buildHomeProductListView()
-                                    : video.value == true
+                                Obx(() => logic.home.value == true
+                                    ? buildHomeProductListView(logic)
+                                    : logic.video.value == true
                                         ? buildProductListView()
-                                        : buildProductListViewForBanners()),
+                                        : buildProductListViewForBanners(
+                                            logic)),
                                 Obx(
-                                  () => product.value || video.value == true
-                                      ? buildSearchField()
+                                  () => logic.product.value ||
+                                          logic.video.value == true
+                                      ? buildSearchField(logic)
                                       : Container(),
                                 ),
 
-                                Obx(() => product.value == true
-                                    ? buildSkinCareAndDevicesOptions()
+                                Obx(() => logic.product.value == true
+                                    ? buildSkinCareAndDevicesOptions(logic)
                                     : Container()),
                                 Obx(
-                                  () => product.value == true &&
-                                          skinCare.value == true
-                                      ? buildSkinCareCategories()
+                                  () => logic.product.value == true &&
+                                          logic.skinCare.value == true
+                                      ? buildSkinCareCategories(logic)
                                       : Container(),
                                 ),
                                 Obx(
-                                  () => product.value == true &&
-                                          devices.value == true
-                                      ? buildDevicesCategories()
+                                  () => logic.product.value == true &&
+                                          logic.devices.value == true
+                                      ? buildDevicesCategories(logic)
                                       : Container(),
                                 ),
-                                Obx(() => product.value
+
+                                Obx(() => logic.product.value
                                     ? Obx(() {
+                                        print(
+                                            'Current Product Value: ${logic.product.value}');
+                                        print(
+                                            'Filtered Products Length: ${logic.filteredProducts.length}');
+                                        print(
+                                            'Search Query: ${logic.searchQuery}');
+
                                         // Initially show the default popular products
-                                        if (controller.searchQuery.isEmpty &&
-                                            controller
-                                                .filteredProducts.isEmpty) {
-                                          // Populate filteredProducts with popular products if empty
-                                          controller.filteredProducts.value =
-                                              controller.mdProductsByCategory
-                                                      ?.products ??
-                                                  [];
-                                          // Show the popular products grid view
-                                          return buildProductGridViewPopular();
+                                        if (logic.searchQuery.isEmpty &&
+                                            logic.filteredProducts.isEmpty) {
+                                          print(
+                                              'No search query and no filtered products. Showing popular products.');
+                                          return buildProductGridViewPopular(
+                                              logic);
                                         }
 
                                         // If the controller is loading, show a progress indicator
-                                        if (controller.isLoading.value) {
+                                        if (logic.isLoading.value) {
+                                          print('Loading products...');
                                           return Center(
                                               child:
                                                   CircularProgressIndicator());
                                         }
 
                                         // Check if there are filtered products after the search query
-                                        if (controller
-                                            .filteredProducts.isNotEmpty) {
-                                          // Display filtered products based on the search query
+                                        if (logic.filteredProducts.isNotEmpty) {
+                                          print(
+                                              'Filtered products are available. Showing filtered products.');
                                           return buildProductGridViewPopularA(
-                                              controller.filteredProducts);
+                                              logic.filteredProducts, logic);
                                         }
 
                                         // If there are no matching products for the search query
-                                        else if (controller
-                                                .filteredProducts.isEmpty &&
-                                            controller.searchQuery.isNotEmpty) {
-                                          // No products found, show a message for 5 seconds
-                                          WidgetsBinding.instance
-                                              .addPostFrameCallback((_) {
-                                            Timer(Duration(seconds: 3), () {
-                                              // Clear the search query and reset the products to popular products
-                                              controller.searchQuery.value = '';
-                                              searchTextController.clear();
-                                              FocusScope.of(context).unfocus();
+                                        if (logic.filteredProducts.isEmpty &&
+                                            logic.searchQuery.isNotEmpty) {
+                                          print(
+                                              'No matching products found for the search query: ${logic.searchQuery}');
 
-                                              // Reset the filtered products to the popular products
-                                              controller.filteredProducts
-                                                  .value = controller
-                                                      .mdProductsByCategory
-                                                      ?.products ??
-                                                  [];
-
-                                              // Ensure loading is false
-                                              controller.isLoading.value =
-                                                  false;
-                                            });
-                                          });
-
-                                          // Show the "No products found" message
-                                          return Center(
-                                            child: Text(
-                                              maxLines: 2,
-                                              'No products found with this alphabetic query. Try Another.',
-                                              style: TextStyle(
-                                                  color: AppColors
-                                                      .appPrimaryBlackColor),
+                                          // Show "No products found" message for a few seconds
+                                          return Container(
+                                            margin: EdgeInsets.only(
+                                                left: 20, right: 20),
+                                            height: 300,
+                                            child: Center(
+                                              child: Text(
+                                                'No products found with this alphabetic query. Try Another.',
+                                                maxLines: 3,
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    color: AppColors
+                                                        .appPrimaryBlackColor),
+                                              ),
                                             ),
                                           );
                                         }
 
-                                        // Default to showing popular products if none of the conditions are met
-                                        return buildProductGridViewPopular();
+                                        // After showing the message, reset the filtered products after a delay
+                                        WidgetsBinding.instance
+                                            .addPostFrameCallback((_) {
+                                          Timer(Duration(seconds: 3), () {
+                                            print(
+                                                'Resetting search query and filtered products after delay.');
+                                            FocusScope.of(context).unfocus();
+
+                                            // Reset the filtered products to the popular products
+                                            logic.filteredProducts.value = logic
+                                                    .mdProductsByCategory
+                                                    ?.products ??
+                                                [];
+                                            logic.isLoading.value = false;
+                                          });
+                                        });
+
+                                        // If all conditions fail, show the default popular products
+                                        print(
+                                            'No conditions met, showing default popular products.');
+                                        return buildProductGridViewPopular(
+                                            logic);
                                       })
                                     : Container()),
-                                //video heading
+
+                                //     video heading
                                 Obx(
-                                  () => video.value == true
-                                      ? buildCategoriesForVideos()
+                                  () => logic.video.value == true
+                                      ? buildCategoriesForVideos(logic)
                                       : Container(),
                                 ),
                                 // Inside the Obx that controls showing videos based on selected category
                                 Obx(() {
-                                  return video.value == true
-                                      ? controller.mdVideosByCategory == null
+                                  return logic.video.value == true
+                                      ? logic.mdVideosByCategory == null
                                           ? Container(
                                               margin: EdgeInsets.only(top: 20),
                                               child: Center(
@@ -630,7 +358,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                                                 ),
                                               ),
                                             )
-                                          : controller.isLoading.value == true
+                                          : logic.isLoading.value == true
                                               ? Container(
                                                   margin:
                                                       EdgeInsets.only(top: 20),
@@ -642,7 +370,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                                                   ),
                                                 )
                                               : VideoGridWidget(
-                                                  videos: controller
+                                                  videos: logic
                                                       .mdVideosByCategory!
                                                       .data!
                                                       .videos!,
@@ -655,7 +383,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                         ),
                       ],
                     ),
-                    buildBottomBar(),
+                    buildBottomBar(logic),
                   ],
                 ),
               ),
@@ -664,7 +392,7 @@ class _BottomBarHost extends State<BottomBarHost> {
         });
   }
 
-  Widget buildSkinCareAndDevicesOptions() {
+  Widget buildSkinCareAndDevicesOptions(BottomBarHostController logic) {
     return Container(
       margin: EdgeInsets.only(top: 20, left: 20, right: 20),
       child: Row(
@@ -674,18 +402,21 @@ class _BottomBarHost extends State<BottomBarHost> {
           Expanded(
             child: InkWell(
               onTap: () {
-                skinCare.value = true;
-                devices.value = false;
-                controller.fetchProductByCategory(
-                    controller.skinCareCategories[0].id!);
+                logic.searchQuery.value = '';
+                logic.searchTextController.clear();
+                logic.filteredProducts.clear();
+                logic.skinCare.value = true;
+                logic.devices.value = false;
+                logic.selectedCategoryForSkinCare.value = 0;
+                logic.fetchProductByCategory(logic.skinCareCategories[0].id!);
               },
               child: Container(
                 padding: EdgeInsets.all(5), // Padding inside the container
                 decoration: BoxDecoration(
-                  border: skinCare.value == true
+                  border: logic.skinCare.value == true
                       ? Border.all(color: Colors.transparent)
                       : Border.all(color: AppColors.appGrayColor),
-                  color: skinCare.value == true
+                  color: logic.skinCare.value == true
                       ? Color(0xFFB7A06A)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(10), // Rounded corners
@@ -694,7 +425,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                   child: Text(
                     'SKINCARE',
                     style: TextStyle(
-                      color: skinCare.value == true
+                      color: logic.skinCare.value == true
                           ? Colors.white
                           : Color(0xFFB7A06A), // Text color
                       fontSize: 18, // Font size
@@ -709,18 +440,21 @@ class _BottomBarHost extends State<BottomBarHost> {
           Expanded(
             child: InkWell(
               onTap: () {
-                skinCare.value = false;
-                devices.value = true;
-                controller.fetchProductByCategory(
-                    controller.devicesCategories[0].id!);
+                logic.searchQuery.value = '';
+                logic.searchTextController.clear();
+                logic.filteredProducts.clear();
+                logic.skinCare.value = false;
+                logic.devices.value = true;
+                logic.selectedCategoryForDevice.value = 0;
+                logic.fetchProductByCategory(logic.devicesCategories[0].id!);
               },
               child: Container(
                 padding: EdgeInsets.all(5), // Padding inside the container
                 decoration: BoxDecoration(
-                  border: devices.value == true
+                  border: logic.devices.value == true
                       ? Border.all(color: Colors.transparent)
                       : Border.all(color: AppColors.appGrayColor),
-                  color: devices.value == true
+                  color: logic.devices.value == true
                       ? Color(0xFFB7A06A)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
@@ -729,7 +463,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                   child: Text(
                     'DEVICES',
                     style: TextStyle(
-                      color: devices.value == true
+                      color: logic.devices.value == true
                           ? Colors.white
                           : Color(0xFFB7A06A), // Text color
                       fontSize: 18,
@@ -753,7 +487,7 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildDrawer() {
+  Widget buildDrawer(BottomBarHostController logic) {
     return Drawer(
       backgroundColor: AppColors.appWhiteColor,
       child: SafeArea(
@@ -770,7 +504,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                   ),
                 ],
               ),
-              buildOptions()
+              buildOptions(logic)
             ],
           ),
         ),
@@ -778,22 +512,22 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildOptions() {
+  Widget buildOptions(BottomBarHostController logic) {
     return Obx(() => Expanded(
           child: ListView(
             children: [
               Column(
                 children: [
-                  buildCurrencyOption(),
-                  buildTreatmentOption(),
-                  buildLiveStreamOption(),
-                  buildAskOurExpertsOption(),
-                  buildAboutUsOption(),
-                  buildContactUsOption(),
-                  buildRegisterYourProductOption(),
-                  buildWarrantyClaimsOption(),
-                  buildLogOutOption(),
-                  buildSocialOptions()
+                  buildCurrencyOption(logic),
+                  buildTreatmentOption(logic),
+                  buildLiveStreamOption(logic),
+                  buildAskOurExpertsOption(logic),
+                  buildAboutUsOption(logic),
+                  buildContactUsOption(logic),
+                  buildRegisterYourProductOption(logic),
+                  buildWarrantyClaimsOption(logic),
+                  buildLogOutOption(logic),
+                  buildSocialOptions(logic)
                 ],
               ),
             ],
@@ -801,7 +535,7 @@ class _BottomBarHost extends State<BottomBarHost> {
         ));
   }
 
-  Widget buildSocialOptions() {
+  Widget buildSocialOptions(BottomBarHostController logic) {
     return Container(
       margin: EdgeInsets.only(top: 50),
       child: Column(
@@ -889,22 +623,22 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildLogOutOption() {
+  Widget buildLogOutOption(BottomBarHostController logic) {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
-        selectedIndex.value = 8;
-        _showLogoutDialog(context);
+        logic.selectedIndex.value = 8;
+        logic.showLogoutDialog(context);
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),
         decoration: BoxDecoration(
             border: Border.all(
-                color: selectedIndex.value == 8
+                color: logic.selectedIndex.value == 8
                     ? Colors.transparent
                     : Color(0xFFFBF3D7)),
-            color: selectedIndex.value == 8
+            color: logic.selectedIndex.value == 8
                 ? Color(0xFFB7A06A)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(10)),
@@ -919,7 +653,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: selectedIndex.value == 8
+                    color: logic.selectedIndex.value == 8
                         ? AppColors.appWhiteColor
                         : Color(0xFFB7A06A)),
               ),
@@ -930,22 +664,22 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildWarrantyClaimsOption() {
+  Widget buildWarrantyClaimsOption(BottomBarHostController logic) {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
-        selectedIndex.value = 7;
+        logic.selectedIndex.value = 7;
         Get.to(() => WarrantyClaimView());
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),
         decoration: BoxDecoration(
             border: Border.all(
-                color: selectedIndex.value == 7
+                color: logic.selectedIndex.value == 7
                     ? Colors.transparent
                     : Color(0xFFFBF3D7)),
-            color: selectedIndex.value == 7
+            color: logic.selectedIndex.value == 7
                 ? Color(0xFFB7A06A)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(10)),
@@ -960,7 +694,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: selectedIndex.value == 7
+                    color: logic.selectedIndex.value == 7
                         ? AppColors.appWhiteColor
                         : Color(0xFFB7A06A)),
               ),
@@ -971,22 +705,22 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildRegisterYourProductOption() {
+  Widget buildRegisterYourProductOption(BottomBarHostController logic) {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
-        selectedIndex.value = 6;
+        logic.selectedIndex.value = 6;
         Get.to(() => RegisterYourOwnProductView());
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),
         decoration: BoxDecoration(
             border: Border.all(
-                color: selectedIndex.value == 6
+                color: logic.selectedIndex.value == 6
                     ? Colors.transparent
                     : Color(0xFFFBF3D7)),
-            color: selectedIndex.value == 6
+            color: logic.selectedIndex.value == 6
                 ? Color(0xFFB7A06A)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(10)),
@@ -1001,7 +735,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: selectedIndex.value == 6
+                    color: logic.selectedIndex.value == 6
                         ? AppColors.appWhiteColor
                         : Color(0xFFB7A06A)),
               ),
@@ -1012,12 +746,12 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildContactUsOption() {
+  Widget buildContactUsOption(BottomBarHostController logic) {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
-        selectedIndex.value = 5;
+        logic.selectedIndex.value = 5;
         Get.to(() => ContactUsView());
       },
       child: Container(
@@ -1026,10 +760,10 @@ class _BottomBarHost extends State<BottomBarHost> {
         ),
         decoration: BoxDecoration(
             border: Border.all(
-                color: selectedIndex.value == 5
+                color: logic.selectedIndex.value == 5
                     ? Colors.transparent
                     : Color(0xFFFBF3D7)),
-            color: selectedIndex.value == 5
+            color: logic.selectedIndex.value == 5
                 ? Color(0xFFB7A06A)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(10)),
@@ -1044,7 +778,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: selectedIndex.value == 5
+                    color: logic.selectedIndex.value == 5
                         ? AppColors.appWhiteColor
                         : Color(0xFFB7A06A)),
               ),
@@ -1055,12 +789,12 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildAboutUsOption() {
+  Widget buildAboutUsOption(BottomBarHostController logic) {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
-        selectedIndex.value = 4;
+        logic.selectedIndex.value = 4;
         Get.to(() => AboutUs());
       },
       child: Container(
@@ -1069,10 +803,10 @@ class _BottomBarHost extends State<BottomBarHost> {
         ),
         decoration: BoxDecoration(
             border: Border.all(
-                color: selectedIndex.value == 4
+                color: logic.selectedIndex.value == 4
                     ? Colors.transparent
                     : Color(0xFFFBF3D7)),
-            color: selectedIndex.value == 4
+            color: logic.selectedIndex.value == 4
                 ? Color(0xFFB7A06A)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(10)),
@@ -1089,7 +823,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: selectedIndex.value == 4
+                    color: logic.selectedIndex.value == 4
                         ? AppColors.appWhiteColor
                         : Color(0xFFB7A06A)),
               ),
@@ -1100,22 +834,22 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildAskOurExpertsOption() {
+  Widget buildAskOurExpertsOption(BottomBarHostController logic) {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
-        selectedIndex.value = 3;
+        logic.selectedIndex.value = 3;
         Get.to(() => AskOurExpertsView());
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),
         decoration: BoxDecoration(
             border: Border.all(
-                color: selectedIndex.value == 3
+                color: logic.selectedIndex.value == 3
                     ? Colors.transparent
                     : Color(0xFFFBF3D7)),
-            color: selectedIndex.value == 3
+            color: logic.selectedIndex.value == 3
                 ? Color(0xFFB7A06A)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(10)),
@@ -1130,7 +864,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: selectedIndex.value == 3
+                    color: logic.selectedIndex.value == 3
                         ? AppColors.appWhiteColor
                         : Color(0xFFB7A06A)),
               ),
@@ -1141,21 +875,21 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildCurrencyOption() {
+  Widget buildCurrencyOption(BottomBarHostController logic) {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
-        selectedIndex.value = 0;
-        _showDialogForCurrency(context);
+        logic.selectedIndex.value = 0;
+        logic.showDialogForCurrency(context);
       },
       child: Container(
         decoration: BoxDecoration(
             border: Border.all(
-                color: selectedIndex.value == 0
+                color: logic.selectedIndex.value == 0
                     ? Colors.transparent
                     : Color(0xFFFBF3D7)),
-            color: selectedIndex.value == 0
+            color: logic.selectedIndex.value == 0
                 ? Color(0xFFB7A06A)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(10)),
@@ -1167,24 +901,24 @@ class _BottomBarHost extends State<BottomBarHost> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                controller.selectedCurrency.value.isNotEmpty
-                    ? controller.selectedCurrency.value
+                logic.selectedCurrency.value.isNotEmpty
+                    ? logic.selectedCurrency.value
                     : 'Select Currency',
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: selectedIndex.value == 0
+                    color: logic.selectedIndex.value == 0
                         ? AppColors.appWhiteColor
                         : Color(0xFFB7A06A)),
               ),
               SizedBox(
                 width: 10,
               ),
-              controller.selectedCurrency.value.isNotEmpty
+              logic.selectedCurrency.value.isNotEmpty
                   ? Text(
                       '(Tap To Change)',
                       style: TextStyle(
-                          color: selectedIndex.value == 0
+                          color: logic.selectedIndex.value == 0
                               ? AppColors.appWhiteColor
                               : Color(0xFFB7A06A),
                           fontSize: 12),
@@ -1197,22 +931,22 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildTreatmentOption() {
+  Widget buildTreatmentOption(BottomBarHostController logic) {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
-        selectedIndex.value = 1;
+        logic.selectedIndex.value = 1;
         Get.to(() => TreatmentView());
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),
         decoration: BoxDecoration(
             border: Border.all(
-                color: selectedIndex.value == 1
+                color: logic.selectedIndex.value == 1
                     ? Colors.transparent
                     : Color(0xFFFBF3D7)),
-            color: selectedIndex.value == 1
+            color: logic.selectedIndex.value == 1
                 ? Color(0xFFB7A06A)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(10)),
@@ -1228,7 +962,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: selectedIndex.value == 1
+                    color: logic.selectedIndex.value == 1
                         ? AppColors.appWhiteColor
                         : Color(0xFFB7A06A)),
               ),
@@ -1239,22 +973,22 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildLiveStreamOption() {
+  Widget buildLiveStreamOption(BottomBarHostController logic) {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
-        selectedIndex.value = 2;
+        logic.selectedIndex.value = 2;
         Get.to(() => LiveStream());
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),
         decoration: BoxDecoration(
             border: Border.all(
-                color: selectedIndex.value == 2
+                color: logic.selectedIndex.value == 2
                     ? Colors.transparent
                     : Color(0xFFFBF3D7)),
-            color: selectedIndex.value == 2
+            color: logic.selectedIndex.value == 2
                 ? Color(0xFFB7A06A)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(10)),
@@ -1269,7 +1003,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: selectedIndex.value == 2
+                    color: logic.selectedIndex.value == 2
                         ? AppColors.appWhiteColor
                         : Color(0xFFB7A06A)),
               ),
@@ -1353,8 +1087,8 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildCategoriesForVideos() {
-    return controller.mdVideosByCategory == null
+  Widget buildCategoriesForVideos(BottomBarHostController logic) {
+    return logic.mdVideosByCategory == null
         ? Center(
             child: CircularProgressIndicator(
               color: Color(0xFFB7A06A),
@@ -1364,7 +1098,7 @@ class _BottomBarHost extends State<BottomBarHost> {
             height: 50,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: controller.mdAllVideoCategories!.data!.length,
+              itemCount: logic.mdAllVideoCategories!.data!.length,
               itemBuilder: (context, index) {
                 // Adjusting width to account for left and right margins
                 double containerWidth = MediaQuery.of(context).size.width - 40;
@@ -1373,10 +1107,10 @@ class _BottomBarHost extends State<BottomBarHost> {
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
                   onTap: () {
-                    searchTextController.clear();
-                    selectedCategoryForVideo.value = index;
-                    controller.fetchVideoByCategory(
-                        controller.mdAllVideoCategories!.data![index].id!);
+                    logic.searchTextController.clear();
+                    logic.selectedCategoryForVideo.value = index;
+                    logic.fetchVideoByCategory(
+                        logic.mdAllVideoCategories!.data![index].id!);
                   },
                   child: Obx(
                     () => Container(
@@ -1384,22 +1118,24 @@ class _BottomBarHost extends State<BottomBarHost> {
                         // width: 60,
                         decoration: BoxDecoration(
                             border: Border.all(
-                                color: selectedCategoryForVideo.value == index
+                                color: logic.selectedCategoryForVideo.value ==
+                                        index
                                     ? Colors.transparent
                                     : Color(0xFFFBF3D7)),
                             borderRadius: BorderRadius.circular(20),
-                            color: selectedCategoryForVideo.value == index
+                            color: logic.selectedCategoryForVideo.value == index
                                 ? Color(0xFFB7A06A)
                                 : Colors.transparent),
                         child: Center(
                             child: Container(
                           margin: EdgeInsets.all(5),
                           child: Text(
-                            controller.mdAllVideoCategories!.data![index].name!,
+                            logic.mdAllVideoCategories!.data![index].name!,
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
-                                color: selectedCategoryForVideo.value == index
+                                color: logic.selectedCategoryForVideo.value ==
+                                        index
                                     ? AppColors.appWhiteColor
                                     : AppColors.appPrimaryBlackColor),
                           ),
@@ -1411,8 +1147,8 @@ class _BottomBarHost extends State<BottomBarHost> {
           );
   }
 
-  Widget buildDevicesCategories() {
-    return controller.devicesCategories.isEmpty
+  Widget buildDevicesCategories(BottomBarHostController logic) {
+    return logic.devicesCategories.isEmpty
         ? Center(
             child: CircularProgressIndicator(
               color: Color(0xFFB7A06A),
@@ -1422,7 +1158,7 @@ class _BottomBarHost extends State<BottomBarHost> {
             height: 50,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: controller.devicesCategories.length,
+              itemCount: logic.devicesCategories.length,
               itemBuilder: (context, index) {
                 // Adjusting width to account for left and right margins
                 double containerWidth = MediaQuery.of(context).size.width - 40;
@@ -1431,10 +1167,11 @@ class _BottomBarHost extends State<BottomBarHost> {
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
                   onTap: () {
-                    searchTextController.clear();
-                    selectedCategoryForDevice.value = index;
-                    controller.fetchProductByCategory(
-                        controller.devicesCategories[index].id!);
+                    logic.searchTextController.clear();
+                    logic.selectedCategoryForDevice.value = index;
+                    logic.fetchProductByCategory(
+                        logic.devicesCategories[index].id!);
+                    print('index========${index}');
                   },
                   child: Obx(
                     () => Container(
@@ -1442,22 +1179,25 @@ class _BottomBarHost extends State<BottomBarHost> {
                         // width: 60,
                         decoration: BoxDecoration(
                             border: Border.all(
-                                color: selectedCategoryForDevice.value == index
+                                color: logic.selectedCategoryForDevice.value ==
+                                        index
                                     ? Colors.transparent
                                     : Color(0xFFFBF3D7)),
                             borderRadius: BorderRadius.circular(20),
-                            color: selectedCategoryForDevice.value == index
-                                ? Color(0xFFB7A06A)
-                                : Colors.transparent),
+                            color:
+                                logic.selectedCategoryForDevice.value == index
+                                    ? Color(0xFFB7A06A)
+                                    : Colors.transparent),
                         child: Center(
                             child: Container(
                           margin: EdgeInsets.all(5),
                           child: Text(
-                            controller.devicesCategories[index].title!,
+                            logic.devicesCategories[index].title!,
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
-                                color: selectedCategoryForDevice.value == index
+                                color: logic.selectedCategoryForDevice.value ==
+                                        index
                                     ? AppColors.appWhiteColor
                                     : AppColors.appPrimaryBlackColor),
                           ),
@@ -1469,8 +1209,8 @@ class _BottomBarHost extends State<BottomBarHost> {
           );
   }
 
-  Widget buildSkinCareCategories() {
-    return controller.skinCareCategories.isEmpty
+  Widget buildSkinCareCategories(BottomBarHostController logic) {
+    return logic.skinCareCategories.isEmpty
         ? Center(
             child: CircularProgressIndicator(
               color: Color(0xFFB7A06A),
@@ -1480,7 +1220,7 @@ class _BottomBarHost extends State<BottomBarHost> {
             height: 50,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: controller.skinCareCategories.length,
+              itemCount: logic.skinCareCategories.length,
               itemBuilder: (context, index) {
                 // Adjusting width to account for left and right margins
                 double containerWidth = MediaQuery.of(context).size.width - 40;
@@ -1489,10 +1229,10 @@ class _BottomBarHost extends State<BottomBarHost> {
                   splashColor: Colors.transparent,
                   highlightColor: Colors.transparent,
                   onTap: () {
-                    searchTextController.clear();
-                    selectedCategoryForSkinCare.value = index;
-                    controller.fetchProductByCategory(
-                        controller.skinCareCategories[index].id!);
+                    logic.searchTextController.clear();
+                    logic.selectedCategoryForSkinCare.value = index;
+                    logic.fetchProductByCategory(
+                        logic.skinCareCategories[index].id!);
                   },
                   child: Obx(
                     () => Container(
@@ -1501,23 +1241,26 @@ class _BottomBarHost extends State<BottomBarHost> {
                         decoration: BoxDecoration(
                             border: Border.all(
                                 color:
-                                    selectedCategoryForSkinCare.value == index
+                                    logic.selectedCategoryForSkinCare.value ==
+                                            index
                                         ? Colors.transparent
                                         : Color(0xFFFBF3D7)),
                             borderRadius: BorderRadius.circular(20),
-                            color: selectedCategoryForSkinCare.value == index
-                                ? Color(0xFFB7A06A)
-                                : Colors.transparent),
+                            color:
+                                logic.selectedCategoryForSkinCare.value == index
+                                    ? Color(0xFFB7A06A)
+                                    : Colors.transparent),
                         child: Center(
                             child: Container(
                           margin: EdgeInsets.all(5),
                           child: Text(
-                            controller.skinCareCategories[index].title!,
+                            logic.skinCareCategories[index].title!,
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
                                 color:
-                                    selectedCategoryForSkinCare.value == index
+                                    logic.selectedCategoryForSkinCare.value ==
+                                            index
                                         ? AppColors.appWhiteColor
                                         : AppColors.appPrimaryBlackColor),
                           ),
@@ -1529,7 +1272,7 @@ class _BottomBarHost extends State<BottomBarHost> {
           );
   }
 
-  Widget buildSearchField() {
+  Widget buildSearchField(BottomBarHostController logic) {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: Color(0xFFFBF3D7)),
@@ -1539,7 +1282,7 @@ class _BottomBarHost extends State<BottomBarHost> {
       height: 60,
       width: MediaQuery.of(context).size.width,
       child: TextField(
-        controller: searchTextController,
+        controller: logic.searchTextController,
         style: TextStyle(color: AppColors.appPrimaryBlackColor),
         decoration: InputDecoration(
           hintText: 'Search Here',
@@ -1570,17 +1313,17 @@ class _BottomBarHost extends State<BottomBarHost> {
             FocusScope.of(context).unfocus();
 
             // Filter products based on the query
-            controller.filterProducts(query);
+            logic.updateSearchQuery(query);
           });
         },
       ),
     );
   }
 
-  Widget buildAppBar() {
+  Widget buildAppBar(BottomBarHostController logic) {
     return InkWell(
       onTap: () {
-        controller.isCurrencyDropDown.value = false;
+        logic.isCurrencyDropDown.value = false;
       },
       child: Container(
         margin: EdgeInsets.only(
@@ -1590,9 +1333,9 @@ class _BottomBarHost extends State<BottomBarHost> {
         ),
         child: Row(
           children: [
-            buildSideBarOption(context),
+            buildSideBarOption(context, logic),
             Spacer(),
-            buildName(),
+            buildName(logic),
             Spacer(),
             buildCartOption(),
             SizedBox(
@@ -1605,13 +1348,14 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildSideBarOption(BuildContext context) {
+  Widget buildSideBarOption(
+      BuildContext context, BottomBarHostController logic) {
     return Builder(
       builder: (BuildContext context) {
         return GestureDetector(
           onTap: () {
             Scaffold.of(context).openDrawer();
-            controller.isCurrencyDropDown.value = false;
+            logic.isCurrencyDropDown.value = false;
           },
           child: Stack(
             alignment: Alignment.center,
@@ -1679,17 +1423,17 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildName() {
-    return Obx(() => home.value == true
+  Widget buildName(BottomBarHostController logic) {
+    return Obx(() => logic.home.value == true
         ? Text(
-            'Hello ${controller.userName.split(' ')[0]}', // Only take the first word
+            'Hello ${logic.userName.split(' ')[0]}', // Only take the first word
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
               color: Color(0xFF333333),
             ),
           )
-        : product.value == true
+        : logic.product.value == true
             ? const Text(
                 'All Products',
                 style: TextStyle(
@@ -1706,50 +1450,50 @@ class _BottomBarHost extends State<BottomBarHost> {
               ));
   }
 
-  Widget buildCurrencyOptionA() {
-    return Obx(() => Column(
-          children: [
-            InkWell(
-              splashColor: Colors.transparent,
-              highlightColor: Colors.transparent,
-              onTap: () {
-                _showDialogForCurrency(context);
-              },
-              child: Container(
-                margin: EdgeInsets.only(left: 20, right: 20),
-                decoration: BoxDecoration(
-                  borderRadius: controller.isCurrencyDropDown.value == false
-                      ? BorderRadius.circular(10)
-                      : BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10)),
-                  color: Color(0xFFB7A06A),
-                ),
-                height: 45,
-                width: MediaQuery.of(context).size.width / 2,
-                child: Center(
-                  child: Text(
-                    controller.selectedCurrency.value.isNotEmpty
-                        ? controller.selectedCurrency.value
-                        : 'Select Currency',
-                    style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.appWhiteColor),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ));
-  }
+  // Widget buildCurrencyOptionA() {
+  //   return Obx(() => Column(
+  //         children: [
+  //           InkWell(
+  //             splashColor: Colors.transparent,
+  //             highlightColor: Colors.transparent,
+  //             onTap: () {
+  //               _showDialogForCurrency(context);
+  //             },
+  //             child: Container(
+  //               margin: EdgeInsets.only(left: 20, right: 20),
+  //               decoration: BoxDecoration(
+  //                 borderRadius: logic.isCurrencyDropDown.value == false
+  //                     ? BorderRadius.circular(10)
+  //                     : BorderRadius.only(
+  //                         topLeft: Radius.circular(10),
+  //                         topRight: Radius.circular(10)),
+  //                 color: Color(0xFFB7A06A),
+  //               ),
+  //               height: 45,
+  //               width: MediaQuery.of(context).size.width / 2,
+  //               child: Center(
+  //                 child: Text(
+  //                   controller.selectedCurrency.value.isNotEmpty
+  //                       ? controller.selectedCurrency.value
+  //                       : 'Select Currency',
+  //                   style: TextStyle(
+  //                       fontSize: 15,
+  //                       fontWeight: FontWeight.w500,
+  //                       color: AppColors.appWhiteColor),
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       ));
+  // }
 
-  Widget buildBottomBar() {
+  Widget buildBottomBar(BottomBarHostController logic) {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
-        controller.isCurrencyDropDown.value = false;
+        logic.isCurrencyDropDown.value = false;
       },
       child: Container(
         margin: EdgeInsets.only(left: 20, right: 20, bottom: 05),
@@ -1762,11 +1506,11 @@ class _BottomBarHost extends State<BottomBarHost> {
         child: Row(
           children: [
             Spacer(),
-            buildHomeOption(),
+            buildHomeOption(logic),
             Spacer(),
-            buildProductOption(),
+            buildProductOption(logic),
             Spacer(),
-            buildVideoOption(),
+            buildVideoOption(logic),
             Spacer(),
           ],
         ),
@@ -1774,18 +1518,18 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildHomeOption() {
+  Widget buildHomeOption(BottomBarHostController logic) {
     return InkWell(
         onTap: () {
-          home.value = true;
-          product.value = false;
-          video.value = false;
+          logic.home.value = true;
+          logic.product.value = false;
+          logic.video.value = false;
         },
         child: Obx(() => Container(
               margin: EdgeInsets.only(bottom: 2, top: 2),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
-                  color: home.value == true
+                  color: logic.home.value == true
                       ? AppColors.appWhiteColor
                       : Colors.transparent),
               height: 30,
@@ -1798,7 +1542,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                         width: 16.5,
                         child: Image.asset(
                           'assets/images/homeIcon.png',
-                          color: home.value == true
+                          color: logic.home.value == true
                               ? AppColors.appPrimaryBlackColor
                               : AppColors.appWhiteColor,
                         )),
@@ -1810,7 +1554,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                       style: TextStyle(
                           fontWeight: FontWeight.w500,
                           fontSize: 14,
-                          color: home.value == true
+                          color: logic.home.value == true
                               ? AppColors.appPrimaryBlackColor
                               : AppColors.appWhiteColor),
                     )
@@ -1820,19 +1564,19 @@ class _BottomBarHost extends State<BottomBarHost> {
             )));
   }
 
-  Widget buildProductOption() {
+  Widget buildProductOption(BottomBarHostController logic) {
     return InkWell(
         onTap: () {
-          home.value = false;
-          product.value = true;
-          video.value = false;
+          logic.home.value = false;
+          logic.product.value = true;
+          logic.video.value = false;
         },
         child: Obx(
           () => Container(
             margin: EdgeInsets.only(bottom: 2, top: 2),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: product.value == true
+                color: logic.product.value == true
                     ? AppColors.appWhiteColor
                     : Colors.transparent),
             height: 30,
@@ -1844,7 +1588,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                       height: 16.5,
                       width: 16.5,
                       child: Image.asset('assets/images/productIcon.png',
-                          color: product.value == true
+                          color: logic.product.value == true
                               ? AppColors.appPrimaryBlackColor
                               : AppColors.appWhiteColor)),
                   SizedBox(
@@ -1855,7 +1599,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                     style: TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 14,
-                        color: product.value == true
+                        color: logic.product.value == true
                             ? AppColors.appPrimaryBlackColor
                             : AppColors.appWhiteColor),
                   )
@@ -1866,19 +1610,19 @@ class _BottomBarHost extends State<BottomBarHost> {
         ));
   }
 
-  Widget buildVideoOption() {
+  Widget buildVideoOption(BottomBarHostController logic) {
     return InkWell(
         onTap: () {
-          home.value = false;
-          product.value = false;
-          video.value = true;
+          logic.home.value = false;
+          logic.product.value = false;
+          logic.video.value = true;
         },
         child: Obx(
           () => Container(
             margin: EdgeInsets.only(bottom: 2.sp, top: 2.sp),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: video.value == true
+                color: logic.video.value == true
                     ? AppColors.appWhiteColor
                     : Colors.transparent),
             height: 30,
@@ -1890,7 +1634,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                       height: 16.5,
                       width: 16.5,
                       child: Image.asset('assets/images/video.png',
-                          color: video.value == true
+                          color: logic.video.value == true
                               ? AppColors.appPrimaryBlackColor
                               : AppColors.appWhiteColor)),
                   SizedBox(
@@ -1901,7 +1645,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                     style: TextStyle(
                         fontWeight: FontWeight.w500,
                         fontSize: 14,
-                        color: video.value == true
+                        color: logic.video.value == true
                             ? AppColors.appPrimaryBlackColor
                             : AppColors.appWhiteColor),
                   )
@@ -1957,8 +1701,131 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildFeaturedProductListView() {
-    return controller.mdProducts == null
+  // Widget buildFeaturedProductListView() {
+  //   return controller.mdProducts == null
+  //       ? Center(
+  //           child: CircularProgressIndicator(
+  //             color: AppColors.appPrimaryBlackColor,
+  //           ),
+  //         )
+  //       : Container(
+  //           height: 150,
+  //           child: ListView.builder(
+  //             scrollDirection: Axis.horizontal,
+  //             itemCount: controller.mdProducts!.products!.length ?? 0,
+  //             itemBuilder: (context, index) {
+  //               // Extract SmartCollections data from the controller
+  //               final smartCollection = controller.mdProducts!.products![index];
+  //
+  //               int usDollarIndex = 6;
+  //               int euroIndex = 4;
+  //               int poundIndex = 0;
+  //
+  //               // Check if the product has a variant with the title "Default Title"
+  //               bool hasDefaultTitle = smartCollection.variants
+  //                       ?.any((variant) => variant.title == "Default Title") ??
+  //                   false;
+  //
+  //               // Define the updated price based on selected currency and "Default Title" presence
+  //               String price;
+  //
+  //               if (hasDefaultTitle) {
+  //                 price =
+  //                     '£ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
+  //               } else if (controller.selectedCurrency.value == 'US Dollar') {
+  //                 price = (smartCollection.variants != null &&
+  //                         smartCollection.variants!.length > usDollarIndex)
+  //                     ? '\$ ${smartCollection.variants![usDollarIndex].price ?? '0.00'} USD'
+  //                     : '\$ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
+  //               } else if (controller.selectedCurrency.value == 'Euro') {
+  //                 price = (smartCollection.variants != null &&
+  //                         smartCollection.variants!.length > euroIndex)
+  //                     ? '€ ${smartCollection.variants![euroIndex].price ?? '0.00'} Euro'
+  //                     : '€ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
+  //               } else {
+  //                 price = (smartCollection.variants != null &&
+  //                         smartCollection.variants!.length > poundIndex)
+  //                     ? '£ ${smartCollection.variants![poundIndex].price ?? '0.00'} Pound'
+  //                     : '£ 0.00 Pound';
+  //               }
+  //
+  //               return InkWell(
+  //                 onTap: () {
+  //                   // Navigate to ProductDetailScreen
+  //                   int? id = smartCollection.id;
+  //                   print('id=====${id}');
+  //                   Get.to(() => ProductDetailView(
+  //                         productId: id!,
+  //                         currency: smartCollection.variants![0].title ==
+  //                                 'Default Title'
+  //                             ? 'Pound'
+  //                             : controller.selectedCurrency.value,
+  //                       ));
+  //                 },
+  //                 child: Container(
+  //                   width: 150,
+  //                   margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+  //                   decoration: BoxDecoration(
+  //                     border: Border.all(color: Color(0xFFFBF3D7), width: 1),
+  //                     borderRadius: BorderRadius.circular(10),
+  //                   ),
+  //                   child: Column(
+  //                     crossAxisAlignment: CrossAxisAlignment.center,
+  //                     children: [
+  //                       Spacer(),
+  //                       // Load image from SmartCollections data
+  //                       smartCollection.image != null &&
+  //                               smartCollection.image!.src != null
+  //                           ? Image.network(
+  //                               smartCollection.image!.src!,
+  //                               height: 50,
+  //                               width: 50,
+  //                               fit: BoxFit.cover,
+  //                             )
+  //                           : Image.asset(
+  //                               'assets/images/skinCareDummy.png', // Fallback image
+  //                               height: 50,
+  //                               width: 50,
+  //                               fit: BoxFit.cover,
+  //                             ),
+  //                       SizedBox(height: 10),
+  //                       // Display the title of the product category
+  //                       Text(
+  //                         smartCollection.title ?? 'Unknown Title',
+  //                         style: TextStyle(
+  //                           fontSize: 13,
+  //                           fontWeight: FontWeight.w600,
+  //                           color: AppColors.appPrimaryBlackColor,
+  //                         ),
+  //                         textAlign: TextAlign.center,
+  //                         maxLines: 1,
+  //                       ),
+  //                       SizedBox(height: 5),
+  //                       // Display the updated price
+  //                       GetBuilder<BottomBarHostController>(
+  //                           init: BottomBarHostController(),
+  //                           builder: (BottomBarHostController) {
+  //                             return Text(
+  //                               price,
+  //                               style: TextStyle(
+  //                                 fontSize: 10,
+  //                                 fontWeight: FontWeight.w500,
+  //                                 color: AppColors.appPrimaryBlackColor,
+  //                               ),
+  //                             );
+  //                           }),
+  //                       Spacer(),
+  //                     ],
+  //                   ),
+  //                 ),
+  //               );
+  //             },
+  //           ),
+  //         );
+  // }
+
+  Widget buildHomeProductListView(BottomBarHostController logic) {
+    return logic.mdProducts == null
         ? Center(
             child: CircularProgressIndicator(
               color: AppColors.appPrimaryBlackColor,
@@ -1968,10 +1835,10 @@ class _BottomBarHost extends State<BottomBarHost> {
             height: 150,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: controller.mdProducts!.products!.length ?? 0,
+              itemCount: logic.mdProducts!.products!.length ?? 0,
               itemBuilder: (context, index) {
                 // Extract SmartCollections data from the controller
-                final smartCollection = controller.mdProducts!.products![index];
+                final smartCollection = logic.mdProducts!.products![index];
 
                 int usDollarIndex = 6;
                 int euroIndex = 4;
@@ -1988,12 +1855,12 @@ class _BottomBarHost extends State<BottomBarHost> {
                 if (hasDefaultTitle) {
                   price =
                       '£ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
-                } else if (controller.selectedCurrency.value == 'US Dollar') {
+                } else if (logic.selectedCurrency.value == 'US Dollar') {
                   price = (smartCollection.variants != null &&
                           smartCollection.variants!.length > usDollarIndex)
                       ? '\$ ${smartCollection.variants![usDollarIndex].price ?? '0.00'} USD'
                       : '\$ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
-                } else if (controller.selectedCurrency.value == 'Euro') {
+                } else if (logic.selectedCurrency.value == 'Euro') {
                   price = (smartCollection.variants != null &&
                           smartCollection.variants!.length > euroIndex)
                       ? '€ ${smartCollection.variants![euroIndex].price ?? '0.00'} Euro'
@@ -2015,130 +1882,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                           currency: smartCollection.variants![0].title ==
                                   'Default Title'
                               ? 'Pound'
-                              : controller.selectedCurrency.value,
-                        ));
-                  },
-                  child: Container(
-                    width: 150,
-                    margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Color(0xFFFBF3D7), width: 1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Spacer(),
-                        // Load image from SmartCollections data
-                        smartCollection.image != null &&
-                                smartCollection.image!.src != null
-                            ? Image.network(
-                                smartCollection.image!.src!,
-                                height: 50,
-                                width: 50,
-                                fit: BoxFit.cover,
-                              )
-                            : Image.asset(
-                                'assets/images/skinCareDummy.png', // Fallback image
-                                height: 50,
-                                width: 50,
-                                fit: BoxFit.cover,
-                              ),
-                        SizedBox(height: 10),
-                        // Display the title of the product category
-                        Text(
-                          smartCollection.title ?? 'Unknown Title',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.appPrimaryBlackColor,
-                          ),
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                        ),
-                        SizedBox(height: 5),
-                        // Display the updated price
-                        GetBuilder<BottomBarHostController>(
-                            init: BottomBarHostController(),
-                            builder: (BottomBarHostController) {
-                              return Text(
-                                price,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.appPrimaryBlackColor,
-                                ),
-                              );
-                            }),
-                        Spacer(),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          );
-  }
-
-  Widget buildHomeProductListView() {
-    return controller.mdProducts == null
-        ? Center(
-            child: CircularProgressIndicator(
-              color: AppColors.appPrimaryBlackColor,
-            ),
-          )
-        : Container(
-            height: 150,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: controller.mdProducts!.products!.length ?? 0,
-              itemBuilder: (context, index) {
-                // Extract SmartCollections data from the controller
-                final smartCollection = controller.mdProducts!.products![index];
-
-                int usDollarIndex = 6;
-                int euroIndex = 4;
-                int poundIndex = 0;
-
-                // Check if the product has a variant with the title "Default Title"
-                bool hasDefaultTitle = smartCollection.variants
-                        ?.any((variant) => variant.title == "Default Title") ??
-                    false;
-
-                // Define the updated price based on selected currency and "Default Title" presence
-                String price;
-
-                if (hasDefaultTitle) {
-                  price =
-                      '£ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
-                } else if (controller.selectedCurrency.value == 'US Dollar') {
-                  price = (smartCollection.variants != null &&
-                          smartCollection.variants!.length > usDollarIndex)
-                      ? '\$ ${smartCollection.variants![usDollarIndex].price ?? '0.00'} USD'
-                      : '\$ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
-                } else if (controller.selectedCurrency.value == 'Euro') {
-                  price = (smartCollection.variants != null &&
-                          smartCollection.variants!.length > euroIndex)
-                      ? '€ ${smartCollection.variants![euroIndex].price ?? '0.00'} Euro'
-                      : '€ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
-                } else {
-                  price = (smartCollection.variants != null &&
-                          smartCollection.variants!.length > poundIndex)
-                      ? '£ ${smartCollection.variants![poundIndex].price ?? '0.00'} Pound'
-                      : '£ 0.00 Pound';
-                }
-
-                return InkWell(
-                  onTap: () {
-                    // Navigate to ProductDetailScreen
-                    int? id = smartCollection.id;
-                    print('id=====${id}');
-                    Get.to(() => ProductDetailView(
-                          productId: id!,
-                          currency: smartCollection.variants![0].title ==
-                                  'Default Title'
-                              ? 'Pound'
-                              : controller.selectedCurrency.value,
+                              : logic.selectedCurrency.value,
                         ));
                   },
                   child: Container(
@@ -2280,8 +2024,8 @@ class _BottomBarHost extends State<BottomBarHost> {
     );
   }
 
-  Widget buildProductListViewForBanners() {
-    return controller.mdAllBanners == null
+  Widget buildProductListViewForBanners(BottomBarHostController logic) {
+    return logic.mdAllBanners == null
         ? Center(
             child: CircularProgressIndicator(
               color: Color(0xFFB7A06A),
@@ -2291,7 +2035,7 @@ class _BottomBarHost extends State<BottomBarHost> {
             height: 200,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: controller.mdAllBanners!.data!.length,
+              itemCount: logic.mdAllBanners!.data!.length,
               itemBuilder: (context, index) {
                 // Adjusting width to account for left and right margins
                 double containerWidth = MediaQuery.of(context).size.width - 40;
@@ -2329,7 +2073,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: Image.network(
-                            controller.mdAllBanners!.data![index].imageUrl!,
+                            logic.mdAllBanners!.data![index].imageUrl!,
                             fit: BoxFit
                                 .contain, // Ensure the image covers the entire container
                           ),
@@ -2345,7 +2089,7 @@ class _BottomBarHost extends State<BottomBarHost> {
                               color: Colors.grey.withOpacity(0.5),
                               padding: EdgeInsets.all(10),
                               child: Text(
-                                controller.mdAllBanners!.data![index].title!,
+                                logic.mdAllBanners!.data![index].title!,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 13,
@@ -2382,9 +2126,9 @@ class _BottomBarHost extends State<BottomBarHost> {
           );
   }
 
-  Widget buildProductGridViewPopularA(RxList<ProductsA> filteredProducts) {
-    return controller.mdProductsByCategory == null ||
-            controller.isLoading.value == true
+  Widget buildProductGridViewPopularA(
+      RxList<ProductsA> filteredProducts, BottomBarHostController logic) {
+    return logic.filteredProducts.isEmpty || logic.isLoading.value == true
         ? Center(
             child: CircularProgressIndicator(
               color: Color(0xFFB7A06A),
@@ -2402,61 +2146,71 @@ class _BottomBarHost extends State<BottomBarHost> {
                 // Reduce spacing between rows
                 childAspectRatio: 1.5, // Adjust for smaller items
               ),
-              itemCount: controller.mdProductsByCategory!.products!.length,
+              itemCount: logic.filteredProducts.length,
               itemBuilder: (context, index) {
-                return Container(
-                  margin: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Color(0xFFFBF3D7), width: 1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Spacer(),
-                      Image.network(
-                        controller
-                            .mdProductsByCategory!.products![index].image!.src!,
-                        height: 50, // Smaller image size
-                        width: 50,
-                        fit: BoxFit.cover,
-                      ),
-                      SizedBox(height: 8),
-                      Container(
-                        margin: EdgeInsets.symmetric(horizontal: 5),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              controller.mdProductsByCategory!.products![index]
-                                          .title!.length >
-                                      10
-                                  ? controller.mdProductsByCategory!
-                                          .products![index].title!
-                                          .substring(0, 10) +
-                                      '...'
-                                  : controller.mdProductsByCategory!
-                                      .products![index].title!,
-                              style: TextStyle(
-                                  fontSize: 11, // Smaller font size
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.appPrimaryBlackColor),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            SizedBox(height: 4),
-                            Text(
-                              'Price',
-                              style: TextStyle(
-                                  fontSize: 9, // Smaller font size
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.appPrimaryBlackColor),
-                            ),
-                          ],
+                return InkWell(
+                  onTap: (){
+                    print('index========${index}');
+                    final smartCollection =
+                    logic.filteredProducts[index];
+
+                    int? id = smartCollection.id;
+                    print('id=====${id}');
+                    Get.to(() => ProductDetailView(
+                      productId:
+                      logic.filteredProducts[index].id!,
+                      currency: 'Pound',
+                    ));
+                  },
+                  child: Container(
+                    margin: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Color(0xFFFBF3D7), width: 1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Spacer(),
+                        Image.network(
+                          logic.filteredProducts[index].image!.src!,
+                          height: 50, // Smaller image size
+                          width: 50,
+                          fit: BoxFit.cover,
                         ),
-                      ),
-                      Spacer(),
-                    ],
+                        SizedBox(height: 8),
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 5),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                logic.filteredProducts[index].title!.length > 10
+                                    ? logic.filteredProducts[index].title!
+                                            .substring(0, 10) +
+                                        '...'
+                                    : logic.filteredProducts[index].title!,
+                                style: TextStyle(
+                                    fontSize: 11, // Smaller font size
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.appPrimaryBlackColor),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Price',
+                                style: TextStyle(
+                                    fontSize: 9, // Smaller font size
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.appPrimaryBlackColor),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Spacer(),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -2464,12 +2218,11 @@ class _BottomBarHost extends State<BottomBarHost> {
           );
   }
 
-  Widget buildProductGridViewPopular() {
-    return controller.mdProductsByCategory == null ||
-            controller.isLoading.value == true
+  Widget buildProductGridViewPopular(BottomBarHostController logic) {
+    return logic.mdProductsByCategory == null || logic.isLoading.value == true
         ? Center(
             child: CircularProgressIndicator(
-              color: Color(0xFFB7A06A),
+              color: AppColors.appPrimaryColor,
             ),
           )
         : Container(
@@ -2484,18 +2237,19 @@ class _BottomBarHost extends State<BottomBarHost> {
                 // Reduce spacing between rows
                 childAspectRatio: 1.5, // Adjust for smaller items
               ),
-              itemCount: controller.mdProductsByCategory!.products!.length,
+              itemCount: logic.mdProductsByCategory!.products!.length,
               itemBuilder: (context, index) {
                 return InkWell(
                   onTap: () {
+                    print('index========${index}');
                     final smartCollection =
-                        controller.mdProductsByCategory!.products![index];
+                        logic.mdProductsByCategory!.products![index];
 
                     int? id = smartCollection.id;
                     print('id=====${id}');
                     Get.to(() => ProductDetailView(
-                          productId: controller
-                              .mdProductsByCategory!.products![index].id!,
+                          productId:
+                              logic.mdProductsByCategory!.products![index].id!,
                           currency: 'Pound',
                         ));
                   },
@@ -2510,8 +2264,8 @@ class _BottomBarHost extends State<BottomBarHost> {
                       children: [
                         Spacer(),
                         Image.network(
-                          controller.mdProductsByCategory!.products![index]
-                              .image!.src!,
+                          logic.mdProductsByCategory!.products![index].image!
+                              .src!,
                           height: 50, // Smaller image size
                           width: 50,
                           fit: BoxFit.cover,
@@ -2523,14 +2277,14 @@ class _BottomBarHost extends State<BottomBarHost> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                controller.mdProductsByCategory!
-                                            .products![index].title!.length >
+                                logic.mdProductsByCategory!.products![index]
+                                            .title!.length >
                                         10
-                                    ? controller.mdProductsByCategory!
+                                    ? logic.mdProductsByCategory!
                                             .products![index].title!
                                             .substring(0, 10) +
                                         '...'
-                                    : controller.mdProductsByCategory!
+                                    : logic.mdProductsByCategory!
                                         .products![index].title!,
                                 style: TextStyle(
                                     fontSize: 11, // Smaller font size

@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../../../constant/AppLinks.dart';
-import '../BottomBarHost.dart';
+import '../bottom_bar_host/bottom_bar_host_view.dart';
 
 class RegisterYourOwnProductController extends GetxController {
   RxBool isLoading = false.obs;
@@ -253,7 +253,7 @@ class RegisterYourOwnProductController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
         );
         Get.offAll(
-            BottomBarHost()); // Navigate to the bottom navigation bar after success
+            BottomBarHostView()); // Navigate to the bottom navigation bar after success
         isLoading.value = false; // Hide loading spinner
       } else {
         isLoading.value = false; // Hide loading spinner

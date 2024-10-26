@@ -8,7 +8,7 @@ import 'package:image_picker/image_picker.dart' as image_picker;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../../../constant/AppLinks.dart';
-import '../BottomBarHost.dart';
+import '../bottom_bar_host/bottom_bar_host_view.dart';
 
 class WarrantyClaimController extends GetxController {
   RxString selectedProduct = ''.obs;
@@ -308,7 +308,7 @@ class WarrantyClaimController extends GetxController {
           'Request Submitted Successfully',
           backgroundColor: Color(0xFFB7A06A),
         );
-        Get.offAll(BottomBarHost());
+        Get.offAll(BottomBarHostView());
         isLoading.value = false;
       } else {
         isLoading.value = false;

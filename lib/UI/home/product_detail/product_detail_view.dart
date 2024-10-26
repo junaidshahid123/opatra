@@ -370,84 +370,87 @@ class _ProductDetailViewState extends State<ProductDetailView> {
     String price;
     if (widget.currency == 'US Dollar') {
       price = (controller.mdProductDetail!.product!.variants != null &&
-              controller.mdProductDetail!.product!.variants!.length >
-                  usDollarIndex)
+          controller.mdProductDetail!.product!.variants!.length >
+              usDollarIndex)
           ? '\$ ${controller.mdProductDetail!.product!.variants![usDollarIndex].price ?? '0.00'} USD'
           : '\$ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} ';
     } else if (widget.currency == 'Euro') {
       price = (controller.mdProductDetail!.product!.variants != null &&
-              controller.mdProductDetail!.product!.variants!.length > euroIndex)
+          controller.mdProductDetail!.product!.variants!.length > euroIndex)
           ? '€ ${controller.mdProductDetail!.product!.variants![euroIndex].price ?? '0.00'} Euro'
           : '€ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'}';
     } else {
       price = (controller.mdProductDetail!.product!.variants != null &&
-              controller.mdProductDetail!.product!.variants!.length >
-                  poundIndex)
+          controller.mdProductDetail!.product!.variants!.length >
+              poundIndex)
           ? '£ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} Pound'
           : '£ 0.00 Pound';
     }
 
     return Container(
-      margin: EdgeInsets.only(top: 20, left: 20),
+      margin: EdgeInsets.only(top: 20, left: 20, right: 20),
       child: Row(
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    controller.mdProductDetail!.product!.title!.length > 30
-                        ? controller.mdProductDetail!.product!.title!
-                                .substring(0, 30) +
-                            '...'
-                        : controller.mdProductDetail!.product!.title!,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                      color: Color(0xFF333333),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        controller.mdProductDetail!.product!.title!.length > 30
+                            ? '${controller.mdProductDetail!.product!.title!.substring(0, 30)}...'
+                            : controller.mdProductDetail!.product!.title!,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFF333333),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
                     ),
-                  )
-                ],
-              ),
-              Row(
-                children: [
-                  Image.asset(
-                    'assets/images/starIcon.png',
-                    height: 15,
-                    width: 15,
-                  ),
-                  SizedBox(
-                    width: 5,
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        '4.9',
-                        style: TextStyle(
+                  ],
+                ),
+                SizedBox(height: 4),
+                Row(
+                  children: [
+                    Image.asset(
+                      'assets/images/starIcon.png',
+                      height: 15,
+                      width: 15,
+                    ),
+                    SizedBox(width: 5),
+                    Row(
+                      children: [
+                        Text(
+                          '4.9',
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: Color(0xFF333333)),
-                      ),
-                      Text(
-                        ' (286) reviews',
-                        style: TextStyle(
+                            color: Color(0xFF333333),
+                          ),
+                        ),
+                        Text(
+                          ' (286) reviews',
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: Color(0xFFAAAAAA)),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-          Spacer(),
-          // Assuming widget.currency is a state that affects the price display
-          Container(
-            margin: EdgeInsets.only(
-              right: 15,
+                            color: Color(0xFFAAAAAA),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
             ),
+          ),
+          // Adjusting Spacer and alignment for flexible price display
+          SizedBox(width: 10),
+          Container(
+            constraints: BoxConstraints(maxWidth: 120),
             child: Text(
               price,
               style: TextStyle(
@@ -455,8 +458,10 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                 fontWeight: FontWeight.bold,
                 color: Color(0xFFB7A06A),
               ),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
             ),
-          )
+          ),
         ],
       ),
     );

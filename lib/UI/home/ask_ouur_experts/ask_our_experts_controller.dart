@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:opatra/UI/home/BottomBarHost.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constant/AppLinks.dart';
+import '../bottom_bar_host/bottom_bar_host_view.dart';
 
 class AskOurExpertsController extends GetxController {
   RxBool isLoading = false.obs;
@@ -60,7 +60,7 @@ class AskOurExpertsController extends GetxController {
           'Request Submitted Successfully',
           backgroundColor: Color(0xFFB7A06A),
         );
-        Get.offAll(BottomBarHost());
+        Get.offAll(BottomBarHostView());
         isLoading.value = false;
       } else {
         isLoading.value = false;

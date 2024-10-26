@@ -5,8 +5,8 @@ import 'package:get/get.dart';
 import 'package:opatra/UI/auth/new_password.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:http/http.dart' as http;
-import '../../controllers/bottom_bar_host_controller.dart';
-import '../home/BottomBarHost.dart';
+import '../home/bottom_bar_host/bottom_bar_host_logic.dart';
+import '../home/bottom_bar_host/bottom_bar_host_view.dart';
 
 class OtpVerification extends StatefulWidget {
   final String email;
@@ -64,7 +64,7 @@ class _OtpVerificationState extends State<OtpVerification> {
         Get.snackbar('Success', 'Otp Verified successfully!',
             backgroundColor: Color(0xFFB7A06A), colorText: Colors.white);
         if (widget.isFromSignUp == true) {
-          Get.offAll(BottomBarHost());
+          Get.offAll(BottomBarHostView());
         }
         if (widget.isFromSignUp == false) {
           Get.offAll(NewPassword());

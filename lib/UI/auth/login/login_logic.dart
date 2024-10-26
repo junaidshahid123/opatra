@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constant/AppLinks.dart';
 import '../../../main.dart';
-import '../../home/BottomBarHost.dart';
+import '../../home/bottom_bar_host/bottom_bar_host_view.dart';
 
 class LoginLogic extends GetxController {
   final emailController = TextEditingController();
@@ -72,7 +72,7 @@ class LoginLogic extends GetxController {
 
         Get.snackbar('Success', 'User Login successfully!',
             backgroundColor: Color(0xFFB7A06A), colorText: Colors.white);
-        Get.offAll(BottomBarHost());
+        Get.offAll(BottomBarHostView());
       } else {
         isLoading.value = false; // Stop loading spinner
 
