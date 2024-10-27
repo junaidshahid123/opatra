@@ -1,4 +1,6 @@
-import 'dart:ffi';
+
+
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
 class MDProductDetail {
   Product? product;
@@ -331,22 +333,37 @@ class Images {
   }
 }
 
+
 class ProductA {
   int? id;
   String? title;
   Images? image;
-  double? price;
-  int? quantity;
+  RxDouble? price; // Observable price that updates
+  double? basePrice; // Fixed base price
+  RxInt? quantity;
   String? selectedCurrency;
 
-  ProductA({this.id, this.title, this.image, this.price, this.quantity,this.selectedCurrency});
+  ProductA({
+    this.id,
+    this.title,
+    this.image,
+    double? price,
+    int? quantity,
+    this.selectedCurrency,
+  }) {
+    this.price = price != null ? RxDouble(price) : RxDouble(0);
+    this.basePrice = price; // Keep the original price
+    this.quantity = quantity != null ? RxInt(quantity) : RxInt(0);
+  }
 
   ProductA.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     title = json['title'];
     image = json['image'] != null ? Images.fromJson(json['image']) : null;
-    price = json['price'];
-    quantity = json['quantity'];
+    price = RxDouble(json['price']?.toDouble() ?? 0);
+    basePrice = json['price']?.toDouble(); // Set base price from JSON
+    quantity = RxInt(json['quantity'] ?? 0);
     selectedCurrency = json['selectedCurrency'];
   }
 }
+

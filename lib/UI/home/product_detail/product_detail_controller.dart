@@ -13,7 +13,8 @@ class ProductDetailController extends GetxController {
   MDProductDetailImages? mdProductDetailImages;
   RxInt quantity = 1.obs;
   var productDetail = MDProductDetail().obs;
-  var price ;
+  var price;
+
   tapOnDecrement() {
     if (quantity.value > 1) {
       quantity.value--;
@@ -32,12 +33,24 @@ class ProductDetailController extends GetxController {
     update();
   }
 
-   void addToBag(ProductA? product, String selectedCurrency)
-{
-  print('addToBag');
-    Get.find<BagController>().addProductToBag(product!, quantity.value,selectedCurrency);
-    print('Product added to bag: ${product.id}, Quantity: ${quantity.value}');
+  void addToBag(ProductA? product, String selectedCurrency) {
+    print('addToBag called');
+
+    // Ensure the product is not null
+    if (product != null) {
+      Get.find<BagController>()
+          .addProductToBag(product, quantity.value, selectedCurrency);
+
+      print('Product added to bag: ${product.id}, Quantity: ${quantity.value}');
+
+      // Call calculateSubtotal to update the subtotal after adding the product
+      Get.find<BagController>()
+          .calculateSubtotal();
+    } else {
+      print('Error: Product is null. Cannot add to bag.');
+    }
   }
+
 
   Future<void> fetchProductDetail(int id) async {
     final url = Uri.parse('${ApiUrls.baseUrl}/product/${id}');

@@ -8,10 +8,13 @@ import 'package:table_calendar/table_calendar.dart';
 import '../../../constant/AppColors.dart';
 
 class CalenderView extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
-    final RxString selectedTime = Get.arguments;
+    final arguments = Get.arguments as Map<String, dynamic>;
+
+    final RxString selectedTime = arguments['selectedTime'];
+    final int device_id = arguments['id'];
+    final String device_title = arguments['title'];
 
     return GetBuilder<CalenderController>(
         init: CalenderController(),
@@ -36,7 +39,8 @@ class CalenderView extends StatelessWidget {
                       },
                     ),
                   ),
-                  buildStartTreatmentButton(context, logic,selectedTime)
+                  buildStartTreatmentButton(
+                      context, logic, selectedTime, device_id, device_title)
                 ],
               ),
             ),
@@ -134,11 +138,15 @@ class CalenderView extends StatelessWidget {
   }
 
   Widget buildStartTreatmentButton(
-      BuildContext context, CalenderController logic, RxString selectedTime) {
+      BuildContext context,
+      CalenderController logic,
+      RxString selectedTime,
+      int device_id,
+      String device_title) {
     return InkWell(
       onTap: () {
-        logic.deviceSchedule(selectedTime); // Pass the selected time value to the function
-
+        logic.deviceSchedule(selectedTime, device_id,
+            device_title); // Pass the selected time value to the function
       },
       child: Container(
           margin: EdgeInsets.only(top: 50, bottom: 20, left: 20, right: 20),

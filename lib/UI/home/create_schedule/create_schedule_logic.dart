@@ -40,7 +40,16 @@ class CreateScheduleController extends GetxController {
 
   void onSaveClick() {
     print('selectedTime=====${selectedTime}');
-    Get.to(() => CalenderView(), arguments: selectedTime);
+    print('storedDevice.value!.title=====${storedDevice.value!.title}');
+    print(' storedDevice.value!.id=====${ storedDevice.value!.id}');
+    Get.to(
+      () => CalenderView(),
+      arguments: {
+        'selectedTime': selectedTime,
+        'title': storedDevice.value!.title,
+        'id': storedDevice.value!.id,
+      },
+    );
   }
 
   Future<void> getDevice() async {

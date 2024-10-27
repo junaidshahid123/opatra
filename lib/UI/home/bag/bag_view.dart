@@ -21,10 +21,7 @@ class BagView extends StatelessWidget {
                   buildAppBar(),
                   buildListOfProducts(logic),
                   Container(
-                    height: MediaQuery
-                        .of(context)
-                        .size
-                        .height / 3,
+                    height: MediaQuery.of(context).size.height / 3,
                     margin: EdgeInsets.only(
                         left: 20, right: 20, bottom: 20, top: 20),
                     decoration: BoxDecoration(
@@ -37,13 +34,13 @@ class BagView extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          buildSubTotal(),
+                          buildSubTotal(logic),
                           buildDivider(context),
                           buildTax(),
                           buildDivider(context),
                           buildDiscount(),
                           buildDivider(context),
-                          buildTotal(),
+                          buildTotal(logic),
                           Spacer(),
                           buildContinueButton(context)
                         ],
@@ -57,7 +54,7 @@ class BagView extends StatelessWidget {
         });
   }
 
-  Widget buildTotal() {
+  Widget buildTotal(BagController logic) {
     return Container(
       margin: EdgeInsets.only(top: 20),
       child: Row(
@@ -72,7 +69,7 @@ class BagView extends StatelessWidget {
             ),
           ),
           Text(
-            '34.00 \$',
+            '${logic.subTotal}',
             style: TextStyle(
                 color: Color(0xFFFFFFFF),
                 fontWeight: FontWeight.w700,
@@ -135,7 +132,7 @@ class BagView extends StatelessWidget {
     );
   }
 
-  Widget buildSubTotal() {
+  Widget buildSubTotal(BagController logic) {
     return Container(
       margin: EdgeInsets.only(top: 20),
       child: Row(
@@ -150,7 +147,7 @@ class BagView extends StatelessWidget {
             ),
           ),
           Text(
-            '36.00 \$',
+            '${logic.subTotal.value}',
             style: TextStyle(
                 color: Color(0xFFFFFFFF),
                 fontWeight: FontWeight.w700,
@@ -165,10 +162,7 @@ class BagView extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(top: 10),
       height: 0.2,
-      width: MediaQuery
-          .of(context)
-          .size
-          .width,
+      width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
         color: AppColors.appWhiteColor,
       ),
@@ -182,10 +176,7 @@ class BagView extends StatelessWidget {
       },
       child: Container(
           margin: EdgeInsets.only(bottom: 20),
-          width: MediaQuery
-              .of(context)
-              .size
-              .width,
+          width: MediaQuery.of(context).size.width,
           height: 45,
           decoration: BoxDecoration(
             color: Color(0xFFFBF3D7),
@@ -203,8 +194,8 @@ class BagView extends StatelessWidget {
     );
   }
 
-  Widget buildNameAndTime(ProductA product, int quantity, BagController logic) {
-    print('product.selectedCurrency======${product.selectedCurrency}');
+  Widget buildNameAndTime(
+      ProductA product, int quantity, BagController logic, int index) {
     return Container(
       margin: EdgeInsets.only(left: 20),
       child: Column(
@@ -212,7 +203,7 @@ class BagView extends StatelessWidget {
         children: [
           Text(
             product.title!.length > 4
-                ? product.title!.substring(0, 20)
+                ? product.title!.substring(0, 10)
                 : product.title!, // Display only the first 4 characters
             style: TextStyle(
               color: AppColors.appPrimaryBlackColor,
@@ -221,7 +212,7 @@ class BagView extends StatelessWidget {
             ),
             textAlign: TextAlign.center,
             overflow:
-            TextOverflow.ellipsis, // Add ellipsis if the text overflows
+                TextOverflow.ellipsis, // Add ellipsis if the text overflows
           ),
           SizedBox(
             height: 5,
@@ -229,10 +220,10 @@ class BagView extends StatelessWidget {
           Row(
             children: [
               // Currency icon based on selected currency
-              _getCurrencyIcon(product.selectedCurrency),
+              _getCurrencyIcon(product.selectedCurrency!),
               SizedBox(width: 5), // Space between icon and price
               Text(
-                '${product.price}',
+                '${product.price!.value}',
                 // Assuming Product has a 'price' property
                 style: TextStyle(
                   color: Color(0xFFB7A06A),
@@ -247,9 +238,10 @@ class BagView extends StatelessWidget {
                 children: [
                   InkWell(
                     onTap: () {
+                      print('index======${index}');
+                      print('======${product.title}');
                       if (quantity > 1) {
-                        // Logic to decrease quantity should be handled in the controller
-                        //  logic.updateProductQuantity(product, quantity - 1);
+                        logic.tapOnDecrement(index);
                       }
                     },
                     child: Container(
@@ -283,8 +275,8 @@ class BagView extends StatelessWidget {
                   ),
                   InkWell(
                     onTap: () {
-                      // Logic to increase quantity should be handled in the controller
-                      //    logic.updateProductQuantity(product, quantity + 1);
+                      print('productPrice.value=======${product.price}');
+                      logic.tapOnIncrement(index);
                     },
                     child: Container(
                       height: 35,
@@ -319,18 +311,18 @@ class BagView extends StatelessWidget {
       height: 100,
       width: 100,
       child: product.image != null &&
-          product.image!.src != null &&
-          product.image!.src!.isNotEmpty
+              product.image!.src != null &&
+              product.image!.src!.isNotEmpty
           ? Image.network(
-        product.image!.src!, // Product image path
-        fit: BoxFit
-            .cover, // Adjusts the image to cover the entire container
-      )
+              product.image!.src!, // Product image path
+              fit: BoxFit
+                  .cover, // Adjusts the image to cover the entire container
+            )
           : Image.asset(
-        'assets/images/skinCareDummy.png', // Path to your placeholder image
-        fit: BoxFit
-            .cover, // Adjusts the image to cover the entire container
-      ),
+              'assets/images/skinCareDummy.png', // Path to your placeholder image
+              fit: BoxFit
+                  .cover, // Adjusts the image to cover the entire container
+            ),
     );
   }
 
@@ -346,7 +338,7 @@ class BagView extends StatelessWidget {
           itemBuilder: (context, index) {
             final product = cartItems[index]; // Get the ProductA instance
             final quantity =
-                product.quantity ?? 0; // Get the quantity for this product
+                product.quantity; // Access the observable quantity safely
 
             return Container(
               margin: EdgeInsets.only(top: 10),
@@ -360,7 +352,7 @@ class BagView extends StatelessWidget {
                   children: [
                     buildImage(product),
                     // Pass the ProductA instance to buildImage
-                    buildNameAndTime(product, quantity, logic),
+                    buildNameAndTime(product, quantity!.value, logic, index),
                     // Pass product and quantity to buildNameAndTime
                   ],
                 ),
@@ -415,15 +407,15 @@ class BagView extends StatelessWidget {
   Widget _getCurrencyIcon(String? selectedCurrency) {
     switch (selectedCurrency) {
       case 'US Dollar':
-        return Icon(
-            Icons.attach_money, color: Color(0xFFB7A06A),  size: 20); // Dollar icon
+        return Icon(Icons.attach_money,
+            color: Color(0xFFB7A06A), size: 20); // Dollar icon
       case 'Euro':
-        return Icon(
-            Icons.euro_symbol,  color: Color(0xFFB7A06A), size: 20); // Euro icon
+        return Icon(Icons.euro_symbol,
+            color: Color(0xFFB7A06A), size: 20); // Euro icon
       case 'Pound':
-        return Icon(
-            Icons.currency_pound,     color: Color(0xFFB7A06A), size: 20); // Rupee icon
-    // Add more currencies as needed
+        return Icon(Icons.currency_pound,
+            color: Color(0xFFB7A06A), size: 20); // Rupee icon
+      // Add more currencies as needed
       default:
         return SizedBox(); // Return an empty widget for unknown currency
     }
