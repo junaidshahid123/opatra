@@ -45,7 +45,8 @@ class BagController extends GetxController {
 
 // Method to add a product to the cart
   void addProductToBag(
-      ProductA product, int quantity, String selectedCurrency) {
+      ProductA product, int quantity, String selectedCurrency)
+  {
     print('addProductToBag called with:');
     print('Product ID: ${product.id}');
     print('Product Title: ${product.title}');

@@ -1,21 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:opatra/UI/home/calender/calender_logic.dart';
-import 'package:opatra/UI/home/treatment1.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../constant/AppColors.dart';
+import '../treatment1/treatment1_view.dart';
 
 class CalenderView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final arguments = Get.arguments as Map<String, dynamic>;
+    // Retrieve arguments safely with null checks
+    final arguments = Get.arguments;
 
-    final RxString selectedTime = arguments['selectedTime'];
-    final int device_id = arguments['id'];
-    final String device_title = arguments['title'];
+    if (arguments == null ||
+        !(arguments is Map<String, dynamic>) ||
+        !arguments.containsKey('selectedTime') ||
+        !arguments.containsKey('id') ||
+        !arguments.containsKey('title')) {
+      // Handle the case when arguments are null or not valid
+      return Center(child: Text("No data available")); // Or handle as needed
+    }
 
+    final String selectedTime = arguments['selectedTime']; // Cast safely
+    final int deviceId = arguments['id'];
+    final String deviceTitle = arguments['title'];
     return GetBuilder<CalenderController>(
         init: CalenderController(),
         builder: (logic) {
@@ -40,7 +48,7 @@ class CalenderView extends StatelessWidget {
                     ),
                   ),
                   buildStartTreatmentButton(
-                      context, logic, selectedTime, device_id, device_title)
+                      context, logic, selectedTime, deviceId, deviceTitle)
                 ],
               ),
             ),
@@ -140,13 +148,14 @@ class CalenderView extends StatelessWidget {
   Widget buildStartTreatmentButton(
       BuildContext context,
       CalenderController logic,
-      RxString selectedTime,
+      String selectedTime,
       int device_id,
       String device_title) {
     return InkWell(
       onTap: () {
-        logic.deviceSchedule(selectedTime, device_id,
-            device_title); // Pass the selected time value to the function
+        // logic.deviceSchedule(selectedTime, device_id,
+        //     device_title); // Pass the selected time value to the function
+        Get.to(() => Treatment1View());
       },
       child: Container(
           margin: EdgeInsets.only(top: 50, bottom: 20, left: 20, right: 20),

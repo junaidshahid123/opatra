@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:opatra/UI/home/select_device/select_device_view.dart';
 import 'package:opatra/UI/home/treatment/treatment_logic.dart';
 import 'package:opatra/constant/AppColors.dart';
 
@@ -17,18 +18,34 @@ class TreatmentView extends StatelessWidget {
               body: SafeArea(
                 child: Column(
                   children: [
-                    buildAppBar(),
+                    buildAppBar(logic),
                     Expanded(
                       child: Container(
-                        alignment: Alignment.center,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            buildText(logic),
-                            buildSelectDeviceButton(context, logic)
-                          ],
-                        ),
-                      ),
+                          alignment: Alignment.center,
+                          child: Obx(
+                            () => Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                logic.isLoading.value == true
+                                    ? Center(
+                                        child: CircularProgressIndicator(
+                                        color: AppColors.appPrimaryColor,
+                                      ))
+                                    : logic.mdGetDevices.value == null
+                                        ? buildText(logic)
+                                        : Container(),
+                                logic.isLoading.value == true
+                                    ? Center(
+                                        child: CircularProgressIndicator(
+                                        color: AppColors.appPrimaryColor,
+                                      ))
+                                    : logic.mdGetDevices.value == null
+                                        ? buildSelectDeviceButton(
+                                            context, logic)
+                                        : buildGridView(context, logic),
+                              ],
+                            ),
+                          )),
                     ),
                   ],
                 ),
@@ -60,6 +77,71 @@ class TreatmentView extends StatelessWidget {
             ),
           )),
     );
+  }
+
+  Widget buildGridView(BuildContext context, TreatmentController logic) {
+    return Obx(() => logic.isLoading.value == true
+        ? Center(child: CircularProgressIndicator())
+        : Expanded(
+            child: Container(
+              margin: EdgeInsets.all(20),
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              child: GridView.builder(
+                physics: ClampingScrollPhysics(),
+                shrinkWrap: true,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 20.0,
+                  mainAxisSpacing: 20.0,
+                  childAspectRatio: 0.8,
+                ),
+                itemCount: logic.mdGetDevices.value!.data!.length,
+                itemBuilder: (context, index) {
+                  return InkWell(
+                    onTap: () async {
+                      // Call the controller's function instead of writing the logic here
+                      // await logic.selectAndStoreDevice(index);
+                    },
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Color(0xFFFBF3D7)),
+                            borderRadius: BorderRadius.circular(20),
+                            color: AppColors.appWhiteColor,
+                          ),
+                          child: Container(
+                            margin: EdgeInsets.all(5),
+                            child: Column(
+                              children: [
+                                // Image.network(logic.mdGetDevices.value!.data![index].image!.src!),
+                                Container(
+                                  margin: EdgeInsets.only(left: 20, bottom: 10),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        '${logic.mdGetDevices.value!.data![index].productName!.length > 10 ? logic.mdGetDevices.value!.data![index].productName!.substring(0, 10) + '...' : logic.mdGetDevices.value!.data![index].productName!}',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w400,
+                                          fontSize: 13,
+                                          color: AppColors.appPrimaryBlackColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ));
   }
 
   Widget buildText(TreatmentController logic) {
@@ -117,7 +199,7 @@ class TreatmentView extends StatelessWidget {
     });
   }
 
-  Widget buildAppBar() {
+  Widget buildAppBar(TreatmentController logic) {
     return Container(
       margin: EdgeInsets.only(
         left: 20,
@@ -130,8 +212,7 @@ class TreatmentView extends StatelessWidget {
           Spacer(),
           buildName(),
           Spacer(),
-          Container(),
-          Spacer()
+          logic.deviceExists.value == false ? buildAddIcon() : Spacer(),
         ],
       ),
     );
@@ -154,6 +235,29 @@ class TreatmentView extends StatelessWidget {
             height: 15,
             width: 15,
             child: Image.asset('assets/images/leftArrow.png'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildAddIcon() {
+    return InkWell(
+      onTap: () {
+        Get.to(() => SelectDeviceView());
+      },
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            height: 50.sp,
+            width: 50.sp,
+            child: Image.asset('assets/images/ellipse.png'),
+          ),
+          Container(
+            height: 15,
+            width: 15,
+            child: Image.asset('assets/images/pluIcon.png'),
           ),
         ],
       ),

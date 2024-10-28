@@ -937,6 +937,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
       highlightColor: Colors.transparent,
       onTap: () {
         logic.selectedIndex.value = 1;
+
         Get.to(() => TreatmentView());
       },
       child: Container(

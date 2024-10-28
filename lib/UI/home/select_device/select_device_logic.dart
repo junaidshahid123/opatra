@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:opatra/UI/home/create_schedule/create_schedule_view.dart';
+import 'package:opatra/UI/home/treatment/treatment_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../../../constant/AppLinks.dart';
 import '../../../models/MDProducts.dart';
+import '../create_schedule/create_schedule_view.dart';
+import '../treatment/treatment_logic.dart';
 
 class SelectDeviceController extends GetxController {
   MDProducts? mdProducts;
@@ -35,6 +37,11 @@ class SelectDeviceController extends GetxController {
     print('Selected Device ID: ${selectedDevice.id}');
     print('Stored Device JSON: $deviceJson');
     Get.to(() => CreateScheduleView());
+    // Reload data in TreatmentController before navigating back
+    // Get.find<TreatmentController>().checkDeviceInStorage();
+    //
+    // // Navigate to TreatmentView
+    // Get.offAll(() => TreatmentView());
   }
 
   Future<void> fetchAllProducts() async {

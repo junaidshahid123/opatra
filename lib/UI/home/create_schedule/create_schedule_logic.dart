@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../models/MDProductDetail.dart';
@@ -6,7 +8,6 @@ import '../calender/calender_view.dart';
 
 class CreateScheduleController extends GetxController {
   Rx<Product?> storedDevice = Rx<Product?>(null);
-
   RxBool sunday = false.obs;
   RxBool monday = false.obs;
   RxBool tuesday = false.obs;
@@ -14,14 +15,24 @@ class CreateScheduleController extends GetxController {
   RxBool thursday = false.obs;
   RxBool friday = false.obs;
   RxBool saturday = false.obs;
-  RxString selectedTime = ''.obs; // Observable for storing selected time
+  String selectedTime = ''; // Observable for storing selected time
   var selectedTimes = List.generate(7, (index) => ''.obs);
+  
+  
 
   @override
   void onInit() {
     // TODO: implement onInit
     super.onInit();
     getDevice();
+  }
+  
+  void updateTime(BuildContext context,TimeOfDay selectedTimeA){
+    selectedTime = selectedTimeA
+        .format(context); // Store the selected time in the controller
+    print('Selected Time: ${selectedTimeA.format(context)}');
+    update();
+
   }
 
   // List to store selected days
