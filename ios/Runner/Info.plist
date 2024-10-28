@@ -52,14 +52,6 @@
     <string>This app does not use location services, but it is required by third-party services.</string>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>This app does not use location services, but it is required by third-party services.</string>
-
-    <key>UISupportedInterfaceOrientations~ipad</key>
-    <array>
-        <string>UIInterfaceOrientationPortrait</string>
-        <string>UIInterfaceOrientationPortraitUpsideDown</string>
-        <string>UIInterfaceOrientationLandscapeLeft</string>
-        <string>UIInterfaceOrientationLandscapeRight</string>
-    </array>
     <key>CADisableMinimumFrameDurationOnPhone</key>
     <true/>
     <key>UIApplicationSupportsIndirectInputEvents</key>
