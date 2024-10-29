@@ -9,21 +9,13 @@ import '../treatment1/treatment1_view.dart';
 class CalenderView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Retrieve arguments safely with null checks
-    final arguments = Get.arguments;
+    // Accessing the arguments passed to this view
+    final args = Get.arguments;
 
-    if (arguments == null ||
-        !(arguments is Map<String, dynamic>) ||
-        !arguments.containsKey('selectedTime') ||
-        !arguments.containsKey('id') ||
-        !arguments.containsKey('title')) {
-      // Handle the case when arguments are null or not valid
-      return Center(child: Text("No data available")); // Or handle as needed
-    }
-
-    final String selectedTime = arguments['selectedTime']; // Cast safely
-    final int deviceId = arguments['id'];
-    final String deviceTitle = arguments['title'];
+    // Extracting the necessary values from the arguments
+    final String selectedTime = args['selectedTime'];
+    final String title = args['title'];
+    final int id = args['id'];
     return GetBuilder<CalenderController>(
         init: CalenderController(),
         builder: (logic) {
@@ -48,7 +40,7 @@ class CalenderView extends StatelessWidget {
                     ),
                   ),
                   buildStartTreatmentButton(
-                      context, logic, selectedTime, deviceId, deviceTitle)
+                      context, logic, selectedTime, id, title)
                 ],
               ),
             ),
@@ -153,9 +145,11 @@ class CalenderView extends StatelessWidget {
       String device_title) {
     return InkWell(
       onTap: () {
-        // logic.deviceSchedule(selectedTime, device_id,
-        //     device_title); // Pass the selected time value to the function
-        Get.to(() => Treatment1View());
+        Get.to(() => Treatment1View(
+            selectedDays: logic.selectedDays,
+            title: device_title,
+            id: device_id,
+            selectedTime: selectedTime));
       },
       child: Container(
           margin: EdgeInsets.only(top: 50, bottom: 20, left: 20, right: 20),
