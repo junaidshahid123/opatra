@@ -50,7 +50,7 @@ class LoginLogic extends GetxController {
         body: requestBody,
       );
       print('requestBody========${requestBody}');
-
+      print("device token2 $fcmToken");
       if (response.statusCode == 200 || response.statusCode == 201) {
         isLoading.value = false; // Stop loading spinner
 

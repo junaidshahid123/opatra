@@ -48,7 +48,7 @@ dependencies:
   flutter_widget_from_html: ^0.15.2
   wakelock_plus: ^1.2.8
   url_launcher: ^6.3.0
-  firebase_messaging: ^15.1.2
+  firebase_messaging: ^15.0.1
   flutter_local_notifications: ^17.2.3
   intl_phone_field: ^3.2.0
   country_picker: ^2.0.18
