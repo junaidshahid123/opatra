@@ -42,7 +42,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyBb13tFimDxXht9AH_Gqs6ArHJ5twTEmUA',
-    appId: '1:1024991048436:web:7a5e0772c3c682c8b3e4a1',
+    appId: '1:1024991048436:web:b4ce15accea1723ab3e4a1',
     messagingSenderId: '1024991048436',
     projectId: 'opatra-d5bda',
     authDomain: 'opatra-d5bda.firebaseapp.com',
@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBRp6SJsLxDzWy9UBsz9EwdDvF_QPkBhvw',
-    appId: '1:1024991048436:android:98dedcc7fbfead73b3e4a1',
+    appId: '1:1024991048436:android:6d9562f7fecec4cab3e4a1',
     messagingSenderId: '1024991048436',
     projectId: 'opatra-d5bda',
     storageBucket: 'opatra-d5bda.appspot.com',
@@ -59,28 +59,31 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDNqAoG-KOOh7q3EOzQi5zmhSaCTI2OUZg',
-    appId: '1:1024991048436:ios:26bb9c055d67cdd3b3e4a1',
+    appId: '1:1024991048436:ios:2d50d4e1a0307c23b3e4a1',
     messagingSenderId: '1024991048436',
     projectId: 'opatra-d5bda',
     storageBucket: 'opatra-d5bda.appspot.com',
+    androidClientId: '1024991048436-hq25pn9bodq70guphiuupf1e0soa9ha6.apps.googleusercontent.com',
     iosBundleId: 'com.example.opatra',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyDNqAoG-KOOh7q3EOzQi5zmhSaCTI2OUZg',
-    appId: '1:1024991048436:ios:26bb9c055d67cdd3b3e4a1',
+    appId: '1:1024991048436:ios:2d50d4e1a0307c23b3e4a1',
     messagingSenderId: '1024991048436',
     projectId: 'opatra-d5bda',
     storageBucket: 'opatra-d5bda.appspot.com',
+    androidClientId: '1024991048436-hq25pn9bodq70guphiuupf1e0soa9ha6.apps.googleusercontent.com',
     iosBundleId: 'com.example.opatra',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyBb13tFimDxXht9AH_Gqs6ArHJ5twTEmUA',
-    appId: '1:1024991048436:web:0d4a7c6c0b4d1dacb3e4a1',
+    appId: '1:1024991048436:web:251e97ec119befa1b3e4a1',
     messagingSenderId: '1024991048436',
     projectId: 'opatra-d5bda',
     authDomain: 'opatra-d5bda.firebaseapp.com',
     storageBucket: 'opatra-d5bda.appspot.com',
   );
+
 }
