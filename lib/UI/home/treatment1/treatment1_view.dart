@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:opatra/UI/home/treatment1/treatment1_logic.dart';
 import 'package:opatra/constant/AppColors.dart';
@@ -30,6 +33,9 @@ class _Treatment1ViewState extends State<Treatment1View> {
       'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. '
       'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ';
   late Treatment1Controller logic;
+  late int _remainingTime; // In seconds
+  late Timer _timer;
+  bool _isRunning = true; // Initial state: timer is running
 
   @override
   void initState() {
@@ -42,12 +48,64 @@ class _Treatment1ViewState extends State<Treatment1View> {
         logic.selectedAreas[area] = true; // Mark areas as selected
       }
     }
+    _initializeTimer();
+  }
+
+  void _initializeTimer() {
+    final parts = widget.selectedTime!.split(':');
+    final minutes = int.parse(parts[0]);
+    final seconds = int.parse(parts[1]);
+
+    _remainingTime = (minutes * 60) + seconds; // Convert to total seconds
+
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (_remainingTime > 0) {
+        setState(() {
+          _remainingTime--;
+        });
+      } else {
+        _timer.cancel(); // Stop the timer when it reaches zero
+      }
+    });
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (_remainingTime > 0) {
+        setState(() {
+          _remainingTime--;
+        });
+      } else {
+        _timer.cancel(); // Stop timer when it reaches zero
+      }
+    });
+  }
+
+  String _formatTime(int seconds) {
+    final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
+    final secs = (seconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$secs';
+  }
+
+  void _toggleTimer() {
+    setState(() {
+      if (_isRunning) {
+        _timer.cancel(); // Pause the timer
+      } else {
+        _startTimer(); // Resume the timer
+      }
+      _isRunning = !_isRunning; // Toggle the running state
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    print('selectedAreasList=========${widget.selectedAreasList}');
-
     return GetBuilder<Treatment1Controller>(
       init: Treatment1Controller(),
       builder: (logic) {
@@ -107,12 +165,47 @@ class _Treatment1ViewState extends State<Treatment1View> {
                                 margin: EdgeInsets.only(top: 20),
                                 child: Column(
                                   children: [
-                                    Text(
-                                      '${widget.selectedTime}',
-                                      style: TextStyle(
-                                          fontSize: 20,
-                                          color: AppColors.appPrimaryBlackColor,
-                                          fontWeight: FontWeight.w900),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          _formatTime(_remainingTime),
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              color: AppColors
+                                                  .appPrimaryBlackColor,
+                                              fontWeight: FontWeight.w900),
+                                        ),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        InkWell(
+                                          onTap: () {
+                                            _toggleTimer();
+                                          },
+                                          child: Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              Container(
+                                                height: 40.sp,
+                                                width: 40.sp,
+                                                child: Image.asset(
+                                                    'assets/images/ellipse.png'),
+                                              ),
+                                              Container(
+                                                height: 15,
+                                                width: 15,
+                                                child: Image.asset(
+                                                  _isRunning
+                                                      ? 'assets/images/pauseIcon.png' // Show pause icon if running
+                                                      : 'assets/images/playIcon.png', // Show play icon if paused),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -460,11 +553,11 @@ class _Treatment1ViewState extends State<Treatment1View> {
       BuildContext context, Treatment1Controller logic) {
     return Obx(() => InkWell(
           onTap: () {
-            print(logic.selectedAreasList.length);
-            print(widget.selectedDays!.length);
-            print(widget.selectedTime);
-            print(widget.title);
-            print(widget.id);
+            // print(logic.selectedAreasList.length);
+            // print(widget.selectedDays!.length);
+            // print(widget.selectedTime);
+            // print(widget.title);
+            // print(widget.id);
             logic.deviceSchedule(widget.selectedTime!, widget.id!,
                 widget.title!, widget.selectedDays!);
             // Navigate to the next screen
