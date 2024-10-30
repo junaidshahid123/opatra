@@ -45,6 +45,14 @@ class Treatment1Controller extends GetxController {
     update(); // Update UI
   }
 
+  // Initialize selected areas based on a list
+  void initializeSelectedAreas(List<int> initialSelectedAreas) {
+    for (int area in initialSelectedAreas) {
+      toggleAreaSelection(area); // Toggle each area to ensure the UI reflects this
+    }
+  }
+
+
   // Check if a numbered area is selected
   bool isAreaSelected(int area) {
     return selectedAreas[area] ?? false;

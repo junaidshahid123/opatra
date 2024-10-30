@@ -78,7 +78,7 @@ class ProductDetailController extends GetxController {
         final data = jsonDecode(response.body);
         print('fetchProductDetail: $data');
         mdProductDetail = MDProductDetail.fromJson(data);
-        print('mdProductDetail: $mdProductDetail');
+        print('mdProductDetail: ${mdProductDetail!.product!.image!.src}');
         update();
 
         // You can further process the data here

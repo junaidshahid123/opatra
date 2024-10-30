@@ -3,23 +3,51 @@ import 'package:get/get.dart';
 import 'package:opatra/UI/home/treatment1/treatment1_logic.dart';
 import 'package:opatra/constant/AppColors.dart';
 
-class Treatment1View extends StatelessWidget {
-  final List<DateTime> selectedDays;
-  final String title;
-  final int id;
-  final String selectedTime;
+class Treatment1View extends StatefulWidget {
+  final List<int>? selectedAreasList;
+  final List<DateTime>? selectedDays; // Made optional
+  final String? title; // Remains optional
+  final int? id; // Made optional
+  final String? selectedTime; // Made optional
 
-  // Constructor with named parameters
+// Constructor with optional named parameters
   const Treatment1View({
-    required this.selectedDays,
-    required this.title,
-    required this.id,
-    super.key,
-    required this.selectedTime,
-  });
+    this.selectedAreasList,
+    this.selectedDays,
+    this.title,
+    this.id,
+    this.selectedTime,
+    Key? key,
+  }) : super(key: key); // Pass the key to the superclass constructor
+
+  @override
+  State<Treatment1View> createState() => _Treatment1ViewState();
+}
+
+class _Treatment1ViewState extends State<Treatment1View> {
+  final String dummyTextShort =
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
+      'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. '
+      'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ';
+  late Treatment1Controller logic;
+
+  @override
+  void initState() {
+    super.initState();
+    logic = Get.put(Treatment1Controller());
+
+    // Initialize selected areas based on passed selectedAreasList
+    if (widget.selectedAreasList != null) {
+      for (int area in widget.selectedAreasList!) {
+        logic.selectedAreas[area] = true; // Mark areas as selected
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    print('selectedAreasList=========${widget.selectedAreasList}');
+
     return GetBuilder<Treatment1Controller>(
       init: Treatment1Controller(),
       builder: (logic) {
@@ -52,8 +80,6 @@ class Treatment1View extends StatelessWidget {
                             context, logic, 3, Offset(0.5, 0.5)),
                         _buildHighlightArea(
                             context, logic, 4, Offset(0.5, 0.7)),
-                        // _buildHighlightArea(
-                        //     context, logic, 5, Offset(0.6, 0.8)),
                       ],
                     ),
                   ),
@@ -73,11 +99,68 @@ class Treatment1View extends StatelessWidget {
                     ),
                     child: Column(
                       children: [
-                        _buildSelectYourTreatmentAreas(),
-                        TreatmentListWidget(
-                          logic: logic,
-                        ),
-                        _buildContinueButton(context, logic),
+                        widget.selectedAreasList != null
+                            ? Container()
+                            : _buildSelectYourTreatmentAreas(),
+                        widget.selectedAreasList != null
+                            ? Container(
+                                margin: EdgeInsets.only(top: 20),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      '${widget.selectedTime}',
+                                      style: TextStyle(
+                                          fontSize: 20,
+                                          color: AppColors.appPrimaryBlackColor,
+                                          fontWeight: FontWeight.w900),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : TreatmentListWidget(
+                                logic: logic,
+                              ),
+                        widget.selectedAreasList != null
+                            ? Container(
+                                margin: EdgeInsets.only(
+                                    left: 20, right: 20, top: 20),
+                                child: Text(
+                                  dummyTextShort,
+                                  style: TextStyle(
+                                      color: AppColors.appHistoryDateTextColor),
+                                ))
+                            : Container(),
+                        Spacer(),
+                        widget.selectedAreasList == null
+                            ? _buildContinueButton(
+                                context,
+                                logic,
+                              )
+                            : Container(
+                                margin: EdgeInsets.only(
+                                    bottom: 20, left: 20, right: 20),
+                                width: MediaQuery.of(context).size.width,
+                                height: 45,
+                                decoration: BoxDecoration(
+                                  color: Color(0xFFB7A06A),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Center(
+                                    child: logic.isLoading.value == true
+                                        ? SizedBox(
+                                            width: 20.0, // Adjust the width
+                                            height: 20.0, // Adjust the height
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 5,
+                                              color: AppColors.appWhiteColor,
+                                            ),
+                                          )
+                                        : Text(
+                                            'Next',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 16),
+                                          )))
                       ],
                     ),
                   ),
@@ -95,28 +178,31 @@ class Treatment1View extends StatelessWidget {
       int area, Offset offset) {
     final isSelected = logic.isAreaSelected(area);
 
-    // Define dimensions for selected and unselected states
+    // Define dimensions for selected and unselected states, excluding chin
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
 
     final double widthFactor = (isSelected && area == 1)
         ? 0.6
         : (isSelected && area == 4)
-            ? 0.2
+            ? 1.0 // Keep full size for chin
             : 0.25;
-    final double heightFactor = (isSelected && area == 4) ? 0.05 : 0.1;
+    final double heightFactor = (isSelected && area == 4) ? 0.06 : 0.1;
 
-    // Define margin
-    const double margin = 5.0;
+    // Define margin, which won't apply to chin area
+    final double margin = screenWidth * 0.01;
 
-    // Define additional margin specifically for the forehead image (case 1)
-    const double foreheadTopMarginFor1 = 40.0;
-    const double foreheadTopMarginFor2 = 40.0;
-    const double foreheadLeftMargin1 = 20.0;
-    const double foreheadLeftMargin3 = 100.0;
-    const double foreheadLeftMargin4 = 30.0;
-    const double foreheadTopMarginFor3 = -50.0;
-    const double foreheadTopMarginFor4 = -80.0;
-    const double foreheadRightMarginFor2 = 100.0;
-    const double foreheadRightMarginFor3 = -100.0;
+    // Define additional margin adjustments for other areas
+    final double foreheadTopMarginFor1 = screenHeight * 0.05;
+    final double foreheadTopMarginFor2 = screenHeight * 0.05;
+    final double foreheadLeftMargin1 = screenWidth * 0.05;
+    final double foreheadLeftMargin3 = screenWidth * 0.25;
+    final double foreheadLeftMargin4 = screenWidth * 0.08;
+    final double foreheadTopMarginFor3 = -screenHeight * 0.06;
+    final double foreheadTopMarginFor4 = -screenHeight * 0.08;
+    final double foreheadRightMarginFor2 = screenWidth * 0.25;
+    final double foreheadRightMarginFor3 = -screenWidth * 0.25;
+    final double foreheadRightMarginFor4 = -screenWidth * 0.08;
 
     // Define border radius and image path for each area
     BorderRadius borderRadius;
@@ -125,90 +211,79 @@ class Treatment1View extends StatelessWidget {
     switch (area) {
       case 1: // Forehead
         borderRadius = BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
-          bottomLeft: Radius.circular(70),
-          bottomRight: Radius.circular(70),
+          topLeft: Radius.circular(screenWidth * 0.08),
+          topRight: Radius.circular(screenWidth * 0.08),
+          bottomLeft: Radius.circular(screenWidth * 0.18),
+          bottomRight: Radius.circular(screenWidth * 0.18),
         );
         imagePath = 'assets/images/head.png';
         break;
       case 2: // Right Cheek
         borderRadius = BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
-          bottomLeft: Radius.circular(70),
-          bottomRight: Radius.circular(70),
+          topLeft: Radius.circular(screenWidth * 0.08),
+          topRight: Radius.circular(screenWidth * 0.08),
+          bottomLeft: Radius.circular(screenWidth * 0.18),
+          bottomRight: Radius.circular(screenWidth * 0.18),
         );
         imagePath = 'assets/images/right.png';
         break;
       case 3: // Left Cheek
         borderRadius = BorderRadius.only(
-          topLeft: Radius.circular(15),
-          topRight: Radius.circular(15),
-          bottomLeft: Radius.circular(50),
-          bottomRight: Radius.circular(50),
+          topLeft: Radius.circular(screenWidth * 0.04),
+          topRight: Radius.circular(screenWidth * 0.04),
+          bottomLeft: Radius.circular(screenWidth * 0.13),
+          bottomRight: Radius.circular(screenWidth * 0.13),
         );
         imagePath = 'assets/images/left.png';
         break;
       case 4: // Chin
-        borderRadius = BorderRadius.only(
-          topLeft: Radius.circular(100),
-          topRight: Radius.circular(100),
-          bottomLeft: Radius.circular(100),
-          bottomRight: Radius.circular(100),
-        );
+        borderRadius = BorderRadius.zero; // No border radius for original form
         imagePath = 'assets/images/chin.png';
         break;
       default:
-        borderRadius = BorderRadius.circular(50);
+        borderRadius = BorderRadius.circular(screenWidth * 0.13);
         imagePath = 'assets/images/womenImage.png';
     }
 
     return Positioned(
-        right:
-            MediaQuery.of(context).size.width * (offset.dx - widthFactor / 2) -
-                margin +
-                (area == 2
-                    ? foreheadRightMarginFor2
-                    : area == 3
-                        ? foreheadRightMarginFor3
-                        : -10),
-        // left:
-        //     MediaQuery.of(context).size.width * (offset.dx - widthFactor / 2) -
-        //         margin +
-        //         (area == 4
-        //                     ? foreheadLeftMargin4
-        //                     :100 ),
-        // Apply extra left margin for case 1
-        top: MediaQuery.of(context).size.height *
-                (offset.dy - heightFactor / 2) -
-            margin +
-            (area == 1
-                ? foreheadTopMarginFor1
-                : area == 2
-                    ? foreheadTopMarginFor2
-                    : area == 3
-                        ? foreheadTopMarginFor3
-                        : area == 4
-                            ? foreheadTopMarginFor4
-                            : 0),
-        // Apply extra top margin for case 1
-        child: GestureDetector(
-          onTap: () {
-            logic.toggleAreaSelection(area);
-          },
-          child: AnimatedOpacity(
-            duration: Duration(milliseconds: 300),
-            opacity: isSelected ? 1.0 : 0.0, // Show image only when selected
-            child: Container(
-                width: MediaQuery.of(context).size.width * widthFactor +
-                    (margin * 0.5),
-                height: MediaQuery.of(context).size.height * heightFactor +
-                    (margin * 0.5),
-                child: Container(
-                  // color: AppColors.appPrimaryColor,
-                  width: 40,
-                  height: 40,
+      right: screenWidth * (offset.dx - widthFactor / 2) -
+          margin +
+          (area == 2
+              ? foreheadRightMarginFor2
+              : area == 3
+                  ? foreheadRightMarginFor3 - screenWidth * 0.01
+                  : area == 4
+                      ? foreheadRightMarginFor4
+                      : -screenWidth * 0.025),
+      top: screenHeight * (offset.dy - heightFactor / 2) -
+          margin +
+          (area == 1
+              ? foreheadTopMarginFor1
+              : area == 2
+                  ? foreheadTopMarginFor2
+                  : area == 3
+                      ? foreheadTopMarginFor3
+                      : area == 4
+                          ? foreheadTopMarginFor4
+                          : 0),
+      child: GestureDetector(
+        onTap: () {
+          logic.toggleAreaSelection(area);
+        },
+        child: AnimatedOpacity(
+          duration: Duration(milliseconds: 300),
+          opacity: isSelected ? 1.0 : 0.0, // Show image only when selected
+          child: area == 4
+              ? Container(
+                  width: screenWidth * widthFactor + (margin * 0.4),
+                  height: screenHeight * heightFactor + (margin * 0.4),
+                  child: ClipRRect(
+                      borderRadius: borderRadius,
+                      child: Image.asset(
+                          imagePath))) // Display chin image in original form
+              : Container(
+                  width: screenWidth * widthFactor + (margin * 0.5),
+                  height: screenHeight * heightFactor + (margin * 0.5),
                   child: ClipRRect(
                     borderRadius: borderRadius,
                     child: Image.asset(
@@ -216,10 +291,135 @@ class Treatment1View extends StatelessWidget {
                       fit: BoxFit.cover,
                     ),
                   ),
-                )),
-          ),
-        ));
+                ),
+        ),
+      ),
+    );
   }
+
+  // Widget _buildHighlightArea(BuildContext context, Treatment1Controller logic,
+  //     int area, Offset offset)
+  // {
+  //   final isSelected = logic.isAreaSelected(area);
+  //
+  //   // Define dimensions for selected and unselected states, excluding chin
+  //   final double widthFactor = (isSelected && area == 1)
+  //       ? 0.6
+  //       : (isSelected && area == 4)
+  //           ? 1.0 // Keep full size for chin
+  //           : 0.25;
+  //   final double heightFactor = (isSelected && area == 4) ? 0.06 : 0.1;
+  //
+  //   // Define margin, which won't apply to chin area
+  //   const double margin = 5.0;
+  //
+  //   // Define additional margin adjustments for other areas
+  //   const double foreheadTopMarginFor1 = 40.0;
+  //   const double foreheadTopMarginFor2 = 40.0;
+  //   const double foreheadLeftMargin1 = 20.0;
+  //   const double foreheadLeftMargin3 = 100.0;
+  //   const double foreheadLeftMargin4 = 30.0;
+  //   const double foreheadTopMarginFor3 = -50.0;
+  //   const double foreheadTopMarginFor4 = -60.0;
+  //   const double foreheadRightMarginFor2 = 100.0;
+  //   const double foreheadRightMarginFor3 = -100.0;
+  //   const double foreheadRightMarginFor4 = -30.0;
+  //
+  //   // Define border radius and image path for each area
+  //   BorderRadius borderRadius;
+  //   String imagePath;
+  //
+  //   switch (area) {
+  //     case 1: // Forehead
+  //       borderRadius = BorderRadius.only(
+  //         topLeft: Radius.circular(30),
+  //         topRight: Radius.circular(30),
+  //         bottomLeft: Radius.circular(70),
+  //         bottomRight: Radius.circular(70),
+  //       );
+  //       imagePath = 'assets/images/head.png';
+  //       break;
+  //     case 2: // Right Cheek
+  //       borderRadius = BorderRadius.only(
+  //         topLeft: Radius.circular(30),
+  //         topRight: Radius.circular(30),
+  //         bottomLeft: Radius.circular(70),
+  //         bottomRight: Radius.circular(70),
+  //       );
+  //       imagePath = 'assets/images/right.png';
+  //       break;
+  //     case 3: // Left Cheek
+  //       borderRadius = BorderRadius.only(
+  //         topLeft: Radius.circular(15),
+  //         topRight: Radius.circular(15),
+  //         bottomLeft: Radius.circular(50),
+  //         bottomRight: Radius.circular(50),
+  //       );
+  //       imagePath = 'assets/images/left.png';
+  //       break;
+  //     case 4: // Chin
+  //       borderRadius = BorderRadius.zero; // No border radius for original form
+  //       imagePath = 'assets/images/chin.png';
+  //       break;
+  //     default:
+  //       borderRadius = BorderRadius.circular(50);
+  //       imagePath = 'assets/images/womenImage.png';
+  //   }
+  //
+  //   return Positioned(
+  //     right: MediaQuery.of(context).size.width * (offset.dx - widthFactor / 2) -
+  //             margin +
+  //             (area == 2
+  //                 ? foreheadRightMarginFor2
+  //                 : area == 3
+  //                     ? foreheadRightMarginFor3 - 5
+  //                     : area == 4
+  //                 ? foreheadRightMarginFor4 : -10),
+  //     top: MediaQuery.of(context).size.height * (offset.dy - heightFactor / 2) -
+  //         margin +
+  //         (area == 1
+  //             ? foreheadTopMarginFor1
+  //             : area == 2
+  //                 ? foreheadTopMarginFor2
+  //                 : area == 3
+  //                     ? foreheadTopMarginFor3
+  //                     : area == 4
+  //                         ? foreheadTopMarginFor4
+  //                         : 0),
+  //     child: GestureDetector(
+  //       onTap: () {
+  //         logic.toggleAreaSelection(area);
+  //       },
+  //       child: AnimatedOpacity(
+  //         duration: Duration(milliseconds: 300),
+  //         opacity: isSelected ? 1.0 : 0.0, // Show image only when selected
+  //         child: area == 4
+  //             ? Container(
+  //                 width: MediaQuery.of(context).size.width * widthFactor +
+  //                     (margin * 0.4),
+  //                 height: MediaQuery.of(context).size.height * heightFactor +
+  //                     (margin * 0.4),
+  //                 child: ClipRRect(
+  //                     borderRadius: borderRadius,
+  //                     child: Image.asset(
+  //                         imagePath))) // Display chin image in original form
+  //             : Container(
+  //                 width: MediaQuery.of(context).size.width * widthFactor +
+  //                     (margin * 0.5),
+  //                 height: MediaQuery.of(context).size.height * heightFactor +
+  //                     (margin * 0.5),
+  //                 child: ClipRRect(
+  //                   borderRadius: borderRadius,
+  //                   child: Image.asset(
+  //                     imagePath,
+  //                     fit: BoxFit.cover,
+  //                   ),
+  //                 ),
+  //               ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildSelectYourTreatmentAreas() {
     return Container(
@@ -258,42 +458,41 @@ class Treatment1View extends StatelessWidget {
 
   Widget _buildContinueButton(
       BuildContext context, Treatment1Controller logic) {
-    return
-   Obx(()=>   InkWell(
-     onTap: () {
-       print(logic.selectedAreasList.length);
-       print(selectedDays.length);
-       print(selectedTime);
-       print(title);
-       print(id);
-       logic.deviceSchedule(selectedTime,id,title,selectedDays);
-       // Navigate to the next screen
-     },
-     child: Container(
-         margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
-         width: MediaQuery.of(context).size.width,
-         height: 45,
-         decoration: BoxDecoration(
-           color: Color(0xFFB7A06A),
-           borderRadius: BorderRadius.circular(10),
-         ),
-         child:  Center(
-             child: logic.isLoading.value == true
-                 ? SizedBox(
-               width: 20.0, // Adjust the width
-               height: 20.0, // Adjust the height
-               child: CircularProgressIndicator(
-                 strokeWidth: 5,
-                 color: AppColors.appWhiteColor,
-               ),
-             )
-                 : Text(
-               'Continue',
-               style: TextStyle(
-                   fontWeight: FontWeight.w600, fontSize: 16),
-             ))
-     ),
-   ));
+    return Obx(() => InkWell(
+          onTap: () {
+            print(logic.selectedAreasList.length);
+            print(widget.selectedDays!.length);
+            print(widget.selectedTime);
+            print(widget.title);
+            print(widget.id);
+            logic.deviceSchedule(widget.selectedTime!, widget.id!,
+                widget.title!, widget.selectedDays!);
+            // Navigate to the next screen
+          },
+          child: Container(
+              margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+              width: MediaQuery.of(context).size.width,
+              height: 45,
+              decoration: BoxDecoration(
+                color: Color(0xFFB7A06A),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                  child: logic.isLoading.value == true
+                      ? SizedBox(
+                          width: 20.0, // Adjust the width
+                          height: 20.0, // Adjust the height
+                          child: CircularProgressIndicator(
+                            strokeWidth: 5,
+                            color: AppColors.appWhiteColor,
+                          ),
+                        )
+                      : Text(
+                          'Continue',
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600, fontSize: 16),
+                        ))),
+        ));
   }
 }
 

@@ -9,79 +9,28 @@ import '../select_device/select_device_view.dart';
 import 'package:http/http.dart' as http;
 
 class TreatmentController extends GetxController {
+  // Reactive variables to manage state
   Rx<Product?> storedDevice = Rx<Product?>(null);
   RxBool deviceExists = false.obs;
   RxBool isLoading = false.obs;
   Rxn<MDGetDevices> mdGetDevices =
       Rxn<MDGetDevices>(); // Observable for device data
-  var productImages = <int, String>{}.obs; // Map to store images with product_id as key
-
 
   @override
   void onInit() {
-    // TODO: implement onInit
     super.onInit();
-    // checkDeviceInStorage();
-    fetchScheduledDevices();
-  }
-  // Future<void> fetchProductImage(int productId) async {
-  //   final url = Uri.parse("${ApiUrls.productImage}/$productId");
-  //
-  //   try {
-  //     final response = await http.get(url);
-  //
-  //     if (response.statusCode == 200) {
-  //       final data = jsonDecode(response.body);
-  //       final imageUrl = data['image_url']; // Replace with the actual key from API response
-  //       productImages[productId] = imageUrl; // Store image URL in the map
-  //     } else {
-  //       print("Failed to fetch image for product $productId. Status Code: ${response.statusCode}");
-  //     }
-  //   } catch (e) {
-  //     print("Error fetching image for product $productId: $e");
-  //   }
-  // }
-  //
-  // Future<void> loadImagesForProducts() async {
-  //   if (mdGetDevices.value != null) {
-  //     for (var device in mdGetDevices.value!.data!) {
-  //       if (device.productId != null) {
-  //         await fetchProductImage(device.productId!);
-  //       }
-  //     }
-  //   }
-  // }
-
-  Future<void> checkDeviceInStorage() async {
-    deviceExists.value =
-        await getDevice(); // Update the RxBool value based on result
+    fetchScheduledDevices(); // Fetch devices on initialization
   }
 
-  Future<bool> getDevice() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    String? deviceJson = sharedPreferences.getString('selectedDevice');
-
-    if (deviceJson != null) {
-      Map<String, dynamic> deviceMap = jsonDecode(deviceJson);
-      storedDevice.value = Product.fromJson(deviceMap);
-      print('Retrieved Device: ${storedDevice.value!.title}');
-      return true;
-    } else {
-      print('No device found in SharedPreferences.');
-      return false;
-    }
-  }
-
-  void onSelectDeviceTap() {
-    Get.to(() => SelectDeviceView());
-  }
-
+  /// Fetches devices and assigns images to them
   Future<void> fetchScheduledDevices() async {
-    isLoading.value = true;
+    isLoading.value = true; // Set loading state
     final url = Uri.parse(ApiUrls.deviceSchedule);
 
+    // Get the token from shared preferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token'); // Get the token from shared prefs
+    String? token = prefs.getString('token');
+
     if (token == null || token.isEmpty) {
       Get.snackbar('Error', 'No token found. Please log in again.',
           backgroundColor: Colors.red, colorText: Colors.white);
@@ -98,21 +47,104 @@ class TreatmentController extends GetxController {
       final response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
-        isLoading.value = false;
         final data = jsonDecode(response.body);
         mdGetDevices.value =
             MDGetDevices.fromJson(data); // Update the observable
+
+        // Load images after devices are fetched
+        await loadImagesForProducts();
         print('Fetched devices: ${mdGetDevices.value?.data?.length}');
       } else {
-        isLoading.value = false;
         print(
             'Failed to load scheduled devices. Status Code: ${response.statusCode}');
+        Get.snackbar('Error', 'Failed to load scheduled devices.',
+            backgroundColor: Colors.red, colorText: Colors.white);
       }
     } catch (e) {
-      isLoading.value = false;
       print('Error: $e');
+      Get.snackbar('Error', 'An error occurred while fetching devices.',
+          backgroundColor: Colors.red, colorText: Colors.white);
     } finally {
       isLoading.value = false; // Stop loading regardless of success or error
     }
+  }
+
+  /// Loads images for each product device
+  Future<void> loadImagesForProducts() async {
+    if (mdGetDevices.value != null) {
+      for (var device in mdGetDevices.value!.data!) {
+        if (device.productId != null) {
+          String? imageUrl = await fetchImageUrlForDevice(device.productId!);
+          if (imageUrl != null) {
+            device.imageUrl = imageUrl; // Assign the image URL to the device
+          }
+        }
+      }
+    }
+  }
+
+  /// Fetches the image URL for a specific device based on its ID
+  Future<String?> fetchImageUrlForDevice(String deviceId) async {
+    final url = Uri.parse(
+        "https://opatra.fai-tech.online/api/product/$deviceId/images");
+
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      if (token == null || token.isEmpty) {
+        print('Error: No token found. Please log in again.');
+        return null;
+      }
+
+      Map<String, String> headers = {
+        "Accept": "application/json",
+        "Authorization": "Bearer $token",
+      };
+
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['images'] != null && data['images'].isNotEmpty) {
+          return data['images'][0]['src']; // Return the first image URL
+        } else {
+          print("No images found for device $deviceId.");
+        }
+      } else {
+        print(
+            "Failed to fetch image for device $deviceId. Status Code: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("Error fetching image for device $deviceId: $e");
+    }
+    return null; // Return null if image URL not found
+  }
+
+  /// Checks if a device exists in SharedPreferences
+  Future<void> checkDeviceInStorage() async {
+    deviceExists.value =
+        await getDevice(); // Update the RxBool value based on result
+  }
+
+  /// Retrieves the stored device from SharedPreferences
+  Future<bool> getDevice() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? deviceJson = sharedPreferences.getString('selectedDevice');
+
+    if (deviceJson != null) {
+      Map<String, dynamic> deviceMap = jsonDecode(deviceJson);
+      storedDevice.value = Product.fromJson(deviceMap);
+      print('Retrieved Device: ${storedDevice.value!.title}');
+      return true;
+    } else {
+      print('No device found in SharedPreferences.');
+      return false;
+    }
+  }
+
+  /// Navigates to the SelectDeviceView when a device is selected
+  void onSelectDeviceTap() {
+    Get.to(() => SelectDeviceView());
   }
 }

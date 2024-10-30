@@ -5,6 +5,8 @@ import 'package:opatra/UI/home/select_device/select_device_view.dart';
 import 'package:opatra/UI/home/treatment/treatment_logic.dart';
 import 'package:opatra/constant/AppColors.dart';
 
+import '../treatment1/treatment1_view.dart';
+
 class TreatmentView extends StatelessWidget {
   const TreatmentView({super.key});
 
@@ -20,33 +22,39 @@ class TreatmentView extends StatelessWidget {
                   children: [
                     buildAppBar(logic),
                     Expanded(
-                      child: Container(
-                          alignment: Alignment.center,
-                          child: Obx(
-                            () => Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                logic.isLoading.value == true
-                                    ? Center(
-                                        child: CircularProgressIndicator(
-                                        color: AppColors.appPrimaryColor,
-                                      ))
-                                    : logic.mdGetDevices.value == null
-                                        ? buildText(logic)
-                                        : Container(),
-                                logic.isLoading.value == true
-                                    ? Center(
-                                        child: CircularProgressIndicator(
-                                        color: AppColors.appPrimaryColor,
-                                      ))
-                                    : logic.mdGetDevices.value == null
-                                        ? buildSelectDeviceButton(
-                                            context, logic)
-                                        : buildGridView(context, logic),
-                              ],
-                            ),
-                          )),
-                    ),
+                        child: Container(
+                      alignment: Alignment.center,
+                      child: Obx(
+                        () {
+                          // Check loading state and device data availability
+                          bool isLoading = logic.isLoading.value;
+                          bool hasDevices =
+                              logic.mdGetDevices.value?.data?.isNotEmpty ??
+                                  false;
+
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Show loader if loading
+                              if (isLoading)
+                                Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.appPrimaryColor,
+                                  ),
+                                )
+                              // If not loading, show text or grid view based on device data availability
+                              else if (!hasDevices) ...[
+                                buildText(logic),
+                                buildSelectDeviceButton(context, logic),
+                              ]
+                              // If devices are available, show the grid view
+                              else
+                                buildGridView(context, logic),
+                            ],
+                          );
+                        },
+                      ),
+                    )),
                   ],
                 ),
               ));
@@ -80,68 +88,116 @@ class TreatmentView extends StatelessWidget {
   }
 
   Widget buildGridView(BuildContext context, TreatmentController logic) {
-    return Obx(() => logic.isLoading.value == true
-        ? Center(child: CircularProgressIndicator())
-        : Expanded(
-            child: Container(
-              margin: EdgeInsets.all(20),
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              child: GridView.builder(
-                physics: ClampingScrollPhysics(),
-                shrinkWrap: true,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 20.0,
-                  mainAxisSpacing: 20.0,
-                  childAspectRatio: 0.8,
-                ),
-                itemCount: logic.mdGetDevices.value!.data!.length,
-                itemBuilder: (context, index) {
-                  return InkWell(
-                    onTap: () async {
-                      // Call the controller's function instead of writing the logic here
-                      // await logic.selectAndStoreDevice(index);
-                    },
-                    child: Column(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Color(0xFFFBF3D7)),
-                            borderRadius: BorderRadius.circular(20),
-                            color: AppColors.appWhiteColor,
-                          ),
-                          child: Container(
-                            margin: EdgeInsets.all(5),
-                            child: Column(
-                              children: [
-                                // Image.network(logic.mdGetDevices.value!.data![index].image!.src!),
-                                Container(
-                                  margin: EdgeInsets.only(left: 20, bottom: 10),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        '${logic.mdGetDevices.value!.data![index].productName!.length > 10 ? logic.mdGetDevices.value!.data![index].productName!.substring(0, 10) + '...' : logic.mdGetDevices.value!.data![index].productName!}',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 13,
-                                          color: AppColors.appPrimaryBlackColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+    return Obx(() {
+      // Check if loading
+      if (logic.isLoading.value) {
+        return Center(child: CircularProgressIndicator());
+      }
+
+      // Check if there are any devices to display
+      if (logic.mdGetDevices.value == null ||
+          logic.mdGetDevices.value!.data == null ||
+          logic.mdGetDevices.value!.data!.isEmpty) {
+        return Center(child: Text("No devices found."));
+      }
+
+      // Build the GridView
+      return Expanded(
+        child: Container(
+          margin: EdgeInsets.all(20),
+          child: GridView.builder(
+            physics: ClampingScrollPhysics(),
+            shrinkWrap: true,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 20.0,
+              mainAxisSpacing: 20.0,
+              childAspectRatio: 0.8,
             ),
-          ));
+            itemCount: logic.mdGetDevices.value!.data!.length,
+            itemBuilder: (context, index) {
+              final device = logic.mdGetDevices.value!.data![index];
+
+              // Print the device ID and image URL for debugging
+              print('Device ID: ${device.id}, Image URL: ${device.imageUrl}');
+              print('device.time =====${device.days![0].time}');
+              print('device.areas =====${device.days![0].areas}');
+              // Assuming device.days![0].areas is a String like "1,2,3,4"
+              String areasString = device.days![0].areas!;
+              List<int> selectedAreasList = areasString.split(',').map(int.parse).toList();
+
+
+              return InkWell(
+                onTap: () async {
+                  print('selectedAreasList=========${selectedAreasList}');
+                  // Uncomment and implement your device selection logic here
+                  Get.to(() => Treatment1View(selectedTime:device.days![0].time,selectedAreasList:selectedAreasList ,));
+
+                },
+                child: Column(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Color(0xFFFBF3D7)),
+                        borderRadius: BorderRadius.circular(20),
+                        color: AppColors.appWhiteColor,
+                      ),
+                      child: Container(
+                        margin: EdgeInsets.all(5),
+                        child: Column(
+                          children: [
+                            // Display image with a fallback placeholder
+                            device.imageUrl != null &&
+                                    device.imageUrl!.isNotEmpty
+                                ? Image.network(
+                                    device.imageUrl!,
+                                    fit: BoxFit.cover,
+                                    height: 100, // Set appropriate height
+                                    width: double
+                                        .infinity, // Full width of container
+                                    errorBuilder:
+                                        (context, error, stackTrace) => Icon(
+                                      Icons.broken_image,
+                                      color: Colors.grey,
+                                      size: 50,
+                                    ),
+                                  )
+                                : Icon(
+                                    Icons.image_not_supported,
+                                    color: Colors.grey,
+                                    size: 50,
+                                  ),
+                            Container(
+                              margin: EdgeInsets.only(left: 20, bottom: 10),
+                              child: Row(
+                                children: [
+                                  Text(
+                                    device.productName != null
+                                        ? device.productName!.length > 10
+                                            ? '${device.productName!.substring(0, 10)}...'
+                                            : device.productName!
+                                        : 'No Name',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 13,
+                                      color: AppColors.appPrimaryBlackColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    });
   }
 
   Widget buildText(TreatmentController logic) {
