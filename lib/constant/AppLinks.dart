@@ -35,6 +35,8 @@ class ApiUrls {
   static const String registerProduct = '$baseUrl/register-product';
   static const String deviceSchedule = '$baseUrl/device-schedule';
   static const String warrantyClaims = '$baseUrl/warranty-claim';
+  static const String appModules = '$baseUrl/app-modules';
+  static const String activeUser = '$baseUrl/active-user';
 
   // Other URLs
   static const String termsAndConditionsUrl = '$baseUrl/terms-and-conditions';

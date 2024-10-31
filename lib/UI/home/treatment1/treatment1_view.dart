@@ -197,7 +197,7 @@ class _Treatment1ViewState extends State<Treatment1View> {
                                                 height: 15,
                                                 width: 15,
                                                 child: Image.asset(
-                                                  _isRunning
+                                                    _isRunning
                                                       ? 'assets/images/pauseIcon.png' // Show pause icon if running
                                                       : 'assets/images/playIcon.png', // Show play icon if paused),
                                                 ),

@@ -14,6 +14,7 @@ import '../../../models/MDProducts.dart';
 import '../../../models/MDProductsByCategory.dart';
 import '../../../models/MDVideosByCategory.dart';
 import '../../auth/login/login_view.dart';
+import 'bottom_bar_host_model.dart';
 
 class BottomBarHostController extends GetxController {
   RxBool noProductsMatched = false.obs;
@@ -28,6 +29,7 @@ class BottomBarHostController extends GetxController {
   List<Video>? mdAllVideos;
   List<MDVideosByCategory>? mdAllVideosByCategory;
   MDLatestProducts? mdLatestProducts;
+  MDGetAppModules? mdGetAppModules;
   MDProducts? mdProducts;
   MDProductsByCategory? mdProductsByCategory;
   RxBool isLoading = false.obs;
@@ -71,6 +73,145 @@ class BottomBarHostController extends GetxController {
     fetchAllBanners();
     fetchVideoCategories();
     filteredProducts.value = mdProductsByCategory?.products ?? [];
+    fetchAppModules();
+  }
+
+  void makeHome() {
+    home.value = true;
+    product.value = false;
+    video.value = false;
+    update();
+  }
+
+  void makeProduct() {
+    home.value = false;
+    product.value = true;
+    video.value = false;
+    fetchAppModules();
+    update();
+  }
+
+  void makeVideo() {
+    home.value = false;
+    product.value = false;
+    video.value = true;
+    fetchAppModules();
+    update();
+  }
+
+  Future<void> activeUser(int id) async {
+    Map<String, dynamic> data = {"app_module_id": id};
+    print('Data to be sent: $data');
+
+    // Get the token from shared preferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token == null) {
+      print('No token found. Make sure the user is logged in.');
+      isLoading.value = false; // Set loading to false if there's no token
+      return;
+    } else {
+      print('Token retrieved: $token');
+    }
+
+    String jsonBody = json.encode(data);
+    final url = Uri.parse(ApiUrls.activeUser);
+    print('Sending request to: $url');
+    try {
+      print('Sending data to: $url');
+
+      final response = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonBody,
+      );
+
+      // Check if the POST request was successful
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print('Data sent successfully! Status code: ${response.statusCode}');
+        print('Server response: ${response.body}');
+      } else {
+        print('Failed to send data. Status code: ${response.statusCode}');
+        print('Server response: ${response.body}');
+      }
+    } catch (e) {
+      print('Error during POST request: $e');
+    }
+  }
+
+  Future<void> fetchAppModules() async {
+    final url = Uri.parse(ApiUrls.appModules);
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token'); // Get the token from shared prefs
+    if (token == null || token.isEmpty) {
+      Get.snackbar('Error', 'No token found. Please log in again.',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return;
+    }
+
+    Map<String, String> headers = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $token", // Include the Bearer token in headers
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        mdGetAppModules = MDGetAppModules.fromJson(data);
+        print('mdGetAppModules: ${mdGetAppModules}');
+        update();
+
+        // Check if home.value is true
+        if (home.value == true) {
+          final homeModule = data['data'].firstWhere(
+              (module) => module['name'] == 'Home',
+              orElse: () => null);
+          if (homeModule != null) {
+            int homeId = homeModule['id'];
+            print('Home ID: $homeId');
+            prefs.setInt('homeId', homeId); // Store home ID
+            activeUser(homeId);
+          }
+        }
+
+        // Check if product.value is true
+        if (product.value == true) {
+          final productModule = data['data'].firstWhere(
+              (module) => module['name'] == 'Product',
+              orElse: () => null);
+          if (productModule != null) {
+            int productId = productModule['id'];
+            print('Product ID: $productId');
+            prefs.setInt('productId', productId); // Store product ID
+            activeUser(productId);
+          }
+        }
+
+        // Check if video.value is true
+        if (video.value == true) {
+          final videoModule = data['data'].firstWhere(
+              (module) => module['name'] == 'Videos',
+              orElse: () => null);
+          if (videoModule != null) {
+            int videoId = videoModule['id'];
+            print('Video ID: $videoId');
+            prefs.setInt('videoId', videoId); // Store video ID
+            activeUser(videoId);
+          }
+        }
+      } else {
+        print(
+            'Failed to load mdGetAppModules. Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
   }
 
   Future<String> _getUserName() async {

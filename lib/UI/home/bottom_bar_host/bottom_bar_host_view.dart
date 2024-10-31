@@ -1522,9 +1522,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   Widget buildHomeOption(BottomBarHostController logic) {
     return InkWell(
         onTap: () {
-          logic.home.value = true;
-          logic.product.value = false;
-          logic.video.value = false;
+          logic.makeHome();
         },
         child: Obx(() => Container(
               margin: EdgeInsets.only(bottom: 2, top: 2),
@@ -1568,9 +1566,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   Widget buildProductOption(BottomBarHostController logic) {
     return InkWell(
         onTap: () {
-          logic.home.value = false;
-          logic.product.value = true;
-          logic.video.value = false;
+          logic.makeProduct();
         },
         child: Obx(
           () => Container(
@@ -1614,9 +1610,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   Widget buildVideoOption(BottomBarHostController logic) {
     return InkWell(
         onTap: () {
-          logic.home.value = false;
-          logic.product.value = false;
-          logic.video.value = true;
+          logic.makeVideo();
         },
         child: Obx(
           () => Container(
@@ -2150,18 +2144,16 @@ class _BottomBarHostView extends State<BottomBarHostView> {
               itemCount: logic.filteredProducts.length,
               itemBuilder: (context, index) {
                 return InkWell(
-                  onTap: (){
+                  onTap: () {
                     print('index========${index}');
-                    final smartCollection =
-                    logic.filteredProducts[index];
+                    final smartCollection = logic.filteredProducts[index];
 
                     int? id = smartCollection.id;
                     print('id=====${id}');
                     Get.to(() => ProductDetailView(
-                      productId:
-                      logic.filteredProducts[index].id!,
-                      currency: 'Pound',
-                    ));
+                          productId: logic.filteredProducts[index].id!,
+                          currency: 'Pound',
+                        ));
                   },
                   child: Container(
                     margin: EdgeInsets.all(8),
