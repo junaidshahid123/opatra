@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:opatra/UI/home/bag/bag_controller.dart';
 import 'package:opatra/models/MDProductDetail.dart';
 import '../../../constant/AppColors.dart';
+import '../Payment.dart';
 
 class BagView extends StatelessWidget {
   const BagView({super.key});
@@ -172,7 +173,7 @@ class BagView extends StatelessWidget {
   Widget buildContinueButton(BuildContext context) {
     return InkWell(
       onTap: () {
-        // Get.to(() => Payment());
+        Get.to(() => Payment());
       },
       child: Container(
           margin: EdgeInsets.only(bottom: 20),

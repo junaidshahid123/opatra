@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
 import '../../constant/AppColors.dart';
+import 'package:http/http.dart'
+    as http; // Add this dependency to your pubspec.yaml
 
 class Payment extends StatefulWidget {
   const Payment({super.key});
@@ -22,6 +27,63 @@ class _PaymentState extends State<Payment> {
     'assets/images/cardDetails.png',
     'assets/images/cardDetails.png',
   ];
+  bool _ready = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize Stripe
+    Stripe.publishableKey =
+    "pk_test_51JrLuBSE6S1t50lCZVOqTtxcLAa3XidcQlVVdJVFACW4BoIAEcPHab14Wk5BnRuiKm4JOueg9vj8PpekT16MfPyG00srL7POQj";
+    Stripe.merchantIdentifier =
+    'merchant.com.yourapp'; // Set your actual merchant identifier
+    Stripe.urlScheme = 'flutterstripe'; // Optional, only needed for Apple Pay
+  }
+
+
+  Future<void> initPaymentSheet() async {
+    try {
+      // 1. Create payment intent on the server (dummy values for testing)
+      final data = await _createDummyPaymentSheet();
+
+      // 2. Initialize the payment sheet
+      await Stripe.instance.initPaymentSheet(
+        paymentSheetParameters: SetupPaymentSheetParameters(
+          merchantDisplayName: 'Your Merchant Name',
+          paymentIntentClientSecret: data['paymentIntent'], // Use the mocked client secret
+          customerEphemeralKeySecret: data['ephemeralKey'],
+          customerId: data['customer'],
+          applePay: const PaymentSheetApplePay(
+            merchantCountryCode: 'US',
+          ),
+          googlePay: const PaymentSheetGooglePay(
+            merchantCountryCode: 'US',
+            testEnv: true,
+          ),
+          style: ThemeMode.dark,
+        ),
+      );
+
+      setState(() {
+        _ready = true;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+      rethrow;
+    }
+  }
+
+  Future<Map<String, dynamic>> _createDummyPaymentSheet() async {
+    // Return mocked values for testing
+    return {
+      'paymentIntent': 'pi_test_123456789', // Mocked Payment Intent client secret
+      'ephemeralKey': 'ek_test_123456789',   // Mocked ephemeral key
+      'customer': 'cus_test_123456789',       // Mocked customer ID
+    };
+  }
+
 
   void _showDialog(BuildContext context) {
     showDialog(
@@ -174,9 +236,24 @@ class _PaymentState extends State<Payment> {
   Widget buildCreditCardOption() {
     return Expanded(
       child: InkWell(
-        onTap: () {
+        onTap: () async {
           card.value = true;
           wallet.value = false;
+          await initPaymentSheet();
+
+          if (_ready) {
+            try {
+              await Stripe.instance.presentPaymentSheet();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Payment successful!')),
+              );
+            } catch (e) {
+              print('Error============${e}');
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Error: $e')),
+              );
+            }
+          }
         },
         child: Container(
           height: 50,

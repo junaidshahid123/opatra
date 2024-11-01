@@ -10,6 +10,7 @@ import 'UI/home/bag/bag_controller.dart';
 import 'constant/AppColors.dart';
 import 'fcm_handle.dart';
 import 'firebase_options.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 String? fcmToken;
 
@@ -19,6 +20,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Stripe.publishableKey =
+      'pk_test_51JrLuBSE6S1t50lCZVOqTtxcLAa3XidcQlVVdJVFACW4BoIAEcPHab14Wk5BnRuiKm4JOueg9vj8PpekT16MfPyG00srL7POQj'; // replace with your actual key
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   // getFCMToken();
   await initNotifications();
