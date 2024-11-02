@@ -537,89 +537,67 @@ class _BottomBarHostView extends State<BottomBarHostView> {
 
   Widget buildSocialOptions(BottomBarHostController logic) {
     return Container(
-      margin: EdgeInsets.only(top: 50),
-      child: Column(
-        children: [buildFbOption(), buildInstaOption(), buildTwitterOption()],
+      margin: EdgeInsets.only(top: 50, bottom: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start, // Center the row items
+        children: [
+          buildFbOption(),
+          SizedBox(width: 20), // Add some spacing between the icons
+          buildInstaOption(),
+          SizedBox(width: 20), // Add some spacing between the icons
+          buildTwitterOption(),
+          SizedBox(width: 20), // Add some spacing between the icons
+
+          buildYoutubeOption()
+        ],
       ),
     );
   }
 
   Widget buildFbOption() {
-    return Container(
-      // margin: EdgeInsets.only(left: 20,),
-      child: Row(
-        children: [
-          Image.asset(
-            'assets/images/fcIcon.png',
-            height: 25,
-            width: 25,
-          ),
-          SizedBox(
-            width: 10,
-          ),
-          Text(
-            'Facebook',
-            style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-                color: Color(0xFFB7A06A)),
-          )
-        ],
-      ),
+    return Image.asset(
+      'assets/images/fcIcon.png',
+      height: 25,
+      width: 25,
     );
   }
 
   Widget buildInstaOption() {
-    return Container(
-      margin: EdgeInsets.only(
-        top: 20,
-      ),
-      child: Row(
-        children: [
-          Image.asset(
-            'assets/images/instaIcon.png',
-            height: 25,
-            width: 25,
-          ),
-          SizedBox(
-            width: 10,
-          ),
-          Text(
-            'Instagram',
-            style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-                color: Color(0xFFB7A06A)),
-          )
-        ],
-      ),
+    return Image.asset(
+      'assets/images/instaIcon.png',
+      height: 25,
+      width: 25,
     );
   }
 
   Widget buildTwitterOption() {
-    return Container(
-      margin: EdgeInsets.only(
-        top: 20,
-      ),
-      child: Row(
-        children: [
-          Image.asset(
-            'assets/images/twitterIcon.png',
-            height: 25,
-            width: 25,
+    return Image.asset(
+      'assets/images/twitterIcon.png',
+      height: 25,
+      width: 25,
+    );
+  }
+
+  Widget buildYoutubeOption() {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          height: 25,
+          width: 25,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100),
+              color: AppColors.appPrimaryColor),
+        ),
+        Container(
+          margin: EdgeInsets.all(15),
+          child: Image.asset(
+            'assets/images/youtubeIcon.png',
+            height: 15,
+            width: 15,
           ),
-          SizedBox(
-            width: 10,
-          ),
-          Text(
-            'Twitter',
-            style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-                color: Color(0xFFB7A06A)),
-          )
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -1338,7 +1316,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
             Spacer(),
             buildName(logic),
             Spacer(),
-            buildCartOption(),
+            buildCartOption(logic),
             SizedBox(
               width: 5,
             ),
@@ -1378,10 +1356,10 @@ class _BottomBarHostView extends State<BottomBarHostView> {
     );
   }
 
-  Widget buildCartOption() {
+  Widget buildCartOption(BottomBarHostController logic) {
     return InkWell(
       onTap: () {
-        Get.to(() => BagView());
+        Get.to(() => BagView(logic.selectedCurrency.value));
       },
       child: Stack(
         alignment: Alignment.center,

@@ -7,7 +7,10 @@ import '../../../constant/AppColors.dart';
 import '../Payment.dart';
 
 class BagView extends StatelessWidget {
-  const BagView({super.key});
+  final String selectedCurrency; // Declare a field for the amount
+
+  // Constructor to initialize the amount
+  BagView(this.selectedCurrency, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +46,7 @@ class BagView extends StatelessWidget {
                           buildDivider(context),
                           buildTotal(logic),
                           Spacer(),
-                          buildContinueButton(context)
+                          buildContinueButton(context, logic)
                         ],
                       ),
                     ),
@@ -170,10 +173,15 @@ class BagView extends StatelessWidget {
     );
   }
 
-  Widget buildContinueButton(BuildContext context) {
+  Widget buildContinueButton(BuildContext context, BagController logic) {
     return InkWell(
       onTap: () {
-        Get.to(() => Payment());
+        print('logic.subTotal.value========${logic.subTotal.value}');
+        print('selectedCurrency========${selectedCurrency}');
+
+        String parsedCurrency =
+            selectedCurrency.isNotEmpty ? selectedCurrency : "usd";
+        Get.to(() => Payment(logic.subTotal.value, "usd"));
       },
       child: Container(
           margin: EdgeInsets.only(bottom: 20),

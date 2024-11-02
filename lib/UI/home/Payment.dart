@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:get/get.dart';
@@ -9,7 +10,11 @@ import 'package:http/http.dart'
     as http; // Add this dependency to your pubspec.yaml
 
 class Payment extends StatefulWidget {
-  const Payment({super.key});
+  final double amount; // Declare a field for the amount
+  final String currency; // Declare a field for the amount
+
+  // Constructor to initialize the amount
+  Payment(this.amount, this.currency, {super.key});
 
   @override
   State<Payment> createState() => _PaymentState();
@@ -27,91 +32,132 @@ class _PaymentState extends State<Payment> {
     'assets/images/cardDetails.png',
     'assets/images/cardDetails.png',
   ];
-  bool _ready = false;
 
   @override
   void initState() {
     super.initState();
-    // Initialize Stripe
-    Stripe.publishableKey =
-        "pk_test_51JrLuBSE6S1t50lCZVOqTtxcLAa3XidcQlVVdJVFACW4BoIAEcPHab14Wk5BnRuiKm4JOueg9vj8PpekT16MfPyG00srL7POQj";
-    Stripe.merchantIdentifier =
-        'merchant.com.yourapp'; // Set your actual merchant identifier
-    Stripe.urlScheme = 'flutterstripe'; // Optional, only needed for Apple Pay
   }
 
   Map<String, dynamic>? paymentIntent;
 
-  void makePayment() async {
-    print('Starting payment process...');
-    paymentIntent = await createPaymentIntent();
-    print('Payment Intent: $paymentIntent');
-
+  Future<void> makePayment(double amount, String selectedCurrency) async {
     try {
-      var gpay = const PaymentSheetGooglePay(
-        merchantCountryCode: "US",
-        currencyCode: "US",
-        testEnv: true,
-      );
+      // Step 1: Create the Payment Intent
+      print('amount====$amount');
+
+      // Use the received amount directly without parsing
+      final paymentIntent = await createPaymentIntent(amount, selectedCurrency);
+
+      if (paymentIntent['client_secret'] == null) {
+        throw Exception("Failed to retrieve client_secret from PaymentIntent.");
+      }
+
+      // Step 2: Initialize the Payment Sheet
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
-          paymentIntentClientSecret: paymentIntent!['client_secret'],
+          paymentIntentClientSecret: paymentIntent['client_secret'],
           merchantDisplayName: 'Opatra',
-          googlePay: gpay,
+          allowsDelayedPaymentMethods: true,
         ),
       );
-      print('Payment sheet initialized successfully');
-      displayPaymentSheet();
+
+      // Step 3: Display the Payment Sheet
+      await displayPaymentSheet();
     } catch (e) {
-      print('Error initializing payment sheet: ${e.toString()}');
-      throw Exception(e.toString());
+      print('Error in payment flow: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error during payment: $e')),
+      );
     }
   }
 
-  createPaymentIntent() async {
+  createPaymentIntent(double amount, String selectedCurrency) async {
     try {
-      Map<String, dynamic> body = {"amount": "1000", "currency": "usd"}; // Change "US" to "usd"
+      // Define the request body with all values as strings
+      String secretKey = dotenv.env['STRIPE_SECRET_KEY'] ?? '';
+      print('amount=${amount}');
+      print('selectedCurrency=${selectedCurrency}');
+
+      // Convert amount to cents and ensure it's an integer
+      int amountInCents = (amount * 100)
+          .round(); // Use round() to avoid any floating point issues
+
+      Map<String, dynamic> body = {
+        "amount": amountInCents.toString(),
+        // Send amount as a string, which is required by the API
+        "currency": selectedCurrency,
+        "payment_method_types[]": "card",
+      };
+
+      // Make the POST request to Stripe API
       http.Response response = await http.post(
         Uri.parse("https://api.stripe.com/v1/payment_intents"),
         body: body,
         headers: {
-          "Authorization": "Bearer sk_test_51JrLuBSE6S1t50lC7SUzctTxvWLEjdQzzhqTSFPF2jrq5PtDIjJYavIMWOZHEnt8BeDAevWcoalM6rtkf31ILYEG00KMOfXPX7",
+          "Authorization": "Bearer ${secretKey}",
           "Content-Type": "application/x-www-form-urlencoded",
         },
       );
 
-      print('Response from payment intent creation: ${response.body}');
-
-      if (response.statusCode != 200) {
-        throw Exception('Failed to create payment intent: ${response.body}');
+      if (response.statusCode == 200) {
+        final paymentIntent = json.decode(response.body);
+        print("Payment Intent Status: ${paymentIntent['status']}");
+        return paymentIntent;
+      } else {
+        print("Error in response: ${response.body}");
+        throw Exception("Failed to create payment intent: ${response.body}");
       }
-
-      return json.decode(response.body);
     } catch (e) {
       print('Error creating payment intent: ${e.toString()}');
-      throw Exception(e.toString());
+      throw Exception(
+          "Exception during payment intent creation: ${e.toString()}");
     }
   }
 
   displayPaymentSheet() async {
     try {
-      await Stripe.instance.presentPaymentSheet();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Payment completed successfully!')),
-      );
-    } on StripeException catch (e) {
-      print('Error============${e}');
+      await Stripe.instance.presentPaymentSheet().then((value) {
+        showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 100.0,
+                      ),
+                      SizedBox(height: 10.0),
+                      Text("Payment Successful!"),
+                    ],
+                  ),
+                ));
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                'Error presenting payment sheet: ${e.error.localizedMessage}')),
+        paymentIntent = null;
+      }).onError((error, stackTrace) {
+        throw Exception(error);
+      });
+    } on StripeException catch (e) {
+      print('Error is:---> $e');
+      AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: const [
+                Icon(
+                  Icons.cancel,
+                  color: Colors.red,
+                ),
+                Text("Payment Failed"),
+              ],
+            ),
+          ],
+        ),
       );
     } catch (e) {
-      print('Error============${e}');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      print('$e');
     }
   }
 
@@ -269,7 +315,7 @@ class _PaymentState extends State<Payment> {
         onTap: () async {
           card.value = true;
           wallet.value = false;
-          makePayment();
+          makePayment(widget.amount, widget.currency.toString());
         },
         child: Container(
           height: 50,

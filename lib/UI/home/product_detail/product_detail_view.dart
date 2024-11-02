@@ -263,7 +263,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
               selectedCurrency: widget.currency);
           controller.addToBag(productToAdd, widget.currency);
 
-          Get.to(() => BagView());
+          Get.to(() => BagView(widget.currency));
         } else {
           print('No product found to add to the bag.');
         }
@@ -370,19 +370,19 @@ class _ProductDetailViewState extends State<ProductDetailView> {
     String price;
     if (widget.currency == 'US Dollar') {
       price = (controller.mdProductDetail!.product!.variants != null &&
-          controller.mdProductDetail!.product!.variants!.length >
-              usDollarIndex)
+              controller.mdProductDetail!.product!.variants!.length >
+                  usDollarIndex)
           ? '\$ ${controller.mdProductDetail!.product!.variants![usDollarIndex].price ?? '0.00'} USD'
           : '\$ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} ';
     } else if (widget.currency == 'Euro') {
       price = (controller.mdProductDetail!.product!.variants != null &&
-          controller.mdProductDetail!.product!.variants!.length > euroIndex)
+              controller.mdProductDetail!.product!.variants!.length > euroIndex)
           ? '€ ${controller.mdProductDetail!.product!.variants![euroIndex].price ?? '0.00'} Euro'
           : '€ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'}';
     } else {
       price = (controller.mdProductDetail!.product!.variants != null &&
-          controller.mdProductDetail!.product!.variants!.length >
-              poundIndex)
+              controller.mdProductDetail!.product!.variants!.length >
+                  poundIndex)
           ? '£ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} Pound'
           : '£ 0.00 Pound';
     }
