@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -19,17 +21,17 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
 }
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // getFCMToken();
-  await initNotifications();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await FirebaseMessaging.instance.requestPermission();
   Get.put(BagController());
   await dotenv.load(fileName: ".env"); // Make sure the file name is correct
   Stripe.publishableKey = dotenv.env['STRIPE_PUBLISH_KEY']!;
   Stripe.instance.applySettings();
+  HttpOverrides.global = MyHttpOverrides();
   runApp(const MyApp());
 }
 
@@ -55,6 +57,7 @@ Future<String?> getFCMToken() async {
   return token;
 }
 
+
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -63,61 +66,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  final _messagingService = MessagingService();
-  RemoteMessage? _initialMessage;
-  bool _isSplashDone = false;
-
-  @override
-  void initState() {
-    _messagingService.init(context);
-    super.initState();
-    _setupInteractedMessage();
-    WidgetsBinding.instance
-        .addObserver(this); // Add observer for lifecycle changes
-  }
-
-  void _setupInteractedMessage() async {
-    // Get the initial message
-    _initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-
-    // If the initial message is not null, it means the app was opened via a notification
-    if (_initialMessage != null) {
-      _navigateToInitialRoute();
-    }
-
-    // Handle interaction when app is in background
-    FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      _handleMessage(message);
-    });
-  }
-
-  void _navigateToInitialRoute() {
-    if (_isSplashDone && _initialMessage != null) {
-      _handleMessage(_initialMessage!);
-    }
-  }
-
-  Future<void> _handleMessage(RemoteMessage message) async {
-    // Navigate to the desired screen with the message data
-    if (message.notification?.title == 'New request') {
-      // Get.to(() => FindTripOnline(message: message));
-    } else if (message.notification?.title == 'Accept Offer') {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('acceptOffer', true);
-      await prefs.setString('isStart', '1');
-      await prefs.setString('isEnd', '0');
-      // Get.offAll(() => DriverRequestNotificationScreen(message: message));
-    } else if (message.notification?.title == 'New Message') {
-      // Get.to(() => ChatPage(message: message));
-    }
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance
-        .removeObserver(this); // Remove observer to prevent memory leaks
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,5 +88,13 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           ),
           home: SplashScreen());
     });
+  }
+}
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
   }
 }

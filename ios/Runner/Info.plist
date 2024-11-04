@@ -1,60 +1,73 @@
+
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>FirebaseAppDelegateProxyEnabled</key>
-    <string>0</string>
-    <key>CFBundleDevelopmentRegion</key>
-    <string>$(DEVELOPMENT_LANGUAGE)</string>
-    <key>CFBundleDisplayName</key>
-    <string>Opatra</string>
-    <key>CFBundleExecutable</key>
-    <string>$(EXECUTABLE_NAME)</string>
-    <key>CFBundleIdentifier</key>
-    <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-    <key>CFBundleInfoDictionaryVersion</key>
-    <string>6.0</string>
-    <key>CFBundleName</key>
-    <string>opatra</string>
-    <key>CFBundlePackageType</key>
-    <string>APPL</string>
-    <key>CFBundleShortVersionString</key>
-    <string>$(FLUTTER_BUILD_NAME)</string>
-    <key>CFBundleSignature</key>
-    <string>????</string>
-    <key>CFBundleVersion</key>
-    <string>$(FLUTTER_BUILD_NUMBER)</string>
-    <key>LSRequiresIPhoneOS</key>
-    <true/>
-    <key>UILaunchStoryboardName</key>
-    <string>LaunchScreen</string>
-    <key>UIMainStoryboardFile</key>
-    <string>Main</string>
-    <key>NSAppTransportSecurity</key>
-    <dict>
-        <key>NSAllowsArbitraryLoads</key>
-        <true/>
-    </dict>
-
-    <key>UISupportedInterfaceOrientations</key>
-    <array>
-        <string>UIInterfaceOrientationPortrait</string>
-        <string>UIInterfaceOrientationLandscapeLeft</string>
-        <string>UIInterfaceOrientationLandscapeRight</string>
-    </array>
-
-    <!-- Privacy Usage Descriptions -->
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>This app requires access to the photo library to enhance user experience, as needed by third-party services.</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>This app does not use the microphone, but it is required by third-party services.</string>
-    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-    <string>This app does not use location services, but it is required by third-party services.</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>This app does not use location services, but it is required by third-party services.</string>
-    <key>CADisableMinimumFrameDurationOnPhone</key>
-    <true/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Opatra</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Opatra</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
+	<key>INIntentsSupported</key>
+	<array>
+		<string>Intent</string>
+	</array>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.productivity</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+    <false/>
     <key>UIApplicationSupportsIndirectInputEvents</key>
     <true/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app does not use location services, but it is required by third-party services.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This app does not use location services, but it is required by third-party services.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app does not use the microphone, but it is required by third-party services.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app requires access to the photo library to enhance user experience, as needed by third-party services.</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
 </dict>
 </plist>

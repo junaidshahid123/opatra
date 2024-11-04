@@ -1,11 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:opatra/main.dart';
 import '../constant/AppColors.dart';
 import '../controllers/splash_controller.dart';
+import '../fcm_handle.dart';
 
-class SplashScreen extends StatelessWidget {
+class SplashScreen extends StatefulWidget {
   SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+
+  NotificationServices notificationServices = NotificationServices();
+  @override
+  void initState() {
+    notificationServices.requestNotificationPermission();
+    notificationServices.firebaseInit();
+    notificationServices.foregroundMessage();
+    notificationServices.getToken().then((value) {
+      setState(() {
+        fcmToken = value;
+      });
+      print("device token1 $value");
+      print("device token2 $fcmToken");
+    });
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
