@@ -33,6 +33,7 @@ void main() async {
   runApp(const MyApp());
 }
 
+
 final _firebaseMessaging = FirebaseMessaging.instance;
 
 Future<void> initNotifications() async {
