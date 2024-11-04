@@ -14,7 +14,7 @@ import 'firebase_options.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 
 String? fcmToken;
-
+@pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
 }
@@ -30,7 +30,6 @@ void main() async {
   await dotenv.load(fileName: ".env"); // Make sure the file name is correct
   Stripe.publishableKey = dotenv.env['STRIPE_PUBLISH_KEY']!;
   Stripe.instance.applySettings();
-
   runApp(const MyApp());
 }
 

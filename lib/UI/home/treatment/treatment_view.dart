@@ -117,22 +117,22 @@ class TreatmentView extends StatelessWidget {
             itemCount: logic.mdGetDevices.value!.data!.length,
             itemBuilder: (context, index) {
               final device = logic.mdGetDevices.value!.data![index];
-
-              // Print the device ID and image URL for debugging
-              print('Device ID: ${device.id}, Image URL: ${device.imageUrl}');
-              print('device.time =====${device.days![0].time}');
-              print('device.areas =====${device.days![0].areas}');
-              // Assuming device.days![0].areas is a String like "1,2,3,4"
               String areasString = device.days![0].areas!;
-              List<int> selectedAreasList = areasString.split(',').map(int.parse).toList();
-
+              List<int> selectedAreasList =
+                  areasString.split(',').map(int.parse).toList();
 
               return InkWell(
                 onTap: () async {
-                  print('selectedAreasList=========${selectedAreasList}');
-                  // Uncomment and implement your device selection logic here
-                  Get.to(() => Treatment1View(selectedTime:device.days![0].time,selectedAreasList:selectedAreasList ,));
+                  // print('selectedAreasList=========${selectedAreasList}');
+                  // print('selectedTime:device.days![0].time=========${device.days![0].time}');
+                  print('device.productId=========${device.productId}');
 
+                  // Uncomment and implement your device selection logic here
+                  Get.to(() => Treatment1View(
+                        id: int.parse(device.productId.toString()),
+                        selectedTime: device.days![0].time,
+                        selectedAreasList: selectedAreasList,
+                      ));
                 },
                 child: Column(
                   children: [

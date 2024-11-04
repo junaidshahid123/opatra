@@ -17,8 +17,6 @@ class CreateScheduleController extends GetxController {
   RxBool saturday = false.obs;
   String selectedTime = ''; // Observable for storing selected time
   var selectedTimes = List.generate(7, (index) => ''.obs);
-  
-  
 
   @override
   void onInit() {
@@ -26,13 +24,12 @@ class CreateScheduleController extends GetxController {
     super.onInit();
     getDevice();
   }
-  
-  void updateTime(BuildContext context,TimeOfDay selectedTimeA){
+
+  void updateTime(BuildContext context, TimeOfDay selectedTimeA) {
     selectedTime = selectedTimeA
         .format(context); // Store the selected time in the controller
     print('Selected Time: ${selectedTimeA.format(context)}');
     update();
-
   }
 
   // List to store selected days
@@ -52,7 +49,9 @@ class CreateScheduleController extends GetxController {
   void onSaveClick() {
     print('selectedTime=====${selectedTime}');
     print('storedDevice.value!.title=====${storedDevice.value!.title}');
-    print(' storedDevice.value!.id=====${ storedDevice.value!.id}');
+    print('storedDevice.value!.id=====${storedDevice.value!.id}');
+
+    // Navigate to CalendarView and pass the arguments
     Get.to(
       () => CalenderView(),
       arguments: {
@@ -61,6 +60,11 @@ class CreateScheduleController extends GetxController {
         'id': storedDevice.value!.id,
       },
     );
+
+    // Reset selectedTime after the data transfer
+    selectedTime = "";
+    print(
+        'selectedTime reset to: $selectedTime'); // Optional: Print to confirm the reset
   }
 
   Future<void> getDevice() async {

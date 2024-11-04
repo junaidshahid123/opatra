@@ -1,10 +1,16 @@
 import 'dart:async';
-
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:opatra/UI/home/treatment1/treatment1_logic.dart';
 import 'package:opatra/constant/AppColors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import '../../../constant/AppLinks.dart';
+import '../../../models/MDProductDetail.dart';
 
 class Treatment1View extends StatefulWidget {
   final List<int>? selectedAreasList;
@@ -33,40 +39,105 @@ class _Treatment1ViewState extends State<Treatment1View> {
       'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. '
       'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ';
   late Treatment1Controller logic;
-  late int _remainingTime; // In seconds
-  late Timer _timer;
+  int _remainingTime = 0; // Initialize with default value
+  Timer? _timer; // Make the timer nullable
   bool _isRunning = true; // Initial state: timer is running
 
   @override
   void initState() {
     super.initState();
+
+    // Initialize the controller
     logic = Get.put(Treatment1Controller());
 
     // Initialize selected areas based on passed selectedAreasList
     if (widget.selectedAreasList != null) {
       for (int area in widget.selectedAreasList!) {
-        logic.selectedAreas[area] = true; // Mark areas as selected
+        logic.selectedAreas[area] = true;
       }
     }
-    _initializeTimer();
+
+    // Check for a valid selectedTime and initialize the timer if valid
+    if (widget.selectedTime != null && widget.selectedTime!.isNotEmpty) {
+      print('widget.selectedTime: ${widget.selectedTime}');
+      _initializeTimer();
+    } else {
+      print("No valid time provided for the timer.");
+    }
+
+    // Fetch product details asynchronously
+    logic.fetchProductDetails(widget.id!);
   }
 
+
   void _initializeTimer() {
-    final parts = widget.selectedTime!.split(':');
-    final minutes = int.parse(parts[0]);
-    final seconds = int.parse(parts[1]);
+    try {
+      // Get the raw time string
+      String timeString = widget.selectedTime?.trim() ?? '';
+      print("Raw time string: '$timeString'");
 
-    _remainingTime = (minutes * 60) + seconds; // Convert to total seconds
+      // Clean up the string to remove any non-standard characters
+      timeString = timeString.replaceAll(RegExp(r'[^\d: ]'), ''); // Keep only digits, colons, and spaces
+      timeString = timeString.replaceAll(RegExp(r'\s+'), ' ').trim(); // Remove additional spaces
+      print("Cleaned time string: '$timeString'");
 
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (_remainingTime > 0) {
-        setState(() {
-          _remainingTime--;
-        });
-      } else {
-        _timer.cancel(); // Stop the timer when it reaches zero
+      // Initialize a variable to hold the parsed time
+      DateTime? parsedTime;
+
+      // Define potential time formats
+      List<String> timeFormats = [
+        'HH:mm', // 24-hour format
+        'hh:mm a', // 12-hour format with AM/PM
+        'h:mm a', // 12-hour format (single digit hour)
+        'hh:mm', // 12-hour format without AM/PM
+      ];
+
+      // Try parsing the time string with each format
+      for (String format in timeFormats) {
+        try {
+          if (format.contains('a')) {
+            // Handle AM/PM formats by appending "AM" or "PM" if necessary
+            if (!timeString.toLowerCase().contains('am') && !timeString.toLowerCase().contains('pm')) {
+              parsedTime = DateFormat(format).parse(timeString + ' AM'); // Default to AM if not provided
+            } else {
+              parsedTime = DateFormat(format).parse(timeString);
+            }
+          } else {
+            // Directly parse for 24-hour and 12-hour formats without AM/PM
+            parsedTime = DateFormat(format).parse(timeString);
+          }
+          // Break the loop if parsing is successful
+          break;
+        } catch (e) {
+          // Continue to try the next format
+          print("Failed to parse with format '$format': $e");
+          parsedTime = null;
+        }
       }
-    });
+
+      // Check if the time was parsed successfully
+      if (parsedTime != null) {
+        // Get the current time
+        DateTime now = DateTime.now();
+        DateTime todayParsedTime = DateTime(now.year, now.month, now.day, parsedTime.hour, parsedTime.minute);
+
+        // Calculate the remaining time in seconds
+        if (todayParsedTime.isAfter(now)) {
+          _remainingTime = todayParsedTime.difference(now).inSeconds;
+        } else {
+          // If the selected time has already passed today, set it for the next day
+          todayParsedTime = todayParsedTime.add(Duration(days: 1));
+          _remainingTime = todayParsedTime.difference(now).inSeconds;
+        }
+
+        _startTimer();
+      } else {
+        throw FormatException('Invalid time format');
+      }
+    } catch (e) {
+      print("Error parsing time: $e");
+      _remainingTime = 0;
+    }
   }
 
   void _startTimer() {
@@ -76,7 +147,7 @@ class _Treatment1ViewState extends State<Treatment1View> {
           _remainingTime--;
         });
       } else {
-        _timer.cancel(); // Stop timer when it reaches zero
+        _timer!.cancel(); // Stop timer when it reaches zero
       }
     });
   }
@@ -90,7 +161,7 @@ class _Treatment1ViewState extends State<Treatment1View> {
   void _toggleTimer() {
     setState(() {
       if (_isRunning) {
-        _timer.cancel(); // Pause the timer
+        _timer!.cancel(); // Pause the timer
       } else {
         _startTimer(); // Resume the timer
       }
@@ -100,8 +171,21 @@ class _Treatment1ViewState extends State<Treatment1View> {
 
   @override
   void dispose() {
-    _timer.cancel(); // Cancel the timer when the widget is disposed
+    print(
+        "Dispose method started."); // Indicate the start of the dispose process
+
+    // Cancel the timer only if it's running and not null
+    if (_timer != null && _timer!.isActive) {
+      _timer!.cancel();
+      print("Timer canceled."); // Indicate the timer has been canceled
+    } else {
+      print(
+          "Timer was not active, no cancellation needed."); // Indicate the timer was not active
+    }
+
     super.dispose();
+    print(
+        "Dispose method finished."); // Indicate the end of the dispose process
   }
 
   @override
@@ -147,7 +231,7 @@ class _Treatment1ViewState extends State<Treatment1View> {
                   bottom: 0,
                   child: Container(
                     width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height / 3.4,
+                    height: MediaQuery.of(context).size.height / 3,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.only(
@@ -197,7 +281,7 @@ class _Treatment1ViewState extends State<Treatment1View> {
                                                 height: 15,
                                                 width: 15,
                                                 child: Image.asset(
-                                                    _isRunning
+                                                  _isRunning
                                                       ? 'assets/images/pauseIcon.png' // Show pause icon if running
                                                       : 'assets/images/playIcon.png', // Show play icon if paused),
                                                 ),
@@ -214,14 +298,16 @@ class _Treatment1ViewState extends State<Treatment1View> {
                                 logic: logic,
                               ),
                         widget.selectedAreasList != null
-                            ? Container(
-                                margin: EdgeInsets.only(
-                                    left: 20, right: 20, top: 20),
-                                child: Text(
-                                  dummyTextShort,
-                                  style: TextStyle(
-                                      color: AppColors.appHistoryDateTextColor),
-                                ))
+                            ? (logic.mdProductDetail != null
+                                ? ProductDescriptionWidget(
+                                    description: logic
+                                        .mdProductDetail!.product!.bodyHtml!,
+                                  )
+                                : Center(
+                                    child: CircularProgressIndicator(
+                                      color: AppColors.appPrimaryColor,
+                                    ), // Show loader if mdProductDetail is null
+                                  ))
                             : Container(),
                         Spacer(),
                         widget.selectedAreasList == null
@@ -553,17 +639,17 @@ class _Treatment1ViewState extends State<Treatment1View> {
       BuildContext context, Treatment1Controller logic) {
     return Obx(() => InkWell(
           onTap: () {
-            // print(logic.selectedAreasList.length);
-            // print(widget.selectedDays!.length);
-            // print(widget.selectedTime);
-            // print(widget.title);
-            // print(widget.id);
+            print(logic.selectedAreasList.length);
+            print(widget.selectedDays!.length);
+            print(widget.selectedTime);
+            print(widget.title);
+            print(widget.id);
             logic.deviceSchedule(widget.selectedTime!, widget.id!,
                 widget.title!, widget.selectedDays!);
             // Navigate to the next screen
           },
           child: Container(
-              margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+              margin: EdgeInsets.only(bottom: 10, left: 20, right: 20),
               width: MediaQuery.of(context).size.width,
               height: 45,
               decoration: BoxDecoration(
@@ -586,6 +672,72 @@ class _Treatment1ViewState extends State<Treatment1View> {
                               fontWeight: FontWeight.w600, fontSize: 16),
                         ))),
         ));
+  }
+}
+
+class ProductDescriptionWidget extends StatefulWidget {
+  final String description;
+
+  ProductDescriptionWidget({required this.description});
+
+  @override
+  _ProductDescriptionWidgetState createState() =>
+      _ProductDescriptionWidgetState();
+}
+
+class _ProductDescriptionWidgetState extends State<ProductDescriptionWidget> {
+  bool showFullText = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(
+        left: 20,
+        right: 20,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Fixed height container for scrollable HTML content
+          SizedBox(
+            height: 100, // Adjust the height as needed
+            child: SingleChildScrollView(
+              physics: showFullText ? null : NeverScrollableScrollPhysics(),
+              child: HtmlWidget(
+                widget.description,
+                textStyle: TextStyle(
+                  color: AppColors.appHistoryDateTextColor,
+                ),
+                // Adjust this to limit lines based on the showFullText toggle
+                customStylesBuilder: (element) {
+                  return showFullText
+                      ? {}
+                      : {
+                          'maxLines': '4',
+                          'textOverflow': 'ellipsis',
+                        };
+                },
+              ),
+            ),
+          ),
+          SizedBox(height: 2),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                showFullText = !showFullText;
+              });
+            },
+            child: Text(
+              showFullText ? 'Show Less' : 'Show More',
+              style: TextStyle(
+                color: AppColors.appPrimaryBlackColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

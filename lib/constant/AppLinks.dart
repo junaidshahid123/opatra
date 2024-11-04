@@ -1,6 +1,6 @@
 class ApiUrls {
   // Base API URL
-  static const String baseUrl = 'https://opatra.fai-tech.online/api';
+  static const String baseUrl = 'https://opatra.app/api';
 
   // Authentication-related URLs
   static const String loginUrl = '$baseUrl/login';

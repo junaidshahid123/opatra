@@ -25,6 +25,7 @@ class CreateScheduleView extends StatelessWidget {
   }
 
   Widget buildDetails(BuildContext context, CreateScheduleController logic) {
+    print('logic.selectedTime======${logic.selectedTime}');
     return Container(
       margin: EdgeInsets.only(right: 20, left: 20, top: 20),
       child: Column(
@@ -129,9 +130,7 @@ class CreateScheduleView extends StatelessWidget {
 
           // If a time is selected, handle it accordingly
           if (selectedTimeA != null) {
-            // logic.selectedTime = selectedTimeA
-            //     .format(context); // Store the selected time in the controller
-            // print('Selected Time: ${selectedTimeA.format(context)}');
+            print('Selected Time: ${selectedTimeA.format(context)}');
             logic.updateTime(context,selectedTimeA);
 
           }
