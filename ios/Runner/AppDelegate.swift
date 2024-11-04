@@ -7,10 +7,10 @@ import FirebaseMessaging
 @objc class AppDelegate: FlutterAppDelegate, MessagingDelegate {
 
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-
+        
         // Initialize Firebase
         FirebaseApp.configure()
-
+        
         // Register for remote notifications
         if #available(iOS 10.0, *) {
             UNUserNotificationCenter.current().delegate = self
@@ -28,13 +28,13 @@ import FirebaseMessaging
             application.registerUserNotificationSettings(settings)
             application.registerForRemoteNotifications()
         }
-
+        
         // Register FCM plugin
         GeneratedPluginRegistrant.register(with: self)
-
+        
         // Set FCM delegate
         Messaging.messaging().delegate = self
-
+        
         // Retrieve FCM token
         Messaging.messaging().token { token, error in
             if let error = error {
@@ -44,10 +44,10 @@ import FirebaseMessaging
                 // Optionally send the token to your application server here
             }
         }
-
+        
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
-
+    
     // FCM Token Retrieval
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         print("Firebase registration token: \(String(describing: fcmToken))")
@@ -58,10 +58,10 @@ import FirebaseMessaging
             object: nil,
             userInfo: dataDict
         )
-
+        
         // Optionally send token to application server here
     }
-
+    
     // Handle incoming notifications when the app is in the foreground
     override func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         completionHandler([[.alert, .sound, .badge]])
