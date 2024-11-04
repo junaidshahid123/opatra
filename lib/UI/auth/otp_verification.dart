@@ -6,6 +6,7 @@ import 'package:opatra/UI/auth/new_password.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:http/http.dart' as http;
 import 'package:opatra/constant/AppLinks.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../home/bottom_bar_host/bottom_bar_host_logic.dart';
 import '../home/bottom_bar_host/bottom_bar_host_view.dart';
 
@@ -50,7 +51,9 @@ class _OtpVerificationState extends State<OtpVerification> {
 
         final Map<String, dynamic> responseData = json.decode(response.body);
         print('responseData========${responseData}');
-
+        var emailverified = responseData['email_verified_at'] ?? "";
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('emailverified', emailverified);
         // Extract token, name, and email
         // var token = responseData['authorization']['token'] ?? "";
         // var userName = responseData['user']['name'] ?? ""; // Fallback to empty string

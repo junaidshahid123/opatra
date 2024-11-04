@@ -647,8 +647,8 @@ class BottomBarHostController extends GetxController {
     mdProductsByCategory = null;
     searchQuery.value = '';
     isLoading.value = true;
-    final url = Uri.parse('${ApiUrls.baseUrl}/category/${id}/products');
-
+    //final url = Uri.parse('${ApiUrls.baseUrl}/category/${id}/products');
+    final url = Uri.parse('https://opatra.app/api/category/${id}/products');
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
     if (token == null || token.isEmpty) {
@@ -718,7 +718,7 @@ class BottomBarHostController extends GetxController {
   }
 
   Future<void> fetchAllVideos() async {
-    final url = Uri.parse('https://opatra.fai-tech.online/api/video');
+    final url = Uri.parse('https://opatra.app/api/video');
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');

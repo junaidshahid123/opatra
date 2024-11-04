@@ -1030,7 +1030,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                     // Access 'thumbnail' using dot notation
                     video.thumbnail != null
                         ? Image.network(
-                            "https://opatra.fai-tech.online/${video.thumbnail}",
+                            "${video.thumbnail}",
                             fit: BoxFit.fill,
                             width: double.infinity,
                             height: double.infinity,
@@ -2044,13 +2044,20 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                         left: 100,
                         top: 10,
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Image.network(
-                            logic.mdAllBanners!.data![index].imageUrl!,
-                            fit: BoxFit
-                                .contain, // Ensure the image covers the entire container
-                          ),
-                        ),
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.network(
+                              logic.mdAllBanners!.data![index].imageUrl!,
+                              fit: BoxFit.contain,
+                              // Ensure the image covers the entire container
+                              errorBuilder: (BuildContext context, Object error,
+                                  StackTrace? stackTrace) {
+                                return Image.asset(
+                                  'assets/images/skinCareDummy.png',
+                                  // Path to your placeholder image
+                                  fit: BoxFit.contain,
+                                );
+                              },
+                            )),
                       ),
                       Positioned(
                         top: 20,

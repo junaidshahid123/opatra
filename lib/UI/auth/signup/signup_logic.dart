@@ -75,6 +75,7 @@ class SignUpLogic extends GetxController {
         var userName = responseData['user']['name'] ?? "";
         var userEmail = responseData['user']['email'] ?? "";
 
+
         // Store the data in SharedPreferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', token);
