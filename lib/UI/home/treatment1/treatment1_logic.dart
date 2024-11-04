@@ -221,7 +221,7 @@ class Treatment1Controller extends GetxController {
           Get.snackbar(
             'Success',
             'Request Submitted Successfully',
-            backgroundColor: AppColors.appPrimaryBlackColor,
+            backgroundColor: AppColors.appPrimaryColor,
           );
           Get.offAll(BottomBarHostView());
         } else {
