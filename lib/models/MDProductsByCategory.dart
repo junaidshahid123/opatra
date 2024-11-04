@@ -159,8 +159,7 @@ class Images {
   String? src;
 
   Images(
-      {this.id,
-      this.alt,
+      {this.id, this.alt,
       this.position,
       this.productId,
       this.createdAt,

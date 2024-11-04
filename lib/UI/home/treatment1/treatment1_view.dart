@@ -69,7 +69,6 @@ class _Treatment1ViewState extends State<Treatment1View> {
     logic.fetchProductDetails(widget.id!);
   }
 
-
   void _initializeTimer() {
     try {
       // Get the raw time string
@@ -77,8 +76,11 @@ class _Treatment1ViewState extends State<Treatment1View> {
       print("Raw time string: '$timeString'");
 
       // Clean up the string to remove any non-standard characters
-      timeString = timeString.replaceAll(RegExp(r'[^\d: ]'), ''); // Keep only digits, colons, and spaces
-      timeString = timeString.replaceAll(RegExp(r'\s+'), ' ').trim(); // Remove additional spaces
+      timeString = timeString.replaceAll(
+          RegExp(r'[^\d: ]'), ''); // Keep only digits, colons, and spaces
+      timeString = timeString
+          .replaceAll(RegExp(r'\s+'), ' ')
+          .trim(); // Remove additional spaces
       print("Cleaned time string: '$timeString'");
 
       // Initialize a variable to hold the parsed time
@@ -97,8 +99,10 @@ class _Treatment1ViewState extends State<Treatment1View> {
         try {
           if (format.contains('a')) {
             // Handle AM/PM formats by appending "AM" or "PM" if necessary
-            if (!timeString.toLowerCase().contains('am') && !timeString.toLowerCase().contains('pm')) {
-              parsedTime = DateFormat(format).parse(timeString + ' AM'); // Default to AM if not provided
+            if (!timeString.toLowerCase().contains('am') &&
+                !timeString.toLowerCase().contains('pm')) {
+              parsedTime = DateFormat(format)
+                  .parse(timeString + ' AM'); // Default to AM if not provided
             } else {
               parsedTime = DateFormat(format).parse(timeString);
             }
@@ -119,7 +123,8 @@ class _Treatment1ViewState extends State<Treatment1View> {
       if (parsedTime != null) {
         // Get the current time
         DateTime now = DateTime.now();
-        DateTime todayParsedTime = DateTime(now.year, now.month, now.day, parsedTime.hour, parsedTime.minute);
+        DateTime todayParsedTime = DateTime(
+            now.year, now.month, now.day, parsedTime.hour, parsedTime.minute);
 
         // Calculate the remaining time in seconds
         if (todayParsedTime.isAfter(now)) {
@@ -749,16 +754,16 @@ class TreatmentListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: EdgeInsets.only(top: 10),
       height: 100,
       width: MediaQuery.of(context).size.width,
       child: Center(
         child: SizedBox(
           height: 100,
           width: MediaQuery.of(context).size.width * 0.9,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: logic.selectedAreas.keys.length,
-            itemBuilder: (context, index) {
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center, // Center the items
+            children: List.generate(logic.selectedAreas.keys.length, (index) {
               int area = logic.selectedAreas.keys.elementAt(index);
               final bool isSelected = logic.isAreaSelected(area);
 
@@ -769,11 +774,11 @@ class TreatmentListWidget extends StatelessWidget {
                 child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 10),
                   width: 60,
+                  height: 60, // Ensure equal height and width for circle shape
                   decoration: BoxDecoration(
                     color: isSelected ? Color(0xFFB7A06A) : Colors.transparent,
                     border: Border.all(
-                      color:
-                          isSelected ? Colors.transparent : Color(0xFFC9CBCF),
+                      color: isSelected ? Colors.transparent : Color(0xFFC9CBCF),
                       width: 2,
                     ),
                     shape: BoxShape.circle,
@@ -790,7 +795,7 @@ class TreatmentListWidget extends StatelessWidget {
                   ),
                 ),
               );
-            },
+            }),
           ),
         ),
       ),

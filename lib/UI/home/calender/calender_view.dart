@@ -9,13 +9,19 @@ import '../treatment1/treatment1_view.dart';
 class CalenderView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Accessing the arguments passed to this view
     final args = Get.arguments;
 
-    // Extracting the necessary values from the arguments
-    final String selectedTime = args['selectedTime'];
-    final String title = args['title'];
-    final int id = args['id'];
+// Check if args is null
+    if (args == null) {
+      // Handle the case when no arguments were passed, maybe navigate back or show a message
+      return Center(child: Text('No arguments were passed.'));
+    }
+
+// Extracting the necessary values from the arguments
+    final String selectedTime = args['selectedTime'] ?? 'Default Time'; // Provide a default value
+    final String title = args['title'] ?? 'Default Title'; // Provide a default value
+    final int id = args['id'] ?? 0; // Provide a default value
+
     return GetBuilder<CalenderController>(
         init: CalenderController(),
         builder: (logic) {

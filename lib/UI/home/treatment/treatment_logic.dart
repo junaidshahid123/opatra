@@ -176,7 +176,7 @@ class TreatmentController extends GetxController {
   /// Fetches the image URL for a specific device based on its ID
   Future<String?> fetchImageUrlForDevice(String deviceId) async {
     final url = Uri.parse(
-        "https://opatra.app/api/product/$deviceId/images");
+        "https://opatra.fai-tech.online/api/product/$deviceId/images");
 
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
