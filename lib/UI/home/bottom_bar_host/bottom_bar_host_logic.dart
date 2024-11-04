@@ -647,7 +647,7 @@ class BottomBarHostController extends GetxController {
     mdProductsByCategory = null;
     searchQuery.value = '';
     isLoading.value = true;
-    final url = Uri.parse('${ApiUrls.baseUrl}/category/${id}/products');
+    final url = Uri.parse('https://opatra.app/api/category/${id}/products');
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
