@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:opatra/UI/auth/new_password.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:http/http.dart' as http;
+import 'package:opatra/constant/AppLinks.dart';
 import '../home/bottom_bar_host/bottom_bar_host_logic.dart';
 import '../home/bottom_bar_host/bottom_bar_host_view.dart';
 
@@ -25,7 +26,6 @@ class _OtpVerificationState extends State<OtpVerification> {
 
   Future<void> verifyOtp(String otp) async {
     isLoading.value = true;
-    final String url = 'https://opatra.fai-tech.online/api/verify-otp';
 
     Map<String, String> requestBody = {
       "email": widget.email,
@@ -39,7 +39,7 @@ class _OtpVerificationState extends State<OtpVerification> {
     try {
       final client = http.Client();
       final http.Response response = await client.post(
-        Uri.parse(url),
+        Uri.parse(ApiUrls.verifyOtp),
         headers: headers,
         body: requestBody,
       );

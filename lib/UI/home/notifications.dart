@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:opatra/constant/AppLinks.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/NotifcationModel.dart';
 
@@ -25,7 +26,7 @@ Future<List<NotificationModel>> getNotifications() async {
     "Authorization": "Bearer $token", // Include the Bearer token in headers
   };
   final response = await http.get(
-      Uri.parse('https://opatra.fai-tech.online/api/user-notifications'),
+      Uri.parse(ApiUrls.userNotifications),
       headers: headers);
 
   if (response.statusCode == 200) {

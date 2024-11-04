@@ -8,6 +8,8 @@ import 'package:opatra/constant/AppColors.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../constant/AppLinks.dart';
+
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});
 
@@ -31,7 +33,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
   Future<void> forgotPassword() async {
     isLoading.value = true;
-    final String url = 'https://opatra.fai-tech.online/api/forgot-password';
 
     // Retrieve token from SharedPreferences
     // SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -55,7 +56,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     try {
       final client = http.Client();
       final http.Response response = await client.post(
-        Uri.parse(url),
+        Uri.parse(ApiUrls.forgotPassword),
         headers: headers,
         body: requestBody,
       );

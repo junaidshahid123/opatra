@@ -16,11 +16,11 @@ import 'firebase_options.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 
 String? fcmToken;
+
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
 }
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,29 +35,6 @@ void main() async {
   runApp(const MyApp());
 }
 
-
-final _firebaseMessaging = FirebaseMessaging.instance;
-
-Future<void> initNotifications() async {
-  await _firebaseMessaging.requestPermission();
-  fcmToken = await _firebaseMessaging.getToken();
-  print('fcmToken>>>>>>>>>>>>>>>>>>>>>>>${fcmToken}<<<<<<<<<<<<<<<<<<<<<<<<<');
-}
-
-Future<String?> getFCMToken() async {
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-
-  // Request permission to receive notifications
-  await messaging.requestPermission();
-
-  // Get the token
-  String? token = await messaging.getToken();
-  fcmToken = token;
-  print('fcmToken==${fcmToken}');
-  return token;
-}
-
-
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -66,7 +43,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(builder: (context, child) {
@@ -95,6 +71,7 @@ class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
     return super.createHttpClient(context)
-      ..badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }

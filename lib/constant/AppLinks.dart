@@ -7,11 +7,15 @@ class ApiUrls {
   static const String registerUrl = '$baseUrl/auth/register';
   static const String logoutUrl = '$baseUrl/logout';
   static const String signUpUrl = '$baseUrl/register';
+  static const String forgotPassword = '$baseUrl/forgot-password';
+  static const String newPassword = '$baseUrl/new-password';
+  static const String verifyOtp = '$baseUrl/verify-otp';
 
   // User-related URLs
   static const String userProfileUrl = '$baseUrl/user/profile';
   static const String userUpdateUrl = '$baseUrl/user/update';
   static const String userChangePasswordUrl = '$baseUrl/user/change-password';
+  static const String newNotifications = '$baseUrl/user/user-notifications';
 
   // Product-related URLs
   static const String productListUrl = '$baseUrl/products';

@@ -18,7 +18,7 @@ class NotificationServices {
   Future<void> initLocalNotifications(
       RemoteMessage message) async {
     var androidInitializationSettings =
-    const AndroidInitializationSettings('@drawable/ic_launcher');
+    const AndroidInitializationSettings('@mipmap/ic_launcher');
     // const AndroidInitializationSettings('@mipmap/ic_launcher');
     var iosInitializationSettings = const DarwinInitializationSettings();
     var initializationSetting = InitializationSettings(
@@ -38,7 +38,7 @@ class NotificationServices {
         channelDescription: "your channel Descrition",
         importance: Importance.high,
         ticker: 'ticker',
-        icon: "@drawable/ic_launcher"
+        icon: "@mipmap/ic_launcher"
       //    icon: "@mipmap/ic_launcher"
     );
     DarwinNotificationDetails darwinNotificationDetails =

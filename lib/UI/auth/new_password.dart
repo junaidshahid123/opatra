@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:opatra/UI/auth/login/login_view.dart';
+import 'package:opatra/constant/AppLinks.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../constant/AppColors.dart';
 
@@ -20,7 +21,6 @@ class _NewPasswordState extends State<NewPassword> {
 
   Future<void> changePassword() async {
     isLoading.value = true;
-    final String url = 'https://opatra.fai-tech.online/api/new-password';
     // Retrieve token from SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? email = prefs.getString('email'); // Get the token from shared prefs
@@ -45,7 +45,7 @@ class _NewPasswordState extends State<NewPassword> {
     try {
       final client = http.Client();
       final http.Response response = await client.post(
-        Uri.parse(url),
+        Uri.parse(ApiUrls.newPassword),
         headers: headers,
         body: requestBody,
       );
