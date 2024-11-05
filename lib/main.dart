@@ -13,7 +13,6 @@ import 'UI/home/bag/bag_controller.dart';
 import 'constant/AppColors.dart';
 import 'fcm_handle.dart';
 import 'firebase_options.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 
 String? fcmToken;
 
@@ -28,9 +27,9 @@ void main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await FirebaseMessaging.instance.requestPermission();
   Get.put(BagController());
-  await dotenv.load(fileName: ".env"); // Make sure the file name is correct
-  Stripe.publishableKey = dotenv.env['STRIPE_PUBLISH_KEY']!;
-  Stripe.instance.applySettings();
+  // await dotenv.load(fileName: ".env"); // Make sure the file name is correct
+  // Stripe.publishableKey = dotenv.env['STRIPE_PUBLISH_KEY']!;
+  // Stripe.instance.applySettings();
   HttpOverrides.global = MyHttpOverrides();
   runApp(const MyApp());
 }
