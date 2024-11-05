@@ -4,7 +4,6 @@ class MDGetDevices {
 
   MDGetDevices({this.success, this.data});
 
-
   MDGetDevices.fromJson(Map<String, dynamic> json) {
     success = json['success'];
     if (json['data'] != null) {
@@ -29,7 +28,7 @@ class Data {
   int? id;
   String? productId;
   String? productName;
-  Null? time;
+  DateTime? time;
   int? userId;
   String? createdAt;
   String? updatedAt;
@@ -82,45 +81,51 @@ class Data {
   }
 }
 
-
 class Days {
   int? id;
   String? day;
   String? time;
+  String? endTime;
   int? deviceScheduleId;
   String? createdAt;
   String? updatedAt;
-  String? areas; // New attribute for storing areas
+  String? areas;
+  String? duration;
 
-  Days({
-    this.id,
-    this.day,
-    this.time,
-    this.deviceScheduleId,
-    this.createdAt,
-    this.updatedAt,
-    this.areas, // Include areas in the constructor
-  });
+  Days(
+      {this.id,
+      this.day,
+      this.time,
+      this.endTime,
+      this.deviceScheduleId,
+      this.createdAt,
+      this.updatedAt,
+      this.areas,
+      this.duration});
 
   Days.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     day = json['day'];
     time = json['time'];
+    endTime = json['end_time'];
     deviceScheduleId = json['device_schedule_id'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
-    areas = json['areas']; // Deserialize areas from JSON
+    areas = json['areas'];
+    duration = json['duration'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
+    final Map<String, dynamic> data = new Map<String, dynamic>();
     data['id'] = this.id;
     data['day'] = this.day;
     data['time'] = this.time;
+    data['end_time'] = this.endTime;
     data['device_schedule_id'] = this.deviceScheduleId;
     data['created_at'] = this.createdAt;
     data['updated_at'] = this.updatedAt;
-    data['areas'] = this.areas; // Serialize areas to JSON
+    data['areas'] = this.areas;
+    data['duration'] = this.duration;
     return data;
   }
 }

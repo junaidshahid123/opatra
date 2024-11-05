@@ -14,18 +14,20 @@ import '../../../models/MDProductDetail.dart';
 
 class Treatment1View extends StatefulWidget {
   final List<int>? selectedAreasList;
-  final List<DateTime>? selectedDays; // Made optional
-  final String? title; // Remains optional
-  final int? id; // Made optional
-  final String? selectedTime; // Made optional
+  final List<DateTime>? selectedDays;
+  final String? title;
+  final int? id;
+  final String? selectedTime;
+  final String? deviceDuration; // Renamed to deviceDuration
 
-// Constructor with optional named parameters
+  // Constructor with optional named parameters
   const Treatment1View({
     this.selectedAreasList,
     this.selectedDays,
     this.title,
     this.id,
     this.selectedTime,
+    this.deviceDuration, // Updated parameter name here
     Key? key,
   }) : super(key: key); // Pass the key to the superclass constructor
 
@@ -58,11 +60,15 @@ class _Treatment1ViewState extends State<Treatment1View> {
     }
 
     // Check for a valid selectedTime and initialize the timer if valid
-    if (widget.selectedTime != null && widget.selectedTime!.isNotEmpty) {
-      print('widget.selectedTime: ${widget.selectedTime}');
+    // if (widget.selectedTime != null && widget.selectedTime!.isNotEmpty) {
+    //   print('widget.selectedTime: ${widget.selectedTime}');
+    //   _initializeTimer();
+    // } else {
+    //   print("No valid time provided for the timer.");
+    // }
+    print('widget.deviceDuration========${widget.deviceDuration}');
+    if (widget.deviceDuration != null) {
       _initializeTimer();
-    } else {
-      print("No valid time provided for the timer.");
     }
 
     // Fetch product details asynchronously
@@ -70,78 +76,32 @@ class _Treatment1ViewState extends State<Treatment1View> {
   }
 
   void _initializeTimer() {
-    try {
-      // Get the raw time string
-      String timeString = widget.selectedTime?.trim() ?? '';
-      print("Raw time string: '$timeString'");
+    if (widget.deviceDuration != null) {
+      try {
+        // Log the received duration string for debugging
+        print("Received device duration: '${widget.deviceDuration}'");
 
-      // Clean up the string to remove any non-standard characters
-      timeString = timeString.replaceAll(
-          RegExp(r'[^\d: ]'), ''); // Keep only digits, colons, and spaces
-      timeString = timeString
-          .replaceAll(RegExp(r'\s+'), ' ')
-          .trim(); // Remove additional spaces
-      print("Cleaned time string: '$timeString'");
+        // Clean up the string by removing any unwanted characters, keeping digits only
+        String cleanedDuration =
+            widget.deviceDuration!.replaceAll(RegExp(r'[^\d]'), '');
 
-      // Initialize a variable to hold the parsed time
-      DateTime? parsedTime;
-
-      // Define potential time formats
-      List<String> timeFormats = [
-        'HH:mm', // 24-hour format
-        'hh:mm a', // 12-hour format with AM/PM
-        'h:mm a', // 12-hour format (single digit hour)
-        'hh:mm', // 12-hour format without AM/PM
-      ];
-
-      // Try parsing the time string with each format
-      for (String format in timeFormats) {
-        try {
-          if (format.contains('a')) {
-            // Handle AM/PM formats by appending "AM" or "PM" if necessary
-            if (!timeString.toLowerCase().contains('am') &&
-                !timeString.toLowerCase().contains('pm')) {
-              parsedTime = DateFormat(format)
-                  .parse(timeString + ' AM'); // Default to AM if not provided
-            } else {
-              parsedTime = DateFormat(format).parse(timeString);
-            }
-          } else {
-            // Directly parse for 24-hour and 12-hour formats without AM/PM
-            parsedTime = DateFormat(format).parse(timeString);
-          }
-          // Break the loop if parsing is successful
-          break;
-        } catch (e) {
-          // Continue to try the next format
-          print("Failed to parse with format '$format': $e");
-          parsedTime = null;
+        // Attempt to parse the cleaned duration as an integer in minutes
+        int durationInMinutes = int.tryParse(cleanedDuration) ?? 0;
+        if (durationInMinutes <= 0) {
+          throw FormatException('Invalid duration format');
         }
-      }
-
-      // Check if the time was parsed successfully
-      if (parsedTime != null) {
-        // Get the current time
-        DateTime now = DateTime.now();
-        DateTime todayParsedTime = DateTime(
-            now.year, now.month, now.day, parsedTime.hour, parsedTime.minute);
 
         // Calculate the remaining time in seconds
-        if (todayParsedTime.isAfter(now)) {
-          _remainingTime = todayParsedTime.difference(now).inSeconds;
-        } else {
-          // If the selected time has already passed today, set it for the next day
-          todayParsedTime = todayParsedTime.add(Duration(days: 1));
-          _remainingTime = todayParsedTime.difference(now).inSeconds;
-        }
+        _remainingTime = durationInMinutes * 60;
+        print("Timer initialized with duration: $_remainingTime seconds");
 
         _startTimer();
-      } else {
-        throw FormatException('Invalid time format');
+      } catch (e) {
+        print("Error initializing timer: $e");
+        _remainingTime = 0;
       }
-    } catch (e) {
-      print("Error parsing time: $e");
-      _remainingTime = 0;
+    } else {
+      print("No device duration provided, timer not initialized.");
     }
   }
 
@@ -774,11 +734,13 @@ class TreatmentListWidget extends StatelessWidget {
                 child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 10),
                   width: 60,
-                  height: 60, // Ensure equal height and width for circle shape
+                  height: 60,
+                  // Ensure equal height and width for circle shape
                   decoration: BoxDecoration(
                     color: isSelected ? Color(0xFFB7A06A) : Colors.transparent,
                     border: Border.all(
-                      color: isSelected ? Colors.transparent : Color(0xFFC9CBCF),
+                      color:
+                          isSelected ? Colors.transparent : Color(0xFFC9CBCF),
                       width: 2,
                     ),
                     shape: BoxShape.circle,

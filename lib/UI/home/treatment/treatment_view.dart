@@ -123,15 +123,18 @@ class TreatmentView extends StatelessWidget {
 
               return InkWell(
                 onTap: () async {
-                  // print('selectedAreasList=========${selectedAreasList}');
-                  // print('selectedTime:device.days![0].time=========${device.days![0].time}');
+                  print('selectedAreasList=========${selectedAreasList}');
+                  print(
+                      'selectedTime:device.days![0].time=========${device.days![0].time}');
                   print('device.productId=========${device.productId}');
+                  print('device.productId=========${device.days![0].duration}');
 
                   // Uncomment and implement your device selection logic here
                   Get.to(() => Treatment1View(
                         id: int.parse(device.productId.toString()),
                         selectedTime: device.days![0].time,
                         selectedAreasList: selectedAreasList,
+                    deviceDuration:device.days![0].duration ,
                       ));
                 },
                 child: Column(

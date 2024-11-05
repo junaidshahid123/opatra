@@ -56,20 +56,19 @@ class LoginLogic extends GetxController {
 
         final Map<String, dynamic> responseData = json.decode(response.body);
         print('responseData========${responseData}');
-
-        // Extract the token, user name, and user email
-        var token = responseData['token'] ?? "";
-        var userName = responseData['user']['name'] ?? "";
-        var userEmail = responseData['user']['email'] ?? "";
-        var email_verified = responseData['user']['email_verified_at'] ?? "null";
-        print(email_verified);
-        print("object");
-        // Store the data in SharedPreferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
+
+        // Extract necessary details from the response
+        String token = responseData['authorization']['token'] ?? '';
+        String userName = responseData['user']['name'] ?? '';
+        String userEmail = responseData['user']['email'] ?? '';
+        String emailVerified = responseData['user']['email_verified_at'] ?? '';
+
+        // Save only the required fields to SharedPreferences
         await prefs.setString('token', token);
         await prefs.setString('userName', userName);
         await prefs.setString('userEmail', userEmail);
-        await prefs.setString('email_verified', email_verified);
+        await prefs.setString('email_verified', emailVerified);
         // Optionally navigate to the OTP verification screen
         Get.snackbar('Success', 'User Login successfully!',
             backgroundColor: Color(0xFFB7A06A), colorText: Colors.white);
