@@ -165,7 +165,9 @@ class Treatment1Controller extends GetxController {
     try {
       // Convert the RxString time to a List<String>
       List<String> timeList = time.split(',');
+      timeList = timeList.map((t) => t.replaceAll('AM', '').replaceAll('PM', '').trim()).toList();
       print('Converted timeList: $timeList');
+
 
       // Format selectedDays to "dd-MM-yyyy" format
       List<String> formattedDays = formatDays(selectedDays);
