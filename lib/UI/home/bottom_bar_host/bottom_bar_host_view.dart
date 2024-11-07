@@ -7,6 +7,7 @@ import 'package:opatra/UI/home/bag/bag_view.dart';
 import 'package:opatra/UI/home/contact_us/contact_us_view.dart';
 import 'package:opatra/UI/home/product_detail/product_detail_view.dart';
 import 'package:opatra/UI/home/resgister_own_product/register_own_product_view.dart';
+import 'package:opatra/UI/home/settings/settings_view.dart';
 import 'package:opatra/UI/home/treatment/treatment_view.dart';
 import 'package:opatra/UI/home/warranty_claim/warranty_claim_view.dart';
 import 'package:opatra/constant/AppColors.dart';
@@ -522,11 +523,12 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                   buildTreatmentOption(logic),
                   buildLiveStreamOption(logic),
                   buildAskOurExpertsOption(logic),
-                  buildAboutUsOption(logic),
-                  buildContactUsOption(logic),
+                  // buildAboutUsOption(logic),
+                  //  buildContactUsOption(logic),
                   buildRegisterYourProductOption(logic),
                   buildWarrantyClaimsOption(logic),
-                  buildLogOutOption(logic),
+                  buildSettingsOption(logic),
+                  // buildLogOutOption(logic),
                   buildSocialOptions(logic)
                 ],
               ),
@@ -642,54 +644,13 @@ class _BottomBarHostView extends State<BottomBarHostView> {
     );
   }
 
-  Widget buildWarrantyClaimsOption(BottomBarHostController logic) {
-    return InkWell(
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      onTap: () {
-        logic.selectedIndex.value = 7;
-        Get.to(() => WarrantyClaimView());
-      },
-      child: Container(
-        margin: EdgeInsets.only(top: 20),
-        decoration: BoxDecoration(
-            border: Border.all(
-                color: logic.selectedIndex.value == 7
-                    ? Colors.transparent
-                    : Color(0xFFFBF3D7)),
-            color: logic.selectedIndex.value == 7
-                ? Color(0xFFB7A06A)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(10)),
-        height: 45,
-        width: MediaQuery.of(context).size.width,
-        child: Container(
-          margin: EdgeInsets.only(left: 20),
-          child: Row(
-            children: [
-              Text(
-                'Warranty Claims',
-                style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: logic.selectedIndex.value == 7
-                        ? AppColors.appWhiteColor
-                        : Color(0xFFB7A06A)),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildRegisterYourProductOption(BottomBarHostController logic) {
+  Widget buildSettingsOption(BottomBarHostController logic) {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
         logic.selectedIndex.value = 6;
-        Get.to(() => RegisterYourOwnProductView());
+        Get.to(() => SettingsView());
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),
@@ -709,11 +670,93 @@ class _BottomBarHostView extends State<BottomBarHostView> {
           child: Row(
             children: [
               Text(
-                'Register Your Product',
+                'Settings',
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: logic.selectedIndex.value == 6
+                        ? AppColors.appWhiteColor
+                        : Color(0xFFB7A06A)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildWarrantyClaimsOption(BottomBarHostController logic) {
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        logic.selectedIndex.value = 5;
+        Get.to(() => WarrantyClaimView());
+      },
+      child: Container(
+        margin: EdgeInsets.only(top: 20),
+        decoration: BoxDecoration(
+            border: Border.all(
+                color: logic.selectedIndex.value == 5
+                    ? Colors.transparent
+                    : Color(0xFFFBF3D7)),
+            color: logic.selectedIndex.value == 5
+                ? Color(0xFFB7A06A)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(10)),
+        height: 45,
+        width: MediaQuery.of(context).size.width,
+        child: Container(
+          margin: EdgeInsets.only(left: 20),
+          child: Row(
+            children: [
+              Text(
+                'Warranty Claims',
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: logic.selectedIndex.value == 5
+                        ? AppColors.appWhiteColor
+                        : Color(0xFFB7A06A)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildRegisterYourProductOption(BottomBarHostController logic) {
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        logic.selectedIndex.value = 4;
+        Get.to(() => RegisterYourOwnProductView());
+      },
+      child: Container(
+        margin: EdgeInsets.only(top: 20),
+        decoration: BoxDecoration(
+            border: Border.all(
+                color: logic.selectedIndex.value == 4
+                    ? Colors.transparent
+                    : Color(0xFFFBF3D7)),
+            color: logic.selectedIndex.value == 4
+                ? Color(0xFFB7A06A)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(10)),
+        height: 45,
+        width: MediaQuery.of(context).size.width,
+        child: Container(
+          margin: EdgeInsets.only(left: 20),
+          child: Row(
+            children: [
+              Text(
+                'Register Your Product',
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: logic.selectedIndex.value == 4
                         ? AppColors.appWhiteColor
                         : Color(0xFFB7A06A)),
               ),
