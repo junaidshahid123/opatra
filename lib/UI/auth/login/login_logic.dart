@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constant/AppLinks.dart';
 import '../../../main.dart';
 import '../../home/bottom_bar_host/bottom_bar_host_view.dart';
+import '../otp_verification.dart';
+import 'login_view.dart';
 
 class LoginLogic extends GetxController {
   final emailController = TextEditingController();
@@ -69,10 +71,27 @@ class LoginLogic extends GetxController {
         await prefs.setString('userName', userName);
         await prefs.setString('userEmail', userEmail);
         await prefs.setString('email_verified', emailVerified);
+        String emailVerifiedAt = prefs.getString('emailverified') ?? "null";
+        print(emailVerifiedAt);
+        String email = prefs.getString('userEmail') ?? "";
         // Optionally navigate to the OTP verification screen
         Get.snackbar('Success', 'User Login successfully!',
             backgroundColor: Color(0xFFB7A06A), colorText: Colors.white);
-        Get.offAll(BottomBarHostView());
+        await Future.delayed(Duration(seconds: 3));
+
+        if (token != null && emailVerifiedAt != null) {
+          // Token exists and email is verified, navigate to BottomBarHost
+          Get.offAll(() => BottomBarHostView());
+        } else if (token == null) {
+          // No token found, navigate to Login
+          Get.offAll(() => LoginView());
+        } else if (token != null && emailVerifiedAt == null) {
+          // Token exists but email is not verified, navigate to OTP Verification
+          Get.offAll(() => OtpVerification(email: email, isFromSignUp: false));
+        } else {
+          // Fallback, navigate to Login if none of the conditions match
+          Get.offAll(() => LoginView());
+        }
       } else {
         isLoading.value = false; // Stop loading spinner
 
