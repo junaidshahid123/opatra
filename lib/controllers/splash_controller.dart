@@ -23,20 +23,20 @@ print("Taimoor");
     // Wait for 3 seconds before navigating
     await Future.delayed(Duration(seconds: 3));
 
-    // Determine navigation based on the presence of token and email verification status
-    if (token != null && emailVerifiedAt != "null") {
+    if (token != null && emailVerifiedAt != null) {
       // Token exists and email is verified, navigate to BottomBarHost
       Get.offAll(() => BottomBarHostView());
     } else if (token == null) {
       // No token found, navigate to Login
       Get.offAll(() => LoginView());
-    } else if (token != null && emailVerifiedAt == "null") {
+    } else if (token != null && emailVerifiedAt == null) {
       // Token exists but email is not verified, navigate to OTP Verification
       Get.offAll(() => OtpVerification(email: email, isFromSignUp: false));
     } else {
       // Fallback, navigate to Login if none of the conditions match
       Get.offAll(() => LoginView());
     }
+
   }
 
 }

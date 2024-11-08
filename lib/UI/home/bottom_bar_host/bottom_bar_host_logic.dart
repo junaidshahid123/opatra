@@ -550,7 +550,7 @@ class BottomBarHostController extends GetxController {
     // Retrieve token from SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
-
+    String emailVerifiedAt = prefs.getString('emailverified') ?? "null";
     //  Ensure the token exists before proceeding
     if (token == null || token.isEmpty) {
       isLoading.value = false;
@@ -576,6 +576,7 @@ class BottomBarHostController extends GetxController {
         final Map<String, dynamic> responseData = json.decode(response.body);
         print('responseData========${responseData}');
         prefs.remove('token');
+        prefs.remove("emailverified");
         Get.snackbar('Success', 'Log Out Successfully');
         Get.offAll(LoginView());
       } else {
