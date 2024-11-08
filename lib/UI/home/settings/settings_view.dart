@@ -54,7 +54,7 @@ class SettingsView extends StatelessWidget {
 
   Widget buildProfileImage(SettingsController logic) {
     return GestureDetector(
-      onTap: () => logic.showImageSourceDialog(logic),
+      //  onTap: () => logic.showImageSourceDialog(logic),
       child: Obx(() {
         // Check if an image is selected
         if (logic.selectedImage.value.isNotEmpty) {
