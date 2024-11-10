@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:opatra/constant/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constant/AppLinks.dart';
 import '../../../main.dart';
@@ -17,10 +18,10 @@ class LoginLogic extends GetxController {
   final formKeyForSignIn = GlobalKey<FormState>();
   final RxList<int> selectedIndices = <int>[].obs;
   RxBool isLoading = false.obs;
+  RxBool isLoadingForGuest = false.obs;
   AutovalidateMode autoValidateMode = AutovalidateMode.disabled;
 
   Future<void> onLoginTap({bool fromSplash = false}) async {
-
     if (!fromSplash) {
       autoValidateMode = AutovalidateMode.onUserInteraction;
       update();
@@ -71,7 +72,7 @@ class LoginLogic extends GetxController {
         await prefs.setString('userName', userName);
         await prefs.setString('userEmail', userEmail);
         await prefs.setString('email_verified', emailVerified);
-        String emailVerifiedAt = prefs.getString('emailverified') ?? "null";
+        String emailVerifiedAt = prefs.getString('emailVerified') ?? "null";
         print(emailVerifiedAt);
         String email = prefs.getString('userEmail') ?? "";
         // Optionally navigate to the OTP verification screen
@@ -81,6 +82,8 @@ class LoginLogic extends GetxController {
 
         if (token != null && emailVerifiedAt != null) {
           // Token exists and email is verified, navigate to BottomBarHost
+          await prefs.setBool('is_guest', false);
+
           Get.offAll(() => BottomBarHostView());
         } else if (token == null) {
           // No token found, navigate to Login
@@ -112,6 +115,66 @@ class LoginLogic extends GetxController {
       }
     } catch (e) {
       isLoading.value = false; // Stop loading spinner
+      Get.snackbar('Error', 'An error occurred: $e',
+          backgroundColor: Colors.red, colorText: Colors.white);
+    }
+  }
+
+  Future<void> continueAsAGuest() async {
+    isLoadingForGuest.value = true;
+    final url = Uri.parse(ApiUrls.guestAccount);
+
+    Map<String, String> headers = {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    };
+
+    Map<String, dynamic> body = {
+      "guest_id": fcmToken, // Only send guest_id in the body
+    };
+
+    try {
+      final client = http.Client();
+      final http.Response response = await client.post(
+        url,
+        headers: headers,
+        body: json.encode(body), // Encode the body as JSON
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        isLoadingForGuest.value = false;
+
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        print('responseData========$responseData');
+
+        // Store token and is_guest status in SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', responseData['token']);
+        await prefs.setBool('is_guest', responseData['user']['is_guest']);
+
+        Get.snackbar('Success', 'Guest User created successfully.',
+            backgroundColor: AppColors.appPrimaryColor);
+
+        Get.offAll(() => BottomBarHostView());
+      } else {
+        isLoadingForGuest.value = false;
+
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        String errorMessage =
+            responseData['message'] ?? 'Failed to continue as a guest';
+
+        if (responseData.containsKey('errors')) {
+          final errors = responseData['errors'] as Map<String, dynamic>;
+          errors.forEach((key, value) {
+            errorMessage += '\n${value.join(', ')}';
+          });
+        }
+
+        Get.snackbar('Error', errorMessage,
+            backgroundColor: Colors.red, colorText: Colors.white);
+      }
+    } catch (e) {
+      isLoadingForGuest.value = false;
       Get.snackbar('Error', 'An error occurred: $e',
           backgroundColor: Colors.red, colorText: Colors.white);
     }

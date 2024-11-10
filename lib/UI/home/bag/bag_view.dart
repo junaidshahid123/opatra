@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:opatra/UI/home/bag/bag_controller.dart';
 import 'package:opatra/models/MDProductDetail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constant/AppColors.dart';
 import '../Payment.dart';
 
@@ -46,7 +47,7 @@ class BagView extends StatelessWidget {
                           buildDivider(context),
                           buildTotal(logic),
                           Spacer(),
-                          buildContinueButton(context, logic)
+                          buildCheckOutButton(context, logic)
                         ],
                       ),
                     ),
@@ -173,33 +174,49 @@ class BagView extends StatelessWidget {
     );
   }
 
-  Widget buildContinueButton(BuildContext context, BagController logic) {
+  Widget buildCheckOutButton(BuildContext context, BagController logic) {
     return InkWell(
-      onTap: () {
-        print('logic.subTotal.value========${logic.subTotal.value}');
-        print('selectedCurrency========${selectedCurrency}');
+      onTap: () async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        bool isGuest = prefs.getBool('is_guest') ?? false;
 
-        String parsedCurrency =
-            selectedCurrency.isNotEmpty ? selectedCurrency : "usd";
-        Get.to(() => Payment(logic.subTotal.value, "usd"));
+        if (isGuest) {
+          // Show snackbar to alert guest users to log in or create an account
+          Get.snackbar(
+            'Login Required',
+            'Please log in or create an account to proceed to checkout.',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+            duration: Duration(seconds: 3),
+          );
+        } else {
+          // If not a guest, proceed with the checkout process
+          print('logic.subTotal.value========${logic.subTotal.value}');
+          print('selectedCurrency========${selectedCurrency}');
+
+          String parsedCurrency = selectedCurrency.isNotEmpty ? selectedCurrency : "usd";
+          Get.to(() => Payment(logic.subTotal.value, parsedCurrency));
+        }
       },
       child: Container(
-          margin: EdgeInsets.only(bottom: 20),
-          width: MediaQuery.of(context).size.width,
-          height: 45,
-          decoration: BoxDecoration(
-            color: Color(0xFFFBF3D7),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Center(
-            child: Text(
-              'Check out',
-              style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
-                  color: Color(0xFFB7A06A)),
+        margin: EdgeInsets.only(bottom: 20),
+        width: MediaQuery.of(context).size.width,
+        height: 45,
+        decoration: BoxDecoration(
+          color: Color(0xFFFBF3D7),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Center(
+          child: Text(
+            'Check out',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: Color(0xFFB7A06A),
             ),
-          )),
+          ),
+        ),
+      ),
     );
   }
 

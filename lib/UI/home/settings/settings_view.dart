@@ -1,12 +1,13 @@
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:opatra/UI/auth/signup/signup_view.dart';
 import 'package:opatra/UI/home/settings/settings_logic.dart';
 import 'package:opatra/constant/AppColors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../about_us.dart';
 import '../contact_us/contact_us_view.dart';
 
@@ -273,44 +274,74 @@ class SettingsView extends StatelessWidget {
   }
 
   Widget buildLogOutOption(SettingsController logic, BuildContext context) {
-    return InkWell(
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      onTap: () {
-        logic.selectedIndex.value = 6;
-        logic.showLogoutDialog(context);
-      },
-      child: Container(
-        margin: EdgeInsets.only(top: 20),
-        decoration: BoxDecoration(
-            border: Border.all(
+    return FutureBuilder<bool>(
+      future: _getGuestStatus(), // Call an async method to get the guest status
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator(); // You can show a loading indicator while waiting
+        }
+
+        if (!snapshot.hasData) {
+          return SizedBox(); // You can return a fallback widget if there's no data
+        }
+
+        bool isGuest = snapshot.data ?? false; // Default to false if data is null
+
+        return InkWell(
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          onTap: () async {
+            if (isGuest) {
+              logic.selectedIndex.value = 6;
+
+              Get.to(() => SignupView()); // Navigate to Register page if guest
+            } else {
+              logic.selectedIndex.value = 6;
+              logic.showLogoutDialog(context); // Show logout dialog for non-guest users
+            }
+          },
+          child: Container(
+            margin: EdgeInsets.only(top: 20),
+            decoration: BoxDecoration(
+              border: Border.all(
                 color: logic.selectedIndex.value == 6
                     ? Colors.transparent
-                    : Color(0xFFFBF3D7)),
-            color: logic.selectedIndex.value == 6
-                ? Color(0xFFB7A06A)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(10)),
-        height: 45,
-        width: MediaQuery.of(context).size.width,
-        child: Container(
-          margin: EdgeInsets.only(left: 20),
-          child: Row(
-            children: [
-              Text(
-                'Log Out',
-                style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: logic.selectedIndex.value == 6
-                        ? AppColors.appWhiteColor
-                        : Color(0xFFB7A06A)),
+                    : Color(0xFFFBF3D7),
               ),
-            ],
+              color: logic.selectedIndex.value == 6
+                  ? Color(0xFFB7A06A)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            height: 45,
+            width: MediaQuery.of(context).size.width,
+            child: Container(
+              margin: EdgeInsets.only(left: 20),
+              child: Row(
+                children: [
+                  Text(
+                    isGuest ? 'Log In' : 'Log Out', // Change text based on guest status
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: logic.selectedIndex.value == 6
+                          ? AppColors.appWhiteColor
+                          : Color(0xFFB7A06A),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
+  }
+
+// This method retrieves the guest status from SharedPreferences
+  Future<bool> _getGuestStatus() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('is_guest') ?? false; // Return false if no value is found
   }
 
   Widget buildContactUsOption(SettingsController logic, BuildContext context) {

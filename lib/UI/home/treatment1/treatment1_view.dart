@@ -600,44 +600,82 @@ class _Treatment1ViewState extends State<Treatment1View> {
     );
   }
 
-  Widget _buildContinueButton(
-      BuildContext context, Treatment1Controller logic) {
+  Widget _buildContinueButton(BuildContext context, Treatment1Controller logic) {
     return Obx(() => InkWell(
-          onTap: () {
-            print(logic.selectedAreasList.length);
-            print(widget.selectedDays!.length);
-            print(widget.selectedTime);
-            print(widget.title);
-            print(widget.id);
-            logic.deviceSchedule(widget.selectedTime!, widget.id!,
-                widget.title!, widget.selectedDays!);
-            // Navigate to the next screen
-          },
-          child: Container(
-              margin: EdgeInsets.only(bottom: 10, left: 20, right: 20),
-              width: MediaQuery.of(context).size.width,
-              height: 45,
-              decoration: BoxDecoration(
-                color: Color(0xFFB7A06A),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Center(
-                  child: logic.isLoading.value == true
-                      ? SizedBox(
-                          width: 20.0, // Adjust the width
-                          height: 20.0, // Adjust the height
-                          child: CircularProgressIndicator(
-                            strokeWidth: 5,
-                            color: AppColors.appWhiteColor,
-                          ),
-                        )
-                      : Text(
-                          'Continue',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 16),
-                        ))),
-        ));
+      onTap: () async {
+        // Retrieve guest status from SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        bool isGuest = prefs.getBool('is_guest') ?? false;
+
+        // If the user is a guest, show a Snackbar
+        if (isGuest) {
+          Get.snackbar(
+            'Notice',
+            'Please log in or create an account to continue.',
+            backgroundColor: Colors.red,
+            colorText: Colors.white,
+          );
+          return;
+        }
+
+        // Proceed if the user is not a guest and avoid multiple requests if loading
+        if (logic.isLoading.value) return;
+
+        // Print debug information
+        print('Selected areas count: ${logic.selectedAreasList.length}');
+        print('Selected days count: ${widget.selectedDays?.length}');
+        print('Selected time: ${widget.selectedTime}');
+        print('Title: ${widget.title}');
+        print('ID: ${widget.id}');
+
+        // Start the loading indicator
+        logic.isLoading.value = true;
+
+        // Call the deviceSchedule function and handle any async processing
+        await logic.deviceSchedule(
+          widget.selectedTime!,
+          widget.id!,
+          widget.title!,
+          widget.selectedDays!,
+        );
+
+        // Stop the loading indicator after deviceSchedule completes
+        logic.isLoading.value = false;
+
+        // Navigate to the next screen if necessary
+        // Get.to(() => NextScreen());
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10, left: 20, right: 20),
+        width: MediaQuery.of(context).size.width,
+        height: 45,
+        decoration: BoxDecoration(
+          color: Color(0xFFB7A06A),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Center(
+          child: logic.isLoading.value
+              ? SizedBox(
+            width: 20.0,
+            height: 20.0,
+            child: CircularProgressIndicator(
+              strokeWidth: 3,
+              color: AppColors.appWhiteColor,
+            ),
+          )
+              : Text(
+            'Continue',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              color: AppColors.appWhiteColor,
+            ),
+          ),
+        ),
+      ),
+    ));
   }
+
 }
 
 class ProductDescriptionWidget extends StatefulWidget {

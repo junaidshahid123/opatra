@@ -12,7 +12,10 @@ import '../../../constant/AppLinks.dart';
 import '../../auth/login/login_view.dart';
 import 'package:image_picker/image_picker.dart' as image_picker;
 
+import '../../auth/signup/signup_view.dart';
+
 class SettingsController extends GetxController {
+  RxBool showReasonField = false.obs;
   RxInt selectedIndex = 0.obs;
   RxBool usd = false.obs;
   RxBool pound = false.obs;
@@ -23,6 +26,7 @@ class SettingsController extends GetxController {
   var selectedImage = ''.obs; // To hold the path of the selected image
   // Inside your SettingsController
   RxString base64Image = ''.obs;
+  TextEditingController reasonController = TextEditingController();
 
   void showImageSourceDialog(SettingsController logic) {
     showDialog(
@@ -345,7 +349,8 @@ class SettingsController extends GetxController {
                 child: Container(
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height /
-                      2.5, // Adjusted height for new content
+                      (showReasonField.value ? 2 : 2.5),
+                  // Adjusted height for new content
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
@@ -357,7 +362,9 @@ class SettingsController extends GetxController {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         Text(
-                          "Are you sure you want to Delete Account?",
+                          showReasonField.value
+                              ? "Please Fill in the Reason for Account Deletion"
+                              : "Are you sure you want to Delete Account?",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -365,7 +372,37 @@ class SettingsController extends GetxController {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        SizedBox(height: 30),
+                        SizedBox(height: 20),
+                        if (showReasonField.value) ...[
+                          TextField(
+                            cursorColor: AppColors.appPrimaryBlackColor,
+                            // Set cursor color to black
+
+                            controller: reasonController,
+                            maxLines: 3,
+                            decoration: InputDecoration(
+                              hintText: "Enter reason here...",
+                              hintStyle: TextStyle(
+                                  color: AppColors.appPrimaryBlackColor
+                                      .withOpacity(0.5)),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: AppColors
+                                      .appPrimaryBlackColor, // Set focused border color to black
+                                ),
+                              ),
+                            ),
+                            style: TextStyle(
+                              color: AppColors
+                                  .appPrimaryBlackColor, // Set input text color to black
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                        ],
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
@@ -374,13 +411,13 @@ class SettingsController extends GetxController {
                               onTap: () {
                                 Get.back(); // Close the dialog
                                 selectedIndex.value = -1;
+                                showReasonField.value = false; // Reset state
                               },
                               child: Container(
                                 height: 50,
                                 width: MediaQuery.of(context).size.width / 4,
                                 decoration: BoxDecoration(
                                   color: Colors.grey,
-                                  // Grey color for "No" button
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Center(
@@ -397,23 +434,31 @@ class SettingsController extends GetxController {
                             // Yes button
                             InkWell(
                               onTap: () {
-                                // Add your logout functionality here
-                                // logOut();
-                                Get.back();
+                                if (!showReasonField.value) {
+                                  // Show reason input field if not already displayed
+                                  showReasonField.value = true;
+                                } else {
+                                  // Call deleteAccount with the entered reason
+                                  if (reasonController.text.isEmpty) {
+                                    Get.snackbar('Alert', 'Please Enter Reason',
+                                        backgroundColor: Colors.red);
+                                  } else {
+                                    deleteAccount(reasonController.text);
+                                  }
+                                }
                               },
                               child: Container(
                                   height: 50,
                                   width: MediaQuery.of(context).size.width / 4,
                                   decoration: BoxDecoration(
                                     color: Color(0xFFB7A06A),
-                                    // Custom color for "Yes" button
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Center(
-                                      child: isLoading.value == true
+                                      child: isLoading.value
                                           ? SizedBox(
-                                              width: 20.0, // Adjust the width
-                                              height: 20.0, // Adjust the height
+                                              width: 20.0,
+                                              height: 20.0,
                                               child: CircularProgressIndicator(
                                                 strokeWidth: 5,
                                                 color: AppColors.appWhiteColor,
@@ -492,6 +537,72 @@ class SettingsController extends GetxController {
       }
     } catch (e) {
       isLoading.value = false; // Stop loading spinner
+      Get.snackbar('Error', 'An error occurred: $e',
+          backgroundColor: Colors.red, colorText: Colors.white);
+    }
+  }
+
+  Future<void> deleteAccount(String reason) async {
+    isLoading.value = true;
+    final url = Uri.parse(ApiUrls.deleteAccount);
+
+    // Retrieve token from SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    // Ensure the token exists before proceeding
+    if (token == null || token.isEmpty) {
+      isLoading.value = false;
+      Get.snackbar('Error', 'No token found. Please log in again.',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return;
+    }
+
+    Map<String, String> headers = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $token",
+      "Content-Type": "application/json"
+    };
+
+    Map<String, dynamic> body = {
+      "reason": reason, // Add the reason parameter in the body
+    };
+
+    try {
+      final client = http.Client();
+      final http.Response response = await client.post(
+        url,
+        headers: headers,
+        body: json.encode(body), // Encode the body as JSON
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        isLoading.value = false;
+
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        print('responseData========$responseData');
+        prefs.remove('token');
+        Get.snackbar('Success', 'Account Deleted Successfully');
+        Get.offAll(() => SignupView());
+      } else {
+        isLoading.value = false;
+
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        String errorMessage =
+            responseData['message'] ?? 'Failed to delete account';
+
+        if (responseData.containsKey('errors')) {
+          final errors = responseData['errors'] as Map<String, dynamic>;
+          errors.forEach((key, value) {
+            errorMessage += '\n${value.join(', ')}';
+          });
+        }
+
+        Get.snackbar('Error', errorMessage,
+            backgroundColor: Colors.red, colorText: Colors.white);
+      }
+    } catch (e) {
+      isLoading.value = false;
       Get.snackbar('Error', 'An error occurred: $e',
           backgroundColor: Colors.red, colorText: Colors.white);
     }
