@@ -10,6 +10,8 @@ class ApiUrls {
   static const String forgotPassword = '$baseUrl/forgot-password';
   static const String newPassword = '$baseUrl/new-password';
   static const String verifyOtp = '$baseUrl/verify-otp';
+  static const String deleteAccount = '$baseUrl/delete-account';
+  static const String guestAccount = '$baseUrl/guest-account';
 
   // User-related URLs
   static const String userProfileUrl = '$baseUrl/user/profile';

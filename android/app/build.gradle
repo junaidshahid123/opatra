@@ -1,8 +1,18 @@
-plugins {
-    id "com.android.application"
-    id 'com.google.gms.google-services' // Google services plugin
-    id "kotlin-android" // Kotlin plugin
-    id "dev.flutter.flutter-gradle-plugin" // Flutter Gradle plugin
+// Remove the plugins block, and use apply plugin instead
+
+// Apply necessary plugins using the `apply plugin:` syntax
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'dev.flutter.flutter-gradle-plugin'  // Flutter Gradle plugin
+apply plugin: 'com.google.gms.google-services'    // Google services plugin
+
+// Load keystore properties
+def keystoreProperties = new Properties()
+def keystoreFile = rootProject.file("key.properties")
+if (keystoreFile.exists()) {
+    keystoreFile.withReader("UTF-8") { reader ->
+        keystoreProperties.load(reader)
+    }
 }
 
 def localProperties = new Properties()
@@ -31,20 +41,27 @@ android {
         jvmTarget = JavaVersion.VERSION_17
     }
 
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
     defaultConfig {
         applicationId = "com.example.opatra"
         minSdk = 21
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
         versionName = flutterVersionName
-
-        // Optional: Enable MultiDex if your app exceeds 64K methods
         multiDexEnabled true
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -62,22 +79,13 @@ android {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.22"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22"
-
-    // Add Core Library Desugaring Dependency
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
-
-    // Optional: Add MultiDex support if enabled above
-    // implementation 'androidx.multidex:multidex:2.0.1'
-
-    // Other Dependencies
-    implementation 'com.google.firebase:firebase-analytics:21.2.0' // Example dependency
-    // Add your other dependencies here
-    implementation 'com.google.android.material:material:1.6.0' // or latest version
-
+    implementation 'com.google.firebase:firebase-analytics:21.2.0'
+    implementation 'com.google.android.material:material:1.6.0'
 }
 
 flutter {
     source = "../.."
 }
 
-apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.gms.google-services'  // Google services plugin at the end
