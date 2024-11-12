@@ -38,6 +38,7 @@ class ApiUrls {
 
   // Contact us URL
   static const String contactUsUrl = '$baseUrl/contact-us';
+  static const String editProfile = '$baseUrl/profile-update';
   static const String registerProduct = '$baseUrl/register-product';
   static const String deviceSchedule = '$baseUrl/device-schedule';
   static const String warrantyClaims = '$baseUrl/warranty-claim';

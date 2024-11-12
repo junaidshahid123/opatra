@@ -556,7 +556,8 @@ class ContactUsView extends StatelessWidget {
   }
 
   Widget buildEmailAndPhoneButtons(
-      BuildContext context, ContactUsController logic) {
+      BuildContext context, ContactUsController logic)
+  {
     return Obx(() => Container(
           margin: EdgeInsets.only(top: 20),
           child: Row(

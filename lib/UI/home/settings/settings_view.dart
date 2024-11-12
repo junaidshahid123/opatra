@@ -10,6 +10,7 @@ import 'package:opatra/constant/AppColors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../about_us.dart';
 import '../contact_us/contact_us_view.dart';
+import '../edit_profile/edit_profile_view.dart';
 
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
@@ -40,7 +41,7 @@ class SettingsView extends StatelessWidget {
                     // buildProfileImage(logic),
                     buildEditProfileOption(logic, context),
                     // buildCurrencyOption(logic, context),
-                    buildChangePasswordOption(logic, context),
+               //     buildChangePasswordOption(logic, context),
                     buildAboutUsOption(logic, context),
                     buildContactUsOption(logic, context),
                     buildLogOutOption(logic, context),
@@ -152,6 +153,7 @@ class SettingsView extends StatelessWidget {
       highlightColor: Colors.transparent,
       onTap: () {
         logic.selectedIndex.value = 1;
+        Get.to(()=>EditProfileView());
       },
       child: Container(
         margin: EdgeInsets.only(
