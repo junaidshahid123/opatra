@@ -37,7 +37,7 @@ class SettingsView extends StatelessWidget {
                 margin: EdgeInsets.only(left: 20, top: 20, right: 20),
                 child: Column(
                   children: [
-                    buildProfileImage(logic),
+                    // buildProfileImage(logic),
                     buildEditProfileOption(logic, context),
                     // buildCurrencyOption(logic, context),
                     buildChangePasswordOption(logic, context),
