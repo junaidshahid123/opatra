@@ -54,6 +54,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
     print('widget.productId=====${widget.productId}');
     print('widget.currency=====${widget.currency}');
     controller.fetchProductDetail(widget.productId);
+    controller.fetchAppModules();
   }
 
   @override
@@ -525,8 +526,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
       ),
       child: Row(
         children: [
-          buildSideBarOption(),
-          Spacer(),
+          buildBackOption(), Spacer(),
           controller.mdProductDetail == null
               ? Center(
                   child: CircularProgressIndicator(
@@ -535,27 +535,33 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                 )
               : buildName(),
           Spacer(),
-          buildNotificationOption()
+          Container()
+          // buildNotificationOption()
         ],
       ),
     );
   }
 
-  Widget buildSideBarOption() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          height: 40.sp,
-          width: 40.sp,
-          child: Image.asset('assets/images/ellipse.png'),
-        ),
-        Container(
-          height: 15,
-          width: 15,
-          child: Image.asset('assets/images/menuLines.png'),
-        ),
-      ],
+  Widget buildBackOption() {
+    return InkWell(
+      onTap: () {
+        Get.back();
+      },
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            height: 50.sp,
+            width: 50.sp,
+            child: Image.asset('assets/images/ellipse.png'),
+          ),
+          Container(
+            height: 15,
+            width: 15,
+            child: Image.asset('assets/images/leftArrow.png'),
+          ),
+        ],
+      ),
     );
   }
 

@@ -33,8 +33,9 @@ class EditProfileController extends GetxController {
       update(); // Call update() to refresh the UI
       return; // Stop execution here since the form is invalid
     }
-    if(phoneController.text.isEmpty){
-      Get.snackbar('Alert', 'Phone Field cannot be empty',backgroundColor: Colors.red);
+    if (phoneController.text.isEmpty) {
+      Get.snackbar('Alert', 'Phone Field cannot be empty',
+          backgroundColor: Colors.red);
       return;
     }
 

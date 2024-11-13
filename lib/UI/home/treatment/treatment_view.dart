@@ -271,7 +271,8 @@ class TreatmentView extends StatelessWidget {
           Spacer(),
           buildName(),
           Spacer(),
-          logic.deviceExists.value == false ? buildAddIcon() : Spacer(),
+          logic.mdGetDevices.value!=null ?
+          logic.mdGetDevices.value!.data!.isNotEmpty ? buildAddIcon() : Spacer() : Container(),
         ],
       ),
     );

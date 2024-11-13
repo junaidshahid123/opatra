@@ -89,7 +89,8 @@ class _AboutUsState extends State<AboutUs> {
           Spacer(),
           buildName(),
           Spacer(),
-          buildNotificationOption()
+          Container()
+          // buildNotificationOption()
         ],
       ),
     );

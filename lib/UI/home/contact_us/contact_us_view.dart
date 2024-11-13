@@ -500,7 +500,8 @@ class ContactUsView extends StatelessWidget {
           Spacer(),
           buildName(),
           Spacer(),
-          buildNotificationOption()
+          Container()
+          // buildNotificationOption()
         ],
       ),
     );

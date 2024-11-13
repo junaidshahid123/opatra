@@ -504,7 +504,8 @@ class SettingsView extends StatelessWidget {
           Spacer(),
           buildName(),
           Spacer(),
-          buildNotificationOption()
+          Container()
+          // buildNotificationOption()
         ],
       ),
     );

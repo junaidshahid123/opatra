@@ -80,6 +80,8 @@ class BottomBarHostController extends GetxController {
     home.value = true;
     product.value = false;
     video.value = false;
+    fetchAppModules();
+
     update();
   }
 
@@ -131,7 +133,8 @@ class BottomBarHostController extends GetxController {
 
       // Check if the POST request was successful
       if (response.statusCode == 200 || response.statusCode == 201) {
-        print('Data sent successfully! Status code: ${response.statusCode}');
+        print(
+            'Data sent successfully for App Modules! Status code: ${response.statusCode}');
         print('Server response: ${response.body}');
       } else {
         print('Failed to send data. Status code: ${response.statusCode}');
@@ -183,7 +186,7 @@ class BottomBarHostController extends GetxController {
         // Check if product.value is true
         if (product.value == true) {
           final productModule = data['data'].firstWhere(
-              (module) => module['name'] == 'Product',
+              (module) => module['name'] == 'Products',
               orElse: () => null);
           if (productModule != null) {
             int productId = productModule['id'];

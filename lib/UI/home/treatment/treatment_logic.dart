@@ -69,46 +69,80 @@ class TreatmentController extends GetxController {
   }
 
   Future<void> fetchAppModules() async {
+    // Step 1: Define the URL for the API endpoint
     final url = Uri.parse(ApiUrls.appModules);
+    print('Step 1: API endpoint URL - $url');
 
+    // Step 2: Retrieve token from SharedPreferences
+    print('Step 2: Retrieving token from SharedPreferences');
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token'); // Get the token from shared prefs
+    String? token = prefs.getString('token');
+
+    // Step 3: Check if token exists and is not empty
     if (token == null || token.isEmpty) {
+      print('Step 3: No token found. Displaying error message.');
       Get.snackbar('Error', 'No token found. Please log in again.',
           backgroundColor: Colors.red, colorText: Colors.white);
       return;
+    } else {
+      print('Step 3: Token retrieved - $token');
     }
 
+    // Step 4: Prepare headers for the GET request
     Map<String, String> headers = {
       "Accept": "application/json",
-      "Authorization": "Bearer $token", // Include the Bearer token in headers
+      "Authorization": "Bearer $token",
     };
+    print('Step 4: Headers prepared - $headers');
 
     try {
+      // Step 5: Send GET request to fetch app modules
+      print('Step 5: Sending GET request to $url');
       final response = await http.get(url, headers: headers);
 
+      // Step 6: Check response status code
+      print(
+          'Step 6: GET request completed. Status code - ${response.statusCode}');
+
       if (response.statusCode == 200) {
+        print('Step 6: Data successfully fetched');
+
+        // Step 7: Decode response body
         final data = jsonDecode(response.body);
+        print('Step 7: Response body decoded - $data');
+
+        // Step 8: Map JSON to mdGetAppModules object
         mdGetAppModules = MDGetAppModules.fromJson(data);
-        print('mdGetAppModules: ${mdGetAppModules}');
+        print('Step 8: mdGetAppModules object created - $mdGetAppModules');
+
+        // Step 9: Update UI or state
         update();
 
-        // Check if home.value is true
+        // Step 10: Check for specific module ('Devices')
         final homeModule = data['data'].firstWhere(
-            (module) => module['name'] == 'Devices',
+            (module) => module['name'] == 'Device',
             orElse: () => null);
         if (homeModule != null) {
           int deviceId = homeModule['id'];
-          print('Devices ID: $deviceId');
-          prefs.setInt('devicesID', deviceId); // Store home ID
+          print('Step 10: Devices ID found - $deviceId');
+
+          // Step 11: Store Device ID in SharedPreferences
+          prefs.setInt('devicesID', deviceId);
+          print('Step 11: Devices ID stored in SharedPreferences');
+
+          // Step 12: Call activeUser with Device ID
           activeUser(deviceId);
+        } else {
+          print('Step 10: Devices module not found in the response data');
         }
       } else {
+        // Handle case where status code is not 200
         print(
-            'Failed to load mdGetAppModules. Status Code: ${response.statusCode}');
+            'Step 6: Failed to load mdGetAppModules. Status Code: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error: $e');
+      // Step 13: Handle and log any errors that occur
+      print('Step 13: Error during GET request - $e');
     }
   }
 

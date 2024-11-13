@@ -105,118 +105,165 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                                       (context, index) {
                                                     bool isCurrent = index ==
                                                         logic.currentIndex;
-                                                    return AnimatedContainer(
-                                                      duration: Duration(
-                                                          milliseconds: 300),
-                                                      curve: Curves.easeInOut,
-                                                      margin:
-                                                          EdgeInsets.symmetric(
-                                                        horizontal:
-                                                            isCurrent ? 10 : 20,
-                                                        vertical:
-                                                            isCurrent ? 5 : 20,
-                                                      ),
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.95,
-                                                      decoration: BoxDecoration(
-                                                        color: isCurrent
-                                                            ? Colors.blue
-                                                            : Colors.grey,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20),
-                                                        boxShadow: isCurrent
-                                                            ? [
-                                                                BoxShadow(
-                                                                    color: Colors
-                                                                        .black26,
-                                                                    blurRadius:
-                                                                        10)
-                                                              ]
-                                                            : [],
-                                                      ),
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20),
-                                                        // Clip the image to the container's rounded corners
-                                                        child: Stack(
-                                                          children: [
-                                                            logic.mdLatestProducts!.products[index].image !=
-                                                                        null &&
-                                                                    logic
-                                                                            .mdLatestProducts!
-                                                                            .products[index]
-                                                                            .image!
-                                                                            .src !=
-                                                                        null
-                                                                ? Image.network(
-                                                                    logic
-                                                                        .mdLatestProducts!
-                                                                        .products[
-                                                                            index]
-                                                                        .image!
-                                                                        .src!,
-                                                                    fit: BoxFit
-                                                                        .cover,
-                                                                    // Ensure the image covers the entire container
-                                                                    height: double
-                                                                        .infinity,
-                                                                    // Make the image take up the full container height
-                                                                    width: double
-                                                                        .infinity, // Make the image take up the full container width
-                                                                  )
-                                                                : Image.asset(
-                                                                    'assets/images/skinCareDummy.png',
-                                                                    fit: BoxFit
-                                                                        .cover,
-                                                                    // Fallback image should also cover the container
-                                                                    height: double
-                                                                        .infinity,
-                                                                    width: double
-                                                                        .infinity,
-                                                                  ),
-                                                            Positioned(
-                                                              top: 20,
-                                                              left: 20,
-                                                              child: Column(
-                                                                children: [
-                                                                  Text(
-                                                                    logic
-                                                                        .mdLatestProducts!
-                                                                        .products[
-                                                                            index]
-                                                                        .title,
-                                                                    style: TextStyle(
-                                                                        color: AppColors
-                                                                            .appPrimaryBlackColor,
-                                                                        fontSize:
-                                                                            20,
-                                                                        fontWeight:
-                                                                            FontWeight.w600),
-                                                                  ),
-                                                                  Text(
-                                                                    logic
-                                                                        .mdLatestProducts!
-                                                                        .products[
-                                                                            index]
-                                                                        .vendor,
-                                                                    style: TextStyle(
-                                                                        color: AppColors
-                                                                            .appPrimaryBlackColor,
-                                                                        fontSize:
-                                                                            20,
-                                                                        fontWeight:
-                                                                            FontWeight.w600),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ],
+                                                    return InkWell(
+                                                      onTap: () {
+                                                        // Navigate to ProductDetailScreen
+                                                        int? id = logic
+                                                            .mdLatestProducts!
+                                                            .products[index]
+                                                            .id;
+                                                        print('id=====${id}');
+                                                        print(
+                                                            'logic.mdLatestProducts!.products[index].variants[0].title=====${logic.mdLatestProducts!.products[index].variants[0].title}');
+
+                                                        Get.to(() =>
+                                                            ProductDetailView(
+                                                              productId: id,
+                                                              currency: logic
+                                                                          .mdLatestProducts!
+                                                                          .products[
+                                                                              index]
+                                                                          .variants[
+                                                                              0]
+                                                                          .title ==
+                                                                      'Default Title'
+                                                                  ? 'Pound'
+                                                                  : logic
+                                                                      .selectedCurrency
+                                                                      .value,
+                                                            ));
+                                                      },
+                                                      child: AnimatedContainer(
+                                                        duration: Duration(
+                                                            milliseconds: 300),
+                                                        curve: Curves.easeInOut,
+                                                        margin: EdgeInsets
+                                                            .symmetric(
+                                                          horizontal: isCurrent
+                                                              ? 10
+                                                              : 20,
+                                                          vertical: isCurrent
+                                                              ? 5
+                                                              : 20,
                                                         ),
+                                                        width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.95,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          border: Border.all(
+                                                              color: AppColors
+                                                                  .appPrimaryColor),
+                                                          // color: isCurrent
+                                                          //     ? Colors.blue
+                                                          //     : Colors.grey,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(20),
+                                                          // boxShadow: isCurrent
+                                                          //     ? [
+                                                          //         BoxShadow(
+                                                          //             color: Colors
+                                                          //                 .black26,
+                                                          //             blurRadius:
+                                                          //                 10)
+                                                          //       ]
+                                                          //     : [],
+                                                        ),
+                                                        child: ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        20),
+                                                            // Clip the image to the container's rounded corners
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(
+                                                                          6.0),
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Center(
+                                                                        child:
+                                                                            Text(
+                                                                          logic
+                                                                              .mdLatestProducts!
+                                                                              .products[index]
+                                                                              .title,
+                                                                          style:
+                                                                              TextStyle(
+                                                                            color:
+                                                                                AppColors.appPrimaryBlackColor,
+                                                                            fontSize:
+                                                                                20,
+                                                                            fontWeight:
+                                                                                FontWeight.w600,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      SizedBox(
+                                                                          height:
+                                                                              8),
+                                                                      // Space between title and vendor text
+                                                                      Center(
+                                                                        child:
+                                                                            Text(
+                                                                          logic
+                                                                              .mdLatestProducts!
+                                                                              .products[index]
+                                                                              .vendor,
+                                                                          style:
+                                                                              TextStyle(
+                                                                            color:
+                                                                                AppColors.appPrimaryBlackColor,
+                                                                            fontSize:
+                                                                                20,
+                                                                            fontWeight:
+                                                                                FontWeight.w600,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                Expanded(
+                                                                  child: logic.mdLatestProducts!.products[index].image !=
+                                                                              null &&
+                                                                          logic.mdLatestProducts!.products[index].image!.src !=
+                                                                              null
+                                                                      ? Image
+                                                                          .network(
+                                                                          logic
+                                                                              .mdLatestProducts!
+                                                                              .products[index]
+                                                                              .image!
+                                                                              .src!,
+                                                                          fit: BoxFit
+                                                                              .cover,
+                                                                          width:
+                                                                              double.infinity,
+                                                                        )
+                                                                      : Image
+                                                                          .asset(
+                                                                          'assets/images/skinCareDummy.png',
+                                                                          fit: BoxFit
+                                                                              .cover,
+                                                                          width:
+                                                                              double.infinity,
+                                                                        ),
+                                                                ),
+                                                              ],
+                                                            )),
                                                       ),
                                                     );
                                                   },
@@ -556,11 +603,26 @@ class _BottomBarHostView extends State<BottomBarHostView> {
     );
   }
 
+  void _launchURL() async {
+    final Uri url = Uri.parse('https://www.facebook.com/opatraskincare');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   Widget buildFbOption() {
-    return Image.asset(
-      'assets/images/fcIcon.png',
-      height: 25,
-      width: 25,
+    return InkWell(
+      onTap: () async {
+        // Using launchUrl and Uri instead of launch() for newer versions of url_launcher
+        _launchURL();
+      },
+      child: Image.asset(
+        'assets/images/fcIcon.png',
+        height: 25,
+        width: 25,
+      ),
     );
   }
 
@@ -581,25 +643,44 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   }
 
   Widget buildYoutubeOption() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          height: 25,
-          width: 25,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(100),
-              color: AppColors.appPrimaryColor),
-        ),
-        Container(
-          margin: EdgeInsets.all(15),
-          child: Image.asset(
-            'assets/images/youtubeIcon.png',
-            height: 15,
-            width: 15,
+    return InkWell(
+      onTap: () async {
+        final Uri youTubeUri = Uri.parse(
+            'https://www.youtube.com/channel/UClBMMEa5NFxdrxo7Cfs-KOQ'); // Facebook URL
+
+        try {
+          // Attempt to launch the URL in the default browser or appropriate app
+          if (await canLaunchUrl(youTubeUri)) {
+            await launchUrl(youTubeUri,
+                mode: LaunchMode
+                    .inAppWebView); // Let the system decide the app (browser or external app)
+          } else {
+            throw 'Could not launch $youTubeUri';
+          }
+        } catch (e) {
+          print('Error: $e');
+        }
+      },
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            height: 25,
+            width: 25,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: AppColors.appPrimaryColor),
           ),
-        ),
-      ],
+          Container(
+            margin: EdgeInsets.all(15),
+            child: Image.asset(
+              'assets/images/youtubeIcon.png',
+              height: 15,
+              width: 15,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1679,7 +1760,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
         children: [
           Expanded(
             child: const Text(
-              'Latest Products',
+              'Popular Products',
               style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -1698,7 +1779,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
         children: [
           Expanded(
             child: const Text(
-              'Best-Selling Skincare',
+              'SkinCare',
               style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -2080,69 +2161,21 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                     color: AppColors.appWhiteColor,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Stack(
-                    children: [
-                      // Image filling the parent container
-                      Positioned.fill(
-                        left: 100,
-                        top: 10,
-                        child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Image.network(
-                              logic.mdAllBanners!.data![index].imageUrl!,
-                              fit: BoxFit.contain,
-                              // Ensure the image covers the entire container
-                              errorBuilder: (BuildContext context, Object error,
-                                  StackTrace? stackTrace) {
-                                return Image.asset(
-                                  'assets/images/skinCareDummy.png',
-                                  // Path to your placeholder image
-                                  fit: BoxFit.contain,
-                                );
-                              },
-                            )),
-                      ),
-                      Positioned(
-                        top: 20,
-                        left: 20,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              color: Colors.grey.withOpacity(0.5),
-                              padding: EdgeInsets.all(10),
-                              child: Text(
-                                logic.mdAllBanners!.data![index].title!,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                  color: Colors
-                                      .black, // White text color for better contrast
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 15),
-                            Container(
-                              height: 40,
-                              width: 100,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(50),
-                                color: Color(0xFFB7A06A),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'Shop now',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12),
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.network(
+                        logic.mdAllBanners!.data![index].imageUrl!,
+                        fit: BoxFit.cover,
+                        // Ensure the image covers the entire container
+                        errorBuilder: (BuildContext context, Object error,
+                            StackTrace? stackTrace) {
+                          return Image.asset(
+                            'assets/images/skinCareDummy.png',
+                            // Path to your placeholder image
+                            fit: BoxFit.contain,
+                          );
+                        },
+                      )),
                 );
               },
             ),

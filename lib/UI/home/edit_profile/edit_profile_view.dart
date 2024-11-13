@@ -321,7 +321,8 @@ class EditProfileView extends StatelessWidget {
           Spacer(),
           buildName(),
           Spacer(),
-          buildNotificationOption()
+          Container()
+          // buildNotificationOption()
         ],
       ),
     );
