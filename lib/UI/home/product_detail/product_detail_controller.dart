@@ -167,7 +167,7 @@ class ProductDetailController extends GetxController {
     }
   }
 
-  void addToBag(ProductA? product, String selectedCurrency) {
+   addToBag(ProductA? product, String selectedCurrency) {
     print('addToBag called');
 
     // Ensure the product is not null

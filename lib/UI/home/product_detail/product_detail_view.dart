@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:opatra/UI/home/bag/bag_view.dart';
 import 'package:opatra/UI/home/product_detail/product_detail_controller.dart';
@@ -224,14 +225,16 @@ class _ProductDetailViewState extends State<ProductDetailView> {
 
   Widget buildAddToBagButton(ProductDetailController logic) {
     return InkWell(
-      onTap: () {
+      onTap: () async {
         print(
             'controller.mdProductDetail.product.id====${controller.mdProductDetail!.product!.id}');
         print('controller.quantity.value====${controller.quantity.value}');
         print('widget.currency====${widget.currency}');
+
         int usDollarIndex = 6;
         int euroIndex = 4;
         int poundIndex = 0;
+
         if (widget.currency == 'Pound') {
           controller.price =
               controller.mdProductDetail!.product!.variants![poundIndex].price!;
@@ -244,27 +247,35 @@ class _ProductDetailViewState extends State<ProductDetailView> {
           controller.price = controller
               .mdProductDetail!.product!.variants![usDollarIndex].price!;
         }
+
         print('price====${controller.price}');
-// Ensure controller.price is a String that can be parsed as a double
-        var priceA = controller.quantity.value *
-            double.tryParse(controller.price!)!; // Safely parse the price
+        var priceA =
+            controller.quantity.value * double.tryParse(controller.price!)!;
 
         print('priceA====${priceA}');
 
         if (controller.mdProductDetail!.product != null) {
-          // Create a new ProductA instance from the existing product data
           ProductA productToAdd = ProductA(
-              id: controller.mdProductDetail!.product!.id,
-              title: controller.mdProductDetail!.product!.title,
-              image: controller.mdProductDetail!.product!.image,
-              // Ensure this is of type Images
-              price: priceA.toDouble(),
-              // Make sure this is a double
-              quantity: controller.quantity.value,
-              selectedCurrency: widget.currency);
-          controller.addToBag(productToAdd, widget.currency);
+            id: controller.mdProductDetail!.product!.id,
+            title: controller.mdProductDetail!.product!.title,
+            image: controller.mdProductDetail!.product!.image,
+            price: priceA.toDouble(),
+            quantity: controller.quantity.value,
+            selectedCurrency: widget.currency,
+          );
 
-          Get.to(() => BagView(widget.currency));
+          // Await the addToBag function to ensure it's completed
+          await controller.addToBag(productToAdd, widget.currency);
+
+          // Show toast after the operation is successfully done
+          Fluttertoast.showToast(
+            msg: "Product Added to Bag Successfully",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: AppColors.appPrimaryColor,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
         } else {
           print('No product found to add to the bag.');
         }
@@ -487,7 +498,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
               itemBuilder: (context, index) {
                 return Image.network(
                   controller.mdProductDetail!.product!.images![index].src!,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                 );
               },
             ),

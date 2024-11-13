@@ -931,8 +931,11 @@ class BottomBarHostController extends GetxController {
 
   Future<void> _loadUserName() async {
     final prefs = await SharedPreferences.getInstance();
-    userName.value =
-        prefs.getString('userName') ?? 'Guest'; // Set default to 'Guest'
+    userName.value = ((prefs.getString('userName')?.isNotEmpty ?? false)
+        ? prefs.getString('userName')
+        : 'Guest')!; // Set default to 'Guest'
+
+    print('User Name: ${userName.value}');
   }
 
   Future<void> _loadUserEmail() async {

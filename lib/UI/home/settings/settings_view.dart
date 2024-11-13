@@ -296,7 +296,7 @@ class SettingsView extends StatelessWidget {
             if (isGuest) {
               logic.selectedIndex.value = 6;
 
-              Get.to(() => SignupView()); // Navigate to Register page if guest
+              Get.offAll(() => SignupView()); // Navigate to Register page if guest
             } else {
               logic.selectedIndex.value = 6;
               logic.showLogoutDialog(context); // Show logout dialog for non-guest users

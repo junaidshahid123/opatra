@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:opatra/UI/home/bottom_bar_host/bottom_bar_host_view.dart';
 import '../../constant/AppColors.dart';
 import 'package:http/http.dart'
     as http; // Add this dependency to your pubspec.yaml
@@ -425,20 +426,25 @@ class _PaymentState extends State<Payment> {
   }
 
   Widget buildSideBarOption() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          height: 50.sp,
-          width: 50.sp,
-          child: Image.asset('assets/images/ellipse.png'),
-        ),
-        Container(
-          height: 15,
-          width: 15,
-          child: Image.asset('assets/images/backArrow.png'),
-        ),
-      ],
+    return InkWell(
+      onTap: () {
+        Get.offAll(() => BottomBarHostView());
+      },
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            height: 50.sp,
+            width: 50.sp,
+            child: Image.asset('assets/images/ellipse.png'),
+          ),
+          Container(
+            height: 15,
+            width: 15,
+            child: Image.asset('assets/images/backArrow.png'),
+          ),
+        ],
+      ),
     );
   }
 

@@ -22,6 +22,12 @@ class LoginLogic extends GetxController {
   AutovalidateMode autoValidateMode = AutovalidateMode.disabled;
 
   Future<void> onLoginTap({bool fromSplash = false}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? name = prefs.getString('userName');
+    print('name========${name}');
+    prefs.setString('userName',"");
+
     if (!fromSplash) {
       autoValidateMode = AutovalidateMode.onUserInteraction;
       update();
@@ -59,13 +65,13 @@ class LoginLogic extends GetxController {
 
         final Map<String, dynamic> responseData = json.decode(response.body);
         print('responseData========${responseData}');
-        SharedPreferences prefs = await SharedPreferences.getInstance();
 
         // Extract necessary details from the response
         String token = responseData['authorization']['token'] ?? '';
         String userName = responseData['user']['name'] ?? '';
         String userEmail = responseData['user']['email'] ?? '';
         String emailVerified = responseData['user']['email_verified_at'] ?? '';
+        print('userName========${userName}');
 
         // Save only the required fields to SharedPreferences
         await prefs.setString('token', token);
@@ -83,6 +89,7 @@ class LoginLogic extends GetxController {
         if (token != null && emailVerifiedAt != null) {
           // Token exists and email is verified, navigate to BottomBarHost
           await prefs.setBool('is_guest', false);
+          await prefs.setString('userName', userName);
 
           Get.offAll(() => BottomBarHostView());
         } else if (token == null) {
@@ -151,7 +158,7 @@ class LoginLogic extends GetxController {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', responseData['token']);
         await prefs.setBool('is_guest', responseData['user']['is_guest']);
-
+        prefs.setString('userName', '');
         Get.snackbar('Success', 'Guest User created successfully.',
             backgroundColor: AppColors.appPrimaryColor);
 
