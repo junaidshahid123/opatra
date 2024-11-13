@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:opatra/constant/AppColors.dart';
 
 class LiveStream extends StatefulWidget {
@@ -19,10 +20,23 @@ class _LiveStreamState extends State<LiveStream> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.appWhiteColor,
+
       body: SafeArea(
-          child: Center(
-        child: Text('Live Stream coming soon',style: TextStyle(color: AppColors.appPrimaryColor),),
-      )
+          child: Column(
+            children: [
+              buildAppBar(),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.30,
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text('Live Stream coming soon',style: TextStyle(color: AppColors.appPrimaryColor),),
+                ],
+              ),
+            ],
+          )
 
           //     Stack(
           //   children: [
@@ -308,20 +322,26 @@ class _LiveStreamState extends State<LiveStream> {
   }
 
   Widget buildSideBarOption() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          height: 50.sp,
-          width: 50.sp,
-          child: Image.asset('assets/images/ellipse.png'),
-        ),
-        Container(
-          height: 15,
-          width: 15,
-          child: Image.asset('assets/images/arrowLeft.png'),
-        ),
-      ],
+    return InkWell(
+      onTap: () {
+        Get.back();
+      },
+      child: Stack(
+
+        alignment: Alignment.center,
+        children: [
+          Container(
+            height: 50.sp,
+            width: 50.sp,
+            child: Image.asset('assets/images/ellipse.png'),
+          ),
+          Container(
+            height: 15,
+            width: 15,
+            child: Image.asset('assets/images/arrowLeft.png'),
+          ),
+        ],
+      ),
     );
   }
 

@@ -6,6 +6,7 @@ import 'package:opatra/models/MDProductDetail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constant/AppColors.dart';
 import '../Payment.dart';
+import '../bottom_bar_host/bottom_bar_host_view.dart';
 
 class BagView extends StatelessWidget {
   final String selectedCurrency; // Declare a field for the amount
@@ -19,6 +20,7 @@ class BagView extends StatelessWidget {
         init: BagController(),
         builder: (logic) {
           return Scaffold(
+
             backgroundColor: AppColors.appWhiteColor,
             body: SafeArea(
               child: Column(
@@ -398,7 +400,11 @@ class BagView extends StatelessWidget {
         top: 30,
       ),
       child: Row(
-        children: [buildSideBarOption(), Spacer(), buildName(), Spacer()],
+        children: [InkWell(
+            onTap: () {
+              Get.offAll(() => BottomBarHostView());
+            },
+            child: buildSideBarOption()), Spacer(), buildName(), Spacer()],
       ),
     );
   }
@@ -420,6 +426,7 @@ class BagView extends StatelessWidget {
       ],
     );
   }
+
 
   Widget buildName() {
     return const Text(

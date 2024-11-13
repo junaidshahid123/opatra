@@ -62,38 +62,37 @@ class _NotificationsState extends State<Notifications> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: AppColors.appPrimaryWhiteColor,
-        body: Scaffold(
-          body: SafeArea(
-            child: FutureBuilder<List<NotificationModel>>(
-              future: getNotifications(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text("Error: ${snapshot.error}"));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text("No notifications found"));
-                }
+      body: SafeArea(
+        child: FutureBuilder<List<NotificationModel>>(
+          future: getNotifications(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text("Error: ${snapshot.error}"));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(child: Text("No notifications found"));
+            }
 
-                // Display notifications
-                return Column(
-                  children: [
-                    buildAppBar(),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (context, index) {
-                          final notification = snapshot.data![index];
-                          return buildNotificationCard(notification);
-                        },
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ));
+            // Display notifications
+            return Column(
+              children: [
+                buildAppBar(),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      final notification = snapshot.data![index];
+                      return buildNotificationCard(notification);
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
   }
 
   Widget buildNotificationCard(NotificationModel notification) {
