@@ -252,44 +252,56 @@ class _PaymentState extends State<Payment> {
     return Scaffold(
       backgroundColor: AppColors.appWhiteColor,
       body: SafeArea(
-          child: Obx(
-        () => Column(
-          children: [
-            buildAppBar(),
-            buildCreditCardAndWalletOptions(),
-            card.value == true ? buildPreviewProductImages() : Container(),
-            card.value == true ? addNewCardButton() : Container(),
-            wallet.value == true ? payPalOption() : Container(),
-            wallet.value == true ? klarnaOption() : Container(),
-            Spacer(),
-            Container(
-              height: MediaQuery.of(context).size.height / 3,
-              margin: EdgeInsets.only(left: 20, right: 20, bottom: 20, top: 20),
-              decoration: BoxDecoration(
-                  color: Color(0xFFB7A06A),
-                  borderRadius: BorderRadius.all(Radius.circular(20))),
-              child: Container(
-                margin: EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                ),
-                child: Column(
-                  children: [
-                    buildSubTotal(),
-                    buildDivider(),
-                    buildTax(),
-                    buildDivider(),
-                    buildDiscount(),
-                    buildDivider(),
-                    buildTotal(),
-                    Spacer(),
-                    buildContinueButton()
-                  ],
-                ),
+          child: Column(
+        children: [
+          buildAppBar(),
+          Expanded(
+            child: Center(
+              child: Text(
+                'Payment Method is not Activated Yet',
+                style: TextStyle(color: AppColors.appPrimaryColor),
               ),
-            )
-          ],
-        ),
+              //   Obx(l
+              // () => Column(
+              //   children: [
+              //     buildAppBar(),
+              //     buildCreditCardAndWalletOptions(),
+              //     card.value == true ? buildPreviewProductImages() : Container(),
+              //     card.value == true ? addNewCardButton() : Container(),
+              //     wallet.value == true ? payPalOption() : Container(),
+              //     wallet.value == true ? klarnaOption() : Container(),
+              //     Spacer(),
+              //     Container(
+              //       height: MediaQuery.of(context).size.height / 3,
+              //       margin: EdgeInsets.only(left: 20, right: 20, bottom: 20, top: 20),
+              //       decoration: BoxDecoration(
+              //           color: Color(0xFFB7A06A),
+              //           borderRadius: BorderRadius.all(Radius.circular(20))),
+              //       child: Container(
+              //         margin: EdgeInsets.only(
+              //           left: 20,
+              //           right: 20,
+              //         ),
+              //         child: Column(
+              //           children: [
+              //             buildSubTotal(),
+              //             buildDivider(),
+              //             buildTax(),
+              //             buildDivider(),
+              //             buildDiscount(),
+              //             buildDivider(),
+              //             buildTotal(),
+              //             Spacer(),
+              //             buildContinueButton()
+              //           ],
+              //         ),
+              //       ),
+              //     )
+              //   ],
+              // ),
+            ),
+          ),
+        ],
       )),
     );
   }
