@@ -546,8 +546,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
               Row(
                 children: [
                   Image.asset(
-                    'assets/images/logoForSideDrawer.png',
-                    height: 100,
+                    'assets/images/splashLogo.png',
+                    height: 150,
                     width: MediaQuery.of(context).size.width / 2,
                   ),
                 ],
@@ -576,7 +576,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                   buildWarrantyClaimsOption(logic),
                   buildSettingsOption(logic),
                   // buildLogOutOption(logic),
-                  buildSocialOptions(logic)
+                 // buildSocialOptions(logic)
                 ],
               ),
             ],

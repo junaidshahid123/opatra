@@ -13,7 +13,7 @@
     <application
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
-        android:label="opatra"
+        android:label="Opatra"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
 

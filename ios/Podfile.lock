@@ -6,10 +6,10 @@ PODS:
   - Firebase/Messaging (11.4.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 11.4.0)
-  - firebase_core (3.7.0):
+  - firebase_core (3.8.0):
     - Firebase/CoreOnly (= 11.4.0)
     - Flutter
-  - firebase_messaging (15.1.4):
+  - firebase_messaging (15.1.5):
     - Firebase/Messaging (= 11.4.0)
     - firebase_core
     - Flutter
@@ -36,6 +36,9 @@ PODS:
   - Flutter (1.0.0)
   - flutter_local_notifications (0.0.1):
     - Flutter
+  - fluttertoast (0.0.2):
+    - Flutter
+    - Toast
   - geolocator_apple (1.2.0):
     - Flutter
   - Google-Maps-iOS-Utils (5.0.0):
@@ -97,6 +100,7 @@ PODS:
   - sqflite (0.0.3):
     - Flutter
     - FlutterMacOS
+  - Toast (4.1.1)
   - url_launcher_ios (0.0.1):
     - Flutter
   - video_player_avfoundation (0.0.1):
@@ -113,6 +117,7 @@ DEPENDENCIES:
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - Flutter (from `Flutter`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
+  - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - geolocator_apple (from `.symlinks/plugins/geolocator_apple/ios`)
   - google_maps_flutter_ios (from `.symlinks/plugins/google_maps_flutter_ios/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
@@ -139,6 +144,7 @@ SPEC REPOS:
     - GoogleUtilities
     - nanopb
     - PromisesObjC
+    - Toast
 
 EXTERNAL SOURCES:
   audio_session:
@@ -151,6 +157,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_local_notifications:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
+  fluttertoast:
+    :path: ".symlinks/plugins/fluttertoast/ios"
   geolocator_apple:
     :path: ".symlinks/plugins/geolocator_apple/ios"
   google_maps_flutter_ios:
@@ -179,15 +187,16 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   audio_session: 088d2483ebd1dc43f51d253d4a1c517d9a2e7207
   Firebase: cf1b19f21410b029b6786a54e9764a0cacad3c99
-  firebase_core: f8c5b220a8f9c436fdbd075ae321cef3d96ef181
-  firebase_messaging: a7f18d98006bbd8fd0918f4db64b9a70df29aaa8
+  firebase_core: 9efc3ecf689cdbc90f13f4dc58108c83ea46b266
+  firebase_messaging: 6bf60adb4b33a848d135e16bc363fb4924f98fba
   FirebaseCore: e0510f1523bc0eb21653cac00792e1e2bd6f1771
   FirebaseCoreInternal: 35731192cab10797b88411be84940d2beb33a238
   FirebaseInstallations: 6ef4a1c7eb2a61ee1f74727d7f6ce2e72acf1414
   FirebaseMessaging: f8a160d99c2c2e5babbbcc90c4a3e15db036aee2
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086
-  geolocator_apple: 6cbaf322953988e009e5ecb481f07efece75c450
+  fluttertoast: e9a18c7be5413da53898f660530c56f35edfba9c
+  geolocator_apple: 9bcea1918ff7f0062d98345d238ae12718acfbc1
   Google-Maps-iOS-Utils: 66d6de12be1ce6d3742a54661e7a79cb317a9321
   google_maps_flutter_ios: e31555a04d1986ab130f2b9f24b6cdc861acc6d3
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
@@ -201,6 +210,7 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   sqflite: 673a0e54cc04b7d6dba8d24fb8095b31c3a99eec
+  Toast: 1f5ea13423a1e6674c4abdac5be53587ae481c4e
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   video_player_avfoundation: 7c6c11d8470e1675df7397027218274b6d2360b3
   wakelock_plus: 78ec7c5b202cab7761af8e2b2b3d0671be6c4ae1
