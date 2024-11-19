@@ -2165,7 +2165,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                       borderRadius: BorderRadius.circular(20),
                       child: Image.network(
                         logic.mdAllBanners!.data![index].imageUrl!,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.fill,
                         // Ensure the image covers the entire container
                         errorBuilder: (BuildContext context, Object error,
                             StackTrace? stackTrace) {
