@@ -5,13 +5,14 @@ import 'package:opatra/UI/home/treatment/treatment_model.dart';
 import 'package:opatra/models/MDProductDetail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constant/AppLinks.dart';
+import '../../../models/MDLatestProducts.dart';
 import '../bottom_bar_host/bottom_bar_host_model.dart';
 import '../select_device/select_device_view.dart';
 import 'package:http/http.dart' as http;
 
 class TreatmentController extends GetxController {
   // Reactive variables to manage state
-  Rx<Product?> storedDevice = Rx<Product?>(null);
+  Rx<ProductsC?> storedDevice = Rx<ProductsC?>(null);
   RxBool deviceExists = false.obs;
   RxBool isLoading = false.obs;
   Rxn<MDGetDevices> mdGetDevices =
@@ -257,7 +258,7 @@ class TreatmentController extends GetxController {
 
     if (deviceJson != null) {
       Map<String, dynamic> deviceMap = jsonDecode(deviceJson);
-      storedDevice.value = Product.fromJson(deviceMap);
+      storedDevice.value = ProductsC.fromJson(deviceMap);
       print('Retrieved Device: ${storedDevice.value!.title}');
       return true;
     } else {

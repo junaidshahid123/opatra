@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../models/MDLatestProducts.dart';
 import '../../../models/MDProductDetail.dart';
 import '../calender/calender_view.dart';
 
 class CreateScheduleController extends GetxController {
-  Rx<Product?> storedDevice = Rx<Product?>(null);
+  Rx<ProductsC?> storedDevice = Rx<ProductsC?>(null);
   RxBool sunday = false.obs;
   RxBool monday = false.obs;
   RxBool tuesday = false.obs;
@@ -78,7 +79,7 @@ class CreateScheduleController extends GetxController {
     if (deviceJson != null) {
       // Decode the JSON string and convert it into a Device object
       Map<String, dynamic> deviceMap = jsonDecode(deviceJson);
-      storedDevice.value = Product.fromJson(deviceMap);
+      storedDevice.value = ProductsC.fromJson(deviceMap);
 
       // You can now use the storedDevice object
       print('Retrieved Device: ${storedDevice.value!.title}');

@@ -1,13 +1,13 @@
 // Model class for the latest products
 class MDLatestProducts {
-  List<Products> products;
+  List<ProductsC> products;
 
   MDLatestProducts({required this.products});
 
   // JSON deserialization
   MDLatestProducts.fromJson(Map<String, dynamic> json)
       : products = (json['products'] as List)
-      .map((v) => Products.fromJson(v))
+      .map((v) => ProductsC.fromJson(v))
       .toList();
 
   // JSON serialization
@@ -19,7 +19,7 @@ class MDLatestProducts {
 }
 
 // Model class for Products
-class Products {
+class ProductsC {
   int id;
   String title;
   String? bodyHtml;  // Nullable field
@@ -39,7 +39,7 @@ class Products {
   List<Images> images;
   Images? image;  // Nullable field
 
-  Products({
+  ProductsC({
     required this.id,
     required this.title,
     this.bodyHtml, // Nullable field
@@ -61,7 +61,7 @@ class Products {
   });
 
   // JSON deserialization
-  Products.fromJson(Map<String, dynamic> json)
+  ProductsC.fromJson(Map<String, dynamic> json)
       : id = json['id'] ?? 0,
         title = json['title'] ?? '',
         bodyHtml = json['body_html'],

@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import '../../../models/MDLatestProducts.dart';
 import '../../../models/MDProductDetail.dart';
 
 class BagController extends GetxController {
@@ -11,7 +12,7 @@ class BagController extends GetxController {
   var quantities = <int>[].obs; // Corresponding quantities for each product
 
   // New map to store total prices for each product
-  RxMap<Product, double> totalPrices = <Product, double>{}.obs;
+  RxMap<ProductsC, double> totalPrices = <ProductsC, double>{}.obs;
 
 
   void calculateSubtotal() {

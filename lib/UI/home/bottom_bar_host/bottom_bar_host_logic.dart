@@ -11,6 +11,8 @@ import '../../../models/MDAllVideos.dart';
 import '../../../models/MDCategories.dart';
 import '../../../models/MDLatestProducts.dart';
 import '../../../models/MDProducts.dart';
+import '../../../models/MDProducts.dart' as MDModels;
+
 import '../../../models/MDProductsByCategory.dart';
 import '../../../models/MDVideosByCategory.dart';
 import '../../auth/login/login_view.dart';
@@ -31,6 +33,7 @@ class BottomBarHostController extends GetxController {
   MDLatestProducts? mdLatestProducts;
   MDGetAppModules? mdGetAppModules;
   MDProducts? mdProducts;
+  List<MDModels.Products> skinProducts = [];
   MDProductsByCategory? mdProductsByCategory;
   RxBool isLoading = false.obs;
   RxBool isCurrencyDropDown = false.obs;
@@ -862,36 +865,116 @@ class BottomBarHostController extends GetxController {
   Future<void> fetchAllProducts() async {
     final url = Uri.parse(ApiUrls.products);
 
+    // Fetch token from SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token'); // Get the token from shared prefs
+    String? token = prefs.getString('token');
     if (token == null || token.isEmpty) {
-      Get.snackbar('Error', 'No token found. Please log in again.',
-          backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(
+        'Error',
+        'No token found. Please log in again.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       return;
     }
 
+    // Prepare headers with the Bearer token
     Map<String, String> headers = {
       "Accept": "application/json",
-      "Authorization": "Bearer $token", // Include the Bearer token in headers
+      "Authorization": "Bearer $token",
     };
 
     try {
+      // Send GET request
       final response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print('mdProducts: $data');
+        print('Fetched data: $data'); // Debug raw data
+
+        // Parse the response into the MDProducts model
         mdProducts = MDProducts.fromJson(data);
-        print('mdProducts: $mdProducts');
-        update();
-        for (int i = 0; i < mdProducts!.products!.length; i++) {
-          print('title============${mdProducts!.products![i].title}');
+        print(
+            'Parsed mdProducts: ${mdProducts?.products?.length ?? 0}'); // Debug parsed model
+
+        update(); // Notify listeners/UI about state changes
+
+        // Process each product
+        for (var product in mdProducts?.products ?? []) {
+          print(
+              'Processing product: ${product.toJson()}'); // Debugging individual products
+
+          // Check productType
+          if (product.productType?.isNotEmpty ?? false) {
+            print('Product type: ${product.productType}');
+            print('Variants: ${product.variants}');
+            print('Options: ${product.options}');
+            print('Images: ${product.images}');
+            print('Image: ${product.image}');
+
+            // Match "Skincare devices" in productType
+            if (product.productType!.contains('Skincare devices')) {
+              print('Product matches "Skincare devices": ${product.toJson()}');
+              try {
+                // Convert to Products model
+                Products skinProduct = Products(
+                  id: product.id,
+                  title: product.title,
+                  bodyHtml: product.bodyHtml,
+                  vendor: product.vendor,
+                  productType: product.productType,
+                  createdAt: product.createdAt,
+                  handle: product.handle,
+                  updatedAt: product.updatedAt,
+                  publishedAt: product.publishedAt,
+                  templateSuffix: product.templateSuffix,
+                  publishedScope: product.publishedScope,
+                  tags: product.tags,
+                  status: product.status,
+                  adminGraphqlApiId: product.adminGraphqlApiId,
+                  variants: product.variants,
+                  options: product.options,
+                  images: product.images,
+                  image: product.image,
+                );
+
+                // Add to skinProducts list
+                skinProducts.add(skinProduct);
+                print('Added product to skinProducts: ${skinProduct.toJson()}');
+              } catch (e, stackTrace) {
+                print('Error adding product to skinProducts: $e');
+                print('Stack trace: $stackTrace');
+              }
+            } else {
+              print(
+                  'Product type does not match "Skincare devices": ${product.productType}');
+            }
+          } else {
+            print(
+                'Product type is null or empty for product: ${product.toJson()}');
+          }
         }
+
+        // Final list of skinProducts
+        print(
+            'Final skinProducts list: ${skinProducts.map((p) => p.toJson()).toList()}');
       } else {
         print('Failed to load products. Status Code: ${response.statusCode}');
+        Get.snackbar(
+          'Error',
+          'Failed to fetch products. Please try again later.',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
       }
     } catch (e) {
       print('Error: $e');
+      Get.snackbar(
+        'Error',
+        'Something went wrong. Please try again later.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
