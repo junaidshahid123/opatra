@@ -68,6 +68,12 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                               children: [
                                 Obx(
                                   () => logic.home.value == true
+                                      ? buildProductListViewForBanners(logic)
+                                      : Container(),
+                                ),
+
+                                Obx(
+                                  () => logic.home.value == true
                                       ? buildLatestProductsTextForHome()
                                       : Container(),
                                 ),
@@ -205,7 +211,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                                                             color:
                                                                                 AppColors.appPrimaryBlackColor,
                                                                             fontSize:
-                                                                                20,
+                                                                                16,
                                                                             fontWeight:
                                                                                 FontWeight.w600,
                                                                           ),
@@ -227,7 +233,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                                                             color:
                                                                                 AppColors.appPrimaryBlackColor,
                                                                             fontSize:
-                                                                                20,
+                                                                                16,
                                                                             fontWeight:
                                                                                 FontWeight.w600,
                                                                           ),
@@ -279,8 +285,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                     ? buildHomeProductListView(logic)
                                     : logic.video.value == true
                                         ? buildProductListView()
-                                        : buildProductListViewForBanners(
-                                            logic)),
+                                        : Container()),
                                 Obx(
                                   () => logic.home.value == true
                                       ? buildDevicesHeading()
@@ -1958,126 +1963,126 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   Widget buildDevicesListView(BottomBarHostController logic) {
     return logic.mdProducts == null
         ? Center(
-      child: CircularProgressIndicator(
-        color: AppColors.appPrimaryBlackColor,
-      ),
-    )
+            child: CircularProgressIndicator(
+              color: AppColors.appPrimaryBlackColor,
+            ),
+          )
         : Container(
-      height: 150,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: logic.mdProducts!.products!.length ?? 0,
-        itemBuilder: (context, index) {
-          // Extract SmartCollections data from the controller
-          final smartCollection = logic.mdProducts!.products![index];
+            height: 150,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: logic.devicesA.length ?? 0,
+              itemBuilder: (context, index) {
+                // Extract SmartCollections data from the controller
+                final smartCollection = logic.devicesA[index];
 
-          int usDollarIndex = 6;
-          int euroIndex = 4;
-          int poundIndex = 0;
+                int usDollarIndex = 6;
+                int euroIndex = 4;
+                int poundIndex = 0;
 
-          // Check if the product has a variant with the title "Default Title"
-          bool hasDefaultTitle = smartCollection.variants
-              ?.any((variant) => variant.title == "Default Title") ??
-              false;
+                // Check if the product has a variant with the title "Default Title"
+                bool hasDefaultTitle = smartCollection.variants
+                        ?.any((variant) => variant.title == "Default Title") ??
+                    false;
 
-          // Define the updated price based on selected currency and "Default Title" presence
-          String price;
+                // Define the updated price based on selected currency and "Default Title" presence
+                String price;
 
-          if (hasDefaultTitle) {
-            price =
-            '£ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
-          } else if (logic.selectedCurrency.value == 'US Dollar') {
-            price = (smartCollection.variants != null &&
-                smartCollection.variants!.length > usDollarIndex)
-                ? '\$ ${smartCollection.variants![usDollarIndex].price ?? '0.00'} USD'
-                : '\$ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
-          } else if (logic.selectedCurrency.value == 'Euro') {
-            price = (smartCollection.variants != null &&
-                smartCollection.variants!.length > euroIndex)
-                ? '€ ${smartCollection.variants![euroIndex].price ?? '0.00'} Euro'
-                : '€ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
-          } else {
-            price = (smartCollection.variants != null &&
-                smartCollection.variants!.length > poundIndex)
-                ? '£ ${smartCollection.variants![poundIndex].price ?? '0.00'} Pound'
-                : '£ 0.00 Pound';
-          }
+                if (hasDefaultTitle) {
+                  price =
+                      '£ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
+                } else if (logic.selectedCurrency.value == 'US Dollar') {
+                  price = (smartCollection.variants != null &&
+                          smartCollection.variants!.length > usDollarIndex)
+                      ? '\$ ${smartCollection.variants![usDollarIndex].price ?? '0.00'} USD'
+                      : '\$ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
+                } else if (logic.selectedCurrency.value == 'Euro') {
+                  price = (smartCollection.variants != null &&
+                          smartCollection.variants!.length > euroIndex)
+                      ? '€ ${smartCollection.variants![euroIndex].price ?? '0.00'} Euro'
+                      : '€ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
+                } else {
+                  price = (smartCollection.variants != null &&
+                          smartCollection.variants!.length > poundIndex)
+                      ? '£ ${smartCollection.variants![poundIndex].price ?? '0.00'} Pound'
+                      : '£ 0.00 Pound';
+                }
 
-          return InkWell(
-            onTap: () {
-              // Navigate to ProductDetailScreen
-              int? id = smartCollection.id;
-              print('id=====${id}');
-              print(
-                  'smartCollection.productType=====${smartCollection.productType}');
-              Get.to(() => ProductDetailView(
-                    productId: id!,
-                    currency: smartCollection.variants![0].title ==
-                            'Default Title'
-                        ? 'Pound'
-                        : logic.selectedCurrency.value,
-                  ));
-            },
-            child: Container(
-              width: 150,
-              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              decoration: BoxDecoration(
-                border: Border.all(color: Color(0xFFFBF3D7), width: 1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Spacer(),
-                  // Load image from SmartCollections data
-                  smartCollection.image != null &&
-                      smartCollection.image!.src != null
-                      ? Image.network(
-                    smartCollection.image!.src!,
-                    height: 50,
-                    width: 50,
-                    fit: BoxFit.cover,
-                  )
-                      : Image.asset(
-                    'assets/images/skinCareDummy.png', // Fallback image
-                    height: 50,
-                    width: 50,
-                    fit: BoxFit.cover,
-                  ),
-                  SizedBox(height: 10),
-                  // Display the title of the product category
-                  Text(
-                    smartCollection.title ?? 'Unknown Title',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.appPrimaryBlackColor,
+                return InkWell(
+                  onTap: () {
+                    // Navigate to ProductDetailScreen
+                    int? id = smartCollection.id;
+                    print('id=====${id}');
+                    print(
+                        'smartCollection.productType=====${smartCollection.productType}');
+                    Get.to(() => ProductDetailView(
+                          productId: id!,
+                          currency: smartCollection.variants![0].title ==
+                                  'Default Title'
+                              ? 'Pound'
+                              : logic.selectedCurrency.value,
+                        ));
+                  },
+                  child: Container(
+                    width: 150,
+                    margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Color(0xFFFBF3D7), width: 1),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                  ),
-                  SizedBox(height: 5),
-                  // Display the updated price
-                  GetBuilder<BottomBarHostController>(
-                      init: BottomBarHostController(),
-                      builder: (BottomBarHostController) {
-                        return Text(
-                          price,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Spacer(),
+                        // Load image from SmartCollections data
+                        smartCollection.image != null &&
+                                smartCollection.image!.src != null
+                            ? Image.network(
+                                smartCollection.image!.src!,
+                                height: 50,
+                                width: 50,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.asset(
+                                'assets/images/skinCareDummy.png', // Fallback image
+                                height: 50,
+                                width: 50,
+                                fit: BoxFit.cover,
+                              ),
+                        SizedBox(height: 10),
+                        // Display the title of the product category
+                        Text(
+                          smartCollection.title ?? 'Unknown Title',
                           style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
                             color: AppColors.appPrimaryBlackColor,
                           ),
-                        );
-                      }),
-                  Spacer(),
-                ],
-              ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                        ),
+                        SizedBox(height: 5),
+                        // Display the updated price
+                        GetBuilder<BottomBarHostController>(
+                            init: BottomBarHostController(),
+                            builder: (BottomBarHostController) {
+                              return Text(
+                                price,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.appPrimaryBlackColor,
+                                ),
+                              );
+                            }),
+                        Spacer(),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           );
-        },
-      ),
-    );
   }
 
   Widget buildHomeProductListView(BottomBarHostController logic) {
@@ -2086,115 +2091,125 @@ class _BottomBarHostView extends State<BottomBarHostView> {
     // Check if products are null and show a loading spinner
     return logic.mdProducts == null
         ? Center(
-      child: CircularProgressIndicator(
-        color: AppColors.appPrimaryBlackColor,
-      ),
-    )
+            child: CircularProgressIndicator(
+              color: AppColors.appPrimaryBlackColor,
+            ),
+          )
         : Container(
-      height: 150,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: logic.skinProducts.length,
-        itemBuilder: (context, index) {
-          final skinProducts = logic.skinProducts[index];
+            height: 150,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: logic.skinProducts.length,
+              itemBuilder: (context, index) {
+                final skinProducts = logic.skinProducts[index];
 
-          int usDollarIndex = 6;
-          int euroIndex = 4;
-          int poundIndex = 0;
+                int usDollarIndex = 6;
+                int euroIndex = 4;
+                int poundIndex = 0;
 
-          // Check if the product has a variant with the title "Default Title"
-          bool hasDefaultTitle = skinProducts.variants
-              ?.any((variant) => variant.title == "Default Title") ??
-              false;
+                // Check if the product has a variant with the title "Default Title"
+                bool hasDefaultTitle = skinProducts.variants
+                        ?.any((variant) => variant.title == "Default Title") ??
+                    false;
 
-          // Define the updated price based on selected currency and "Default Title" presence
-          String price;
+                // Define the updated price based on selected currency and "Default Title" presence
+                String price;
 
-          // Simplified price assignment based on the selected currency
-          if (skinProducts.variants != null && skinProducts.variants!.isNotEmpty) {
-            final variant = skinProducts.variants!.firstWhere(
-                  (variant) => variant.title == "Default Title",
-              orElse: () => skinProducts.variants!.first,  // Default variant if no "Default Title"
-            );
+                // Simplified price assignment based on the selected currency
+                if (skinProducts.variants != null &&
+                    skinProducts.variants!.isNotEmpty) {
+                  final variant = skinProducts.variants!.firstWhere(
+                    (variant) => variant.title == "Default Title",
+                    orElse: () => skinProducts.variants!
+                        .first, // Default variant if no "Default Title"
+                  );
 
-            if (hasDefaultTitle) {
-              price = '£ ${variant.price ?? '0.00'} Pound';
-            } else if (logic.selectedCurrency.value == 'US Dollar') {
-              price = '\$ ${skinProducts.variants!.length > usDollarIndex ? skinProducts.variants![usDollarIndex].price ?? '0.00' : '0.00'} USD';
-            } else if (logic.selectedCurrency.value == 'Euro') {
-              price = '€ ${skinProducts.variants!.length > euroIndex ? skinProducts.variants![euroIndex].price ?? '0.00' : '0.00'} Euro';
-            } else {
-              price = '£ ${skinProducts.variants!.length > poundIndex ? skinProducts.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
-            }
-          } else {
-            price = 'Price not available';
-          }
+                  if (hasDefaultTitle) {
+                    price = '£ ${variant.price ?? '0.00'} Pound';
+                  } else if (logic.selectedCurrency.value == 'US Dollar') {
+                    price =
+                        '\$ ${skinProducts.variants!.length > usDollarIndex ? skinProducts.variants![usDollarIndex].price ?? '0.00' : '0.00'} USD';
+                  } else if (logic.selectedCurrency.value == 'Euro') {
+                    price =
+                        '€ ${skinProducts.variants!.length > euroIndex ? skinProducts.variants![euroIndex].price ?? '0.00' : '0.00'} Euro';
+                  } else {
+                    price =
+                        '£ ${skinProducts.variants!.length > poundIndex ? skinProducts.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
+                  }
+                } else {
+                  price = 'Price not available';
+                }
 
-          return InkWell(
-            onTap: () {
-              int? id = skinProducts.id;
-              print('id=====${id}');
-              print('skinProducts.productType=====${skinProducts.productType}');
-              Get.to(() => ProductDetailView(
-                productId: id!,
-                currency: skinProducts.variants?.first.title == 'Default Title' ? 'Pound' : logic.selectedCurrency.value,
-              ));
-            },
-            child: Container(
-              width: 150,
-              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              decoration: BoxDecoration(
-                border: Border.all(color: Color(0xFFFBF3D7), width: 1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Spacer(),
-                  // Load image from SmartCollections data
-                  skinProducts.image != null && skinProducts.image!.src != null
-                      ? Image.network(
-                    skinProducts.image!.src!,
-                    height: 50,
-                    width: 50,
-                    fit: BoxFit.cover,
-                  )
-                      : Image.asset(
-                    'assets/images/skinCareDummy.png', // Fallback image
-                    height: 50,
-                    width: 50,
-                    fit: BoxFit.cover,
-                  ),
-                  SizedBox(height: 10),
-                  // Display the title of the product category
-                  Text(
-                    skinProducts.title ?? 'Unknown Title',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.appPrimaryBlackColor,
+                return InkWell(
+                  onTap: () {
+                    int? id = skinProducts.id;
+                    print('id=====${id}');
+                    print(
+                        'skinProducts.productType=====${skinProducts.productType}');
+                    Get.to(() => ProductDetailView(
+                          productId: id!,
+                          currency: skinProducts.variants?.first.title ==
+                                  'Default Title'
+                              ? 'Pound'
+                              : logic.selectedCurrency.value,
+                        ));
+                  },
+                  child: Container(
+                    width: 150,
+                    margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Color(0xFFFBF3D7), width: 1),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                  ),
-                  SizedBox(height: 5),
-                  // Display the updated price
-                  Text(
-                    price,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.appPrimaryBlackColor,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Spacer(),
+                        // Load image from SmartCollections data
+                        skinProducts.image != null &&
+                                skinProducts.image!.src != null
+                            ? Image.network(
+                                skinProducts.image!.src!,
+                                height: 50,
+                                width: 50,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.asset(
+                                'assets/images/skinCareDummy.png', // Fallback image
+                                height: 50,
+                                width: 50,
+                                fit: BoxFit.cover,
+                              ),
+                        SizedBox(height: 10),
+                        // Display the title of the product category
+                        Text(
+                          skinProducts.title ?? 'Unknown Title',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.appPrimaryBlackColor,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                        ),
+                        SizedBox(height: 5),
+                        // Display the updated price
+                        Text(
+                          price,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.appPrimaryBlackColor,
+                          ),
+                        ),
+                        Spacer(),
+                      ],
                     ),
                   ),
-                  Spacer(),
-                ],
-              ),
+                );
+              },
             ),
           );
-        },
-      ),
-    );
   }
 
   Widget buildProductListView() {
@@ -2620,7 +2635,7 @@ class VideoGridWidget extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 20.0,
           mainAxisSpacing: 20.0,
-          childAspectRatio: 1.2,
+          childAspectRatio: 0.9,
         ),
         itemCount: videos.length,
         itemBuilder: (context, index) {
@@ -2628,52 +2643,74 @@ class VideoGridWidget extends StatelessWidget {
           final videoUrl = video.videoUrl ?? '';
           final thumbnailUrl =
               video.thumbnail != null ? '${video.thumbnail}' : '';
-          print('This is video Thumbnail==========${video.thumbnail}');
+          final videoName = video.name ?? 'No Name';
 
           return GestureDetector(
             onTap: () {
               _playVideo(videoUrl); // Play video on tap
             },
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.grey.shade300,
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Display thumbnail with FadeInImage for a smoother image loading experience
-                  thumbnailUrl.isNotEmpty
-                      ? FadeInImage.assetNetwork(
-                          placeholder: 'assets/images/youtubeLogo.png',
-                          image: thumbnailUrl,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                          imageErrorBuilder: (context, error, stackTrace) {
-                            print('Error loading image: $error');
-                            return Container(
-                              color: Colors.grey.shade300,
-                              child: const Center(
-                                child: Icon(Icons.error, color: Colors.red),
-                              ),
-                            );
-                          },
-                        )
-                      : Container(
-                          color: Colors.grey.shade300,
-                          child: const Center(
-                            child: Icon(Icons.error, color: Colors.red),
-                          ),
-                        ),
-                  // Play icon overlay
-                  const Icon(
-                    Icons.play_circle_fill,
-                    color: Colors.white,
-                    size: 50,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 120.0, // Fixed height for thumbnail
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.grey.shade300,
                   ),
-                ],
-              ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Constrain FadeInImage within the defined size
+                        thumbnailUrl.isNotEmpty
+                            ? FadeInImage.assetNetwork(
+                                placeholder: 'assets/images/youtubeLogo.png',
+                                image: thumbnailUrl,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: double.infinity,
+                                imageErrorBuilder:
+                                    (context, error, stackTrace) {
+                                  print('Error loading image: $error');
+                                  return Container(
+                                    color: Colors.grey.shade300,
+                                    child: const Center(
+                                      child:
+                                          Icon(Icons.error, color: Colors.red),
+                                    ),
+                                  );
+                                },
+                              )
+                            : Container(
+                                color: Colors.grey.shade300,
+                                child: const Center(
+                                  child: Icon(Icons.error, color: Colors.red),
+                                ),
+                              ),
+                        // Play icon overlay
+                        const Icon(
+                          Icons.play_circle_fill,
+                          color: Colors.white,
+                          size: 50,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8.0), // Space between thumbnail and name
+                Text(
+                  videoName,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
             ),
           );
         },

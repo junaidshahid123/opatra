@@ -34,6 +34,7 @@ class BottomBarHostController extends GetxController {
   MDGetAppModules? mdGetAppModules;
   MDProducts? mdProducts;
   List<MDModels.Products> skinProducts = [];
+  List<MDModels.Products> devicesA = [];
   MDProductsByCategory? mdProductsByCategory;
   RxBool isLoading = false.obs;
   RxBool isCurrencyDropDown = false.obs;
@@ -785,6 +786,8 @@ class BottomBarHostController extends GetxController {
         mdCategories = MDCategories.fromJson(data);
         print('mdCategories: $mdCategories');
         for (int i = 0; i < mdCategories!.smartCollections!.length; i++) {
+          print(
+              'mdCategories!.smartCollections![i].title=======${mdCategories!.smartCollections![i].title}');
           if (mdCategories!.smartCollections![i].title == 'ACCESSORIES') {
             devicesCategories.add(mdCategories!.smartCollections![i]);
           }
@@ -813,8 +816,6 @@ class BottomBarHostController extends GetxController {
         }
 
         fetchProductByCategory(skinCareCategories[0].id!);
-        update();
-
         update();
       } else {
         print(
@@ -913,7 +914,7 @@ class BottomBarHostController extends GetxController {
             print('Image: ${product.image}');
 
             // Match "Skincare devices" in productType
-            if (product.productType!.contains('Skincare devices')) {
+            if (product.title!.contains('CREAM') || product.title!.contains('MASK')  ) {
               print('Product matches "Skincare devices": ${product.toJson()}');
               try {
                 // Convert to Products model
@@ -949,9 +950,38 @@ class BottomBarHostController extends GetxController {
               print(
                   'Product type does not match "Skincare devices": ${product.productType}');
             }
-          } else {
-            print(
-                'Product type is null or empty for product: ${product.toJson()}');
+          }
+          if (product.title!.contains('CABLE') || product.title!.contains('CHARGER') ) {
+            try {
+              // Convert to Products model
+              Products device = Products(
+                id: product.id,
+                title: product.title,
+                bodyHtml: product.bodyHtml,
+                vendor: product.vendor,
+                productType: product.productType,
+                createdAt: product.createdAt,
+                handle: product.handle,
+                updatedAt: product.updatedAt,
+                publishedAt: product.publishedAt,
+                templateSuffix: product.templateSuffix,
+                publishedScope: product.publishedScope,
+                tags: product.tags,
+                status: product.status,
+                adminGraphqlApiId: product.adminGraphqlApiId,
+                variants: product.variants,
+                options: product.options,
+                images: product.images,
+                image: product.image,
+              );
+
+              // Add to skinProducts list
+              devicesA.add(device);
+              print('Added product to devices: ${devices.toJson()}');
+            } catch (e, stackTrace) {
+              print('Error adding product to skinProducts: $e');
+              print('Stack trace: $stackTrace');
+            }
           }
         }
 
@@ -1002,6 +1032,12 @@ class BottomBarHostController extends GetxController {
         print('Product mdLatestProducts: $data');
         mdLatestProducts = MDLatestProducts.fromJson(data);
         print('mdLatestProducts: $mdLatestProducts');
+        for (int i = 0; i < mdLatestProducts!.products.length; i++) {
+          print(
+              'mdLatestProducts!.products.=========${mdLatestProducts!.products[i].title}');
+          print(
+              'mdLatestProducts!.products.=========${mdLatestProducts!.products[i].productType}');
+        }
         update();
       } else {
         print(
