@@ -99,7 +99,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                                   controller: _controller,
                                                   itemCount: logic
                                                       .mdLatestProducts!
-                                                      .products
+                                                      .products!
                                                       .length,
                                                   onPageChanged: (int index) {
                                                     setState(() {
@@ -116,27 +116,29 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                                         // Navigate to ProductDetailScreen
                                                         int? id = logic
                                                             .mdLatestProducts!
-                                                            .products[index]
+                                                            .products![index]
                                                             .id;
                                                         print('id=====${id}');
-                                                        print(
-                                                            'logic.mdLatestProducts!.products[index].variants[0].title=====${logic.mdLatestProducts!.products[index].variants[0].title}');
+                                                        // print('logic.mdLatestProducts!.products[index].variants[0].title=====${logic.mdLatestProducts!.products![index].variants[0].title}');
 
                                                         Get.to(() =>
                                                             ProductDetailView(
-                                                              productId: id,
+                                                              productId: id!,
                                                               currency: logic
-                                                                          .mdLatestProducts!
-                                                                          .products[
-                                                                              index]
-                                                                          .variants[
-                                                                              0]
-                                                                          .title ==
-                                                                      'Default Title'
-                                                                  ? 'Pound'
-                                                                  : logic
-                                                                      .selectedCurrency
-                                                                      .value,
+                                                                  .selectedCurrency
+                                                                  .value,
+                                                              // currency: logic
+                                                              //             .mdLatestProducts!
+                                                              //             .products[
+                                                              //                 index]
+                                                              //             .variants[
+                                                              //                 0]
+                                                              //             .title ==
+                                                              //         'Default Title'
+                                                              //     ? 'Pound'
+                                                              //     : logic
+                                                              //         .selectedCurrency
+                                                              //         .value,
                                                             ));
                                                       },
                                                       child: AnimatedContainer(
@@ -204,8 +206,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                                                             Text(
                                                                           logic
                                                                               .mdLatestProducts!
-                                                                              .products[index]
-                                                                              .title,
+                                                                              .products![index]
+                                                                              .title!,
                                                                           style:
                                                                               TextStyle(
                                                                             color:
@@ -226,8 +228,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                                                             Text(
                                                                           logic
                                                                               .mdLatestProducts!
-                                                                              .products[index]
-                                                                              .vendor,
+                                                                              .products![index]
+                                                                              .vendor!,
                                                                           style:
                                                                               TextStyle(
                                                                             color:
@@ -243,19 +245,19 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                                                   ),
                                                                 ),
                                                                 Expanded(
-                                                                  child: logic.mdLatestProducts!.products[index].image !=
+                                                                  child: logic.mdLatestProducts!.products![index].image !=
                                                                               null &&
-                                                                          logic.mdLatestProducts!.products[index].image!.src !=
+                                                                          logic.mdLatestProducts!.products![index].image!.src !=
                                                                               null
                                                                       ? Image
                                                                           .network(
                                                                           logic
                                                                               .mdLatestProducts!
-                                                                              .products[index]
+                                                                              .products![index]
                                                                               .image!
                                                                               .src!,
                                                                           fit: BoxFit
-                                                                              .cover,
+                                                                              .fitHeight,
                                                                           width:
                                                                               double.infinity,
                                                                         )
@@ -285,7 +287,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                     ? buildHomeProductListView(logic)
                                     : logic.video.value == true
                                         ? buildProductListView()
-                                        : Container()),
+                                        : buildProductListViewForBanners(
+                                            logic)),
                                 Obx(
                                   () => logic.home.value == true
                                       ? buildDevicesHeading()
@@ -469,7 +472,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                 logic.skinCare.value = true;
                 logic.devices.value = false;
                 logic.selectedCategoryForSkinCare.value = 0;
-                logic.fetchProductByCategory(logic.skinCareCategories[0].id!);
+                logic.fetchProductByCategory(logic.mdSkinCareProducts!.customCollections![0].id!);
               },
               child: Container(
                 padding: EdgeInsets.all(5), // Padding inside the container
@@ -507,7 +510,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                 logic.skinCare.value = false;
                 logic.devices.value = true;
                 logic.selectedCategoryForDevice.value = 0;
-                logic.fetchProductByCategory(logic.devicesCategories[0].id!);
+                logic.fetchProductByCategory(logic.mdDevicesProducts!.customCollections![0].id!);
               },
               child: Container(
                 padding: EdgeInsets.all(5), // Padding inside the container
@@ -1264,7 +1267,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   }
 
   Widget buildDevicesCategories(BottomBarHostController logic) {
-    return logic.devicesCategories.isEmpty
+    return logic.mdDevicesProducts!.customCollections!.isEmpty
         ? Center(
             child: CircularProgressIndicator(
               color: Color(0xFFB7A06A),
@@ -1274,7 +1277,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
             height: 50,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: logic.devicesCategories.length,
+              itemCount: logic.mdDevicesProducts!.customCollections!.length,
               itemBuilder: (context, index) {
                 // Adjusting width to account for left and right margins
                 double containerWidth = MediaQuery.of(context).size.width - 40;
@@ -1286,7 +1289,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                     logic.searchTextController.clear();
                     logic.selectedCategoryForDevice.value = index;
                     logic.fetchProductByCategory(
-                        logic.devicesCategories[index].id!);
+                        logic.mdDevicesProducts!.customCollections![index].id!);
                     print('index========${index}');
                   },
                   child: Obx(
@@ -1308,7 +1311,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                             child: Container(
                           margin: EdgeInsets.all(5),
                           child: Text(
-                            logic.devicesCategories[index].title!,
+                            logic.mdDevicesProducts!.customCollections![index].title!,
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
@@ -1326,7 +1329,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   }
 
   Widget buildSkinCareCategories(BottomBarHostController logic) {
-    return logic.skinCareCategories.isEmpty
+    return logic.mdSkinCareProducts!.customCollections!.isEmpty
         ? Center(
             child: CircularProgressIndicator(
               color: Color(0xFFB7A06A),
@@ -1336,7 +1339,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
             height: 50,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: logic.skinCareCategories.length,
+              itemCount: logic.mdSkinCareProducts!.customCollections!.length,
               itemBuilder: (context, index) {
                 // Adjusting width to account for left and right margins
                 double containerWidth = MediaQuery.of(context).size.width - 40;
@@ -1348,7 +1351,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                     logic.searchTextController.clear();
                     logic.selectedCategoryForSkinCare.value = index;
                     logic.fetchProductByCategory(
-                        logic.skinCareCategories[index].id!);
+                        logic.mdSkinCareProducts!.customCollections![index].id!);
                   },
                   child: Obx(
                     () => Container(
@@ -1370,7 +1373,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                             child: Container(
                           margin: EdgeInsets.all(5),
                           child: Text(
-                            logic.skinCareCategories[index].title!,
+                            logic.mdSkinCareProducts!.customCollections![index].title!,
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
@@ -1961,7 +1964,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   // }
 
   Widget buildDevicesListView(BottomBarHostController logic) {
-    return logic.mdProducts == null
+    return logic.devicesA.isEmpty
         ? Center(
             child: CircularProgressIndicator(
               color: AppColors.appPrimaryBlackColor,
@@ -1971,16 +1974,18 @@ class _BottomBarHostView extends State<BottomBarHostView> {
             height: 150,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: logic.devicesA.length ?? 0,
+              itemCount:
+                  logic.devicesA.length ?? 0,
               itemBuilder: (context, index) {
                 // Extract SmartCollections data from the controller
-                final smartCollection = logic.devicesA[index];
+                final smartCollection =
+                    logic.devicesA[index];
 
                 int usDollarIndex = 6;
                 int euroIndex = 4;
                 int poundIndex = 0;
 
-                // Check if the product has a variant with the title "Default Title"
+                // // Check if the product has a variant with the title "Default Title"
                 bool hasDefaultTitle = smartCollection.variants
                         ?.any((variant) => variant.title == "Default Title") ??
                     false;
@@ -2017,6 +2022,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                         'smartCollection.productType=====${smartCollection.productType}');
                     Get.to(() => ProductDetailView(
                           productId: id!,
+                          // currency: logic.selectedCurrency.value,
                           currency: smartCollection.variants![0].title ==
                                   'Default Title'
                               ? 'Pound'
@@ -2035,20 +2041,21 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                       children: [
                         Spacer(),
                         // Load image from SmartCollections data
-                        smartCollection.image != null &&
-                                smartCollection.image!.src != null
-                            ? Image.network(
-                                smartCollection.image!.src!,
-                                height: 50,
-                                width: 50,
-                                fit: BoxFit.cover,
-                              )
-                            : Image.asset(
-                                'assets/images/skinCareDummy.png', // Fallback image
-                                height: 50,
-                                width: 50,
-                                fit: BoxFit.cover,
-                              ),
+                        Image.network(
+                          smartCollection.image?.src ?? '',
+                          // Null-safe access and fallback to empty string
+                          height: 50,
+                          width: 50,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Image.asset(
+                            'assets/images/skinCareDummy.png', // Fallback image
+                            height: 50,
+                            width: 50,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+
                         SizedBox(height: 10),
                         // Display the title of the product category
                         Text(
@@ -2086,10 +2093,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   }
 
   Widget buildHomeProductListView(BottomBarHostController logic) {
-    print('logic.skinProducts.length=====${logic.skinProducts.length}');
-
     // Check if products are null and show a loading spinner
-    return logic.mdProducts == null
+    return logic.skinProducts.isEmpty
         ? Center(
             child: CircularProgressIndicator(
               color: AppColors.appPrimaryBlackColor,
@@ -2101,7 +2106,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
               scrollDirection: Axis.horizontal,
               itemCount: logic.skinProducts.length,
               itemBuilder: (context, index) {
-                final skinProducts = logic.skinProducts[index];
+                final skinProducts =
+                logic.skinProducts[index];
 
                 int usDollarIndex = 6;
                 int euroIndex = 4;
@@ -2148,6 +2154,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                         'skinProducts.productType=====${skinProducts.productType}');
                     Get.to(() => ProductDetailView(
                           productId: id!,
+                          // currency: logic.selectedCurrency.value,
                           currency: skinProducts.variants?.first.title ==
                                   'Default Title'
                               ? 'Pound'

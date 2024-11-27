@@ -1,4 +1,5 @@
 import 'MDLatestProducts.dart';
+import 'MDProductDetail.dart';
 
 class MDProductsByCategory {
   List<ProductsA>? products;
