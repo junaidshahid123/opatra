@@ -25,6 +25,8 @@ class ApiUrls {
   static const String  getSkinCareProducts = '$baseUrl/products/skin-care';
   static const String getSkinDevicesProducts = '$baseUrl/products/devices';
   static const String products = '$baseUrl/products';
+  static const String getAllSkinCareProducts = '$baseUrl/category/261626953843/products';
+  static const String getAllDevicesProducts = '$baseUrl/category/261626593395/products';
   static const String productCategory = '$baseUrl/product-category';
   static const String banner = '$baseUrl/banner';
   static const String videoCategory = '$baseUrl/video-category';

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constant/AppColors.dart';
 import '../../../constant/AppLinks.dart';
 import '../../../models/MDAllBanners.dart';
+import '../../../models/MDAllSkinCareProducts.dart';
 import '../../../models/MDAllVideoCategories.dart';
 import '../../../models/MDAllVideos.dart';
 import '../../../models/MDCategories.dart';
@@ -35,7 +36,9 @@ class BottomBarHostController extends GetxController {
   List<MDModels.Products> skinProducts = [];
   List<MDModels.Products> devicesA = [];
   MDProductsByCategory? mdProductsByCategory;
-  MDSkinCareProducts? mdSkinCareProducts;
+  MDSkinCareProductsA? mdSkinCareProducts;
+  MDSkinCareProductsA? mdSkinCareDevicesProducts;
+  MDSkinCareProducts? mdSkinCareCategories;
   MDDevicesProducts? mdDevicesProducts;
   RxBool isLoading = false.obs;
   RxBool isCurrencyDropDown = false.obs;
@@ -74,7 +77,9 @@ class BottomBarHostController extends GetxController {
     fetchLatestProducts();
     fetchSkinCareProducts();
     fetchDevicesProducts();
-    fetchAllProducts();
+    fetchAllSkinCareProducts();
+    fetchAllDevicesProducts();
+    // fetchAllProducts();
     // fetchProductCategories();
     selectedCurrency.value = 'Pound';
     fetchAllBanners();
@@ -815,7 +820,7 @@ class BottomBarHostController extends GetxController {
           if (mdCategories!.smartCollections![i].title == 'DRY SKIN') {
             skinCareCategories.add(mdCategories!.smartCollections![i]);
           }
-          print('title============${mdCategories!.smartCollections![i].title}');
+          print(' ${mdCategories!.smartCollections![i].title}');
         }
 
         fetchProductByCategory(skinCareCategories[0].id!);
@@ -866,6 +871,122 @@ class BottomBarHostController extends GetxController {
     }
   }
 
+  Future<void> fetchAllSkinCareProducts() async {
+    final url = Uri.parse(ApiUrls.getAllSkinCareProducts);
+
+    // Fetch token from SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'No token found. Please log in again.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    // Prepare headers with the Bearer token
+    Map<String, String> headers = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $token",
+    };
+
+    try {
+      // Send GET request
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Fetched data: $data'); // Debug raw response
+
+        // Parse the response into the MDSkinCareProducts model
+        mdSkinCareProducts = MDSkinCareProductsA.fromJson(data);
+
+      print('mdSkinCareProducts========${mdSkinCareProducts!.products!.length}');
+
+        // Notify UI/state about changes
+        update();
+      } else {
+        print('Failed to load products. Status Code: ${response.statusCode}');
+        Get.snackbar(
+          'Error',
+          'Failed to fetch products. Please try again later.',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+      Get.snackbar(
+        'Error',
+        'Something went wrong. Please try again later.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> fetchAllDevicesProducts() async {
+    final url = Uri.parse(ApiUrls.getAllDevicesProducts);
+
+    // Fetch token from SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'No token found. Please log in again.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    // Prepare headers with the Bearer token
+    Map<String, String> headers = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $token",
+    };
+
+    try {
+      // Send GET request
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Fetched data: $data'); // Debug raw response
+
+        // Parse the response into the MDSkinCareProducts model
+        mdSkinCareDevicesProducts = MDSkinCareProductsA.fromJson(data);
+
+        print('mdSkinCareDevicesProducts========${mdSkinCareDevicesProducts!.products!.length}');
+
+        // Notify UI/state about changes
+        update();
+      } else {
+        print('Failed to load products. Status Code: ${response.statusCode}');
+        Get.snackbar(
+          'Error',
+          'Failed to fetch products. Please try again later.',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+      Get.snackbar(
+        'Error',
+        'Something went wrong. Please try again later.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+
+
   Future<void> fetchAllProducts() async {
     final url = Uri.parse(ApiUrls.products);
 
@@ -900,7 +1021,8 @@ class BottomBarHostController extends GetxController {
         mdProducts = MDProducts.fromJson(data);
         print(
             'Parsed mdProducts: ${mdProducts?.products?.length ?? 0}'); // Debug parsed model
-
+        print(
+            'mdProducts!.products!.length=========${mdProducts!.products!.length}');
         update(); // Notify listeners/UI about state changes
 
         // Process each product
@@ -918,7 +1040,12 @@ class BottomBarHostController extends GetxController {
 
             // Match "Skincare devices" in productType
             if (product.title!.contains('CREAM') ||
-                product.title!.contains('MASK')) {
+                product.title!.contains('MASK') ||
+                product.title!.contains('GEL') ||
+                product.title!.contains('FACIAL') ||
+                product.title!.contains('SOAP') ||
+                product.title!.contains('SERUM') ||
+                product.title!.contains('TONER')) {
               print('Product matches "Skincare devices": ${product.toJson()}');
               try {
                 // Convert to Products model
@@ -956,7 +1083,26 @@ class BottomBarHostController extends GetxController {
             }
           }
           if (product.title!.contains('CABLE') ||
-              product.title!.contains('CHARGER')) {
+              product.title!.contains('CHARGER') ||
+              product.title!.contains('USB') ||
+              product.title!.contains('ADAPTER') ||
+              product.title!.contains('CASE') ||
+              product.title!.contains('SET') ||
+              product.title!.contains('CHAIR') ||
+              product.title!.contains('CAVISHAPER') ||
+              product.title!.contains('ELECTRIC') ||
+              product.title!.contains('REPLACEMENT') ||
+              product.title!.contains('CLEANLIFT') ||
+              product.title!.contains('COOLGLOBE') ||
+              product.title!.contains('DERMIEYE') ||
+              product.title!.contains('PLUS') ||
+              product.title!.contains('DERMILIGHT') ||
+              product.title!.contains('DERMINECK') ||
+              product.title!.contains('DERMIPORES') ||
+              product.title!.contains('DERMISONIC') ||
+              product.title!.contains('DERMISONIC II') ||
+              product.title!.contains('EXCLUSIVE OFFER') ||
+              product.title!.contains('EYEPOD')) {
             try {
               // Convert to Products model
               Products device = Products(
@@ -1069,10 +1215,10 @@ class BottomBarHostController extends GetxController {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         print('Product mdSkinCareProducts: $data');
-        mdSkinCareProducts = MDSkinCareProducts.fromJson(data);
+        mdSkinCareCategories = MDSkinCareProducts.fromJson(data);
         print(
-            'mdSkinCareProducts: ${mdSkinCareProducts!.customCollections!.length}');
-        fetchProductByCategory(mdSkinCareProducts!.customCollections![0].id!);
+            'mdSkinCareProducts!.customCollections!.length: ${mdSkinCareCategories!.customCollections!.length}');
+        fetchProductByCategory(mdSkinCareCategories!.customCollections![0].id!);
 
         update();
       } else {

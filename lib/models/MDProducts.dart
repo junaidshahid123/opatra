@@ -1,8 +1,6 @@
 class MDProducts {
   List<Products>? products;
-
   MDProducts({this.products});
-
   MDProducts.fromJson(Map<String, dynamic> json) {
     if (json['products'] != null) {
       products = <Products>[];
@@ -337,3 +335,4 @@ class Images {
     return data;
   }
 }
+
