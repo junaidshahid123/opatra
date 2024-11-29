@@ -904,7 +904,8 @@ class BottomBarHostController extends GetxController {
         // Parse the response into the MDSkinCareProducts model
         mdSkinCareProducts = MDSkinCareProductsA.fromJson(data);
 
-      print('mdSkinCareProducts========${mdSkinCareProducts!.products!.length}');
+        print(
+            'mdSkinCareProducts========${mdSkinCareProducts!.products!.length}');
 
         // Notify UI/state about changes
         update();
@@ -961,7 +962,8 @@ class BottomBarHostController extends GetxController {
         // Parse the response into the MDSkinCareProducts model
         mdSkinCareDevicesProducts = MDSkinCareProductsA.fromJson(data);
 
-        print('mdSkinCareDevicesProducts========${mdSkinCareDevicesProducts!.products!.length}');
+        print(
+            'mdSkinCareDevicesProducts========${mdSkinCareDevicesProducts!.products!.length}');
 
         // Notify UI/state about changes
         update();
@@ -984,8 +986,6 @@ class BottomBarHostController extends GetxController {
       );
     }
   }
-
-
 
   Future<void> fetchAllProducts() async {
     final url = Uri.parse(ApiUrls.products);
@@ -1253,8 +1253,7 @@ class BottomBarHostController extends GetxController {
         final data = jsonDecode(response.body);
         print('Product mdDevicesProducts: $data');
         mdDevicesProducts = MDDevicesProducts.fromJson(data);
-        print(
-            'mdDevicesProducts: ${mdDevicesProducts!.customCollections!.length}');
+        print('mdDevicesProducts: ${mdDevicesProducts!.customCollections!.length}');
         update();
       } else {
         print(

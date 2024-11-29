@@ -1273,63 +1273,72 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   Widget buildDevicesCategories(BottomBarHostController logic) {
     return logic.mdDevicesProducts!.customCollections!.isEmpty
         ? Center(
-            child: CircularProgressIndicator(
-              color: Color(0xFFB7A06A),
-            ),
-          )
+      child: CircularProgressIndicator(
+        color: Color(0xFFB7A06A),
+      ),
+    )
         : Container(
-            height: 50,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: logic.mdDevicesProducts!.customCollections!.length,
-              itemBuilder: (context, index) {
-                // Adjusting width to account for left and right margins
-                double containerWidth = MediaQuery.of(context).size.width - 40;
+      height: 50,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: logic.mdDevicesProducts!.customCollections!.length,
+        itemBuilder: (context, index) {
+          // Adjusting width to account for left and right margins
+          double containerWidth = MediaQuery.of(context).size.width - 40;
 
-                return InkWell(
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                  onTap: () {
-                    logic.searchTextController.clear();
-                    logic.selectedCategoryForDevice.value = index;
-                    logic.fetchProductByCategory(
-                        logic.mdDevicesProducts!.customCollections![index].id!);
-                    print('index========${index}');
-                  },
-                  child: Obx(
-                    () => Container(
-                        margin: EdgeInsets.only(left: 20, right: 5, top: 20),
-                        // width: 60,
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                                color: logic.selectedCategoryForDevice.value ==
-                                        index
-                                    ? Colors.transparent
-                                    : Color(0xFFFBF3D7)),
-                            borderRadius: BorderRadius.circular(20),
-                            color:
-                                logic.selectedCategoryForDevice.value == index
-                                    ? Color(0xFFB7A06A)
-                                    : Colors.transparent),
-                        child: Center(
-                            child: Container(
-                          margin: EdgeInsets.all(5),
-                          child: Text(
-                            logic.mdDevicesProducts!.customCollections![index].title!,
-                            style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                color: logic.selectedCategoryForDevice.value ==
-                                        index
-                                    ? AppColors.appWhiteColor
-                                    : AppColors.appPrimaryBlackColor),
-                          ),
-                        ))),
+          // Get the title of the category
+          String categoryTitle = logic.mdDevicesProducts!.customCollections![index].title ?? '';
+
+          // If the title is "ANTI AGING CARE", show a custom label
+          String displayTitle = categoryTitle == 'ANTI AGING CARE'
+              ? 'ANTI AGING DEVICE'
+              : categoryTitle;
+
+          return InkWell(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+            onTap: () {
+              logic.searchTextController.clear();
+              logic.selectedCategoryForDevice.value = index;
+              logic.fetchProductByCategory(
+                  logic.mdDevicesProducts!.customCollections![index].id!);
+              print('index========${index}');
+            },
+            child: Obx(
+                  () => Container(
+                margin: EdgeInsets.only(left: 20, right: 5, top: 20),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: logic.selectedCategoryForDevice.value == index
+                        ? Colors.transparent
+                        : Color(0xFFFBF3D7),
                   ),
-                );
-              },
+                  borderRadius: BorderRadius.circular(20),
+                  color: logic.selectedCategoryForDevice.value == index
+                      ? Color(0xFFB7A06A)
+                      : Colors.transparent,
+                ),
+                child: Center(
+                  child: Container(
+                    margin: EdgeInsets.all(5),
+                    child: Text(
+                      displayTitle,  // Display the updated title
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                        color: logic.selectedCategoryForDevice.value == index
+                            ? AppColors.appWhiteColor
+                            : AppColors.appPrimaryBlackColor,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           );
+        },
+      ),
+    );
   }
 
   Widget buildSkinCareCategories(BottomBarHostController logic) {
