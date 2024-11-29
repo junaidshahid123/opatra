@@ -12,7 +12,9 @@ import 'package:opatra/UI/home/treatment/treatment_view.dart';
 import 'package:opatra/UI/home/warranty_claim/warranty_claim_view.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../models/MDAllSkinCareProducts.dart';
 import '../../../models/MDAllVideos.dart';
+import '../../../models/MDLatestProducts.dart';
 import '../../../models/MDProductsByCategory.dart';
 import '../../../models/MDVideosByCategory.dart';
 import '../ask_ouur_experts/ask_our_experts_view.dart';
@@ -32,6 +34,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
 
 // Declare a Timer variable to manage the debounce timing
   Timer? _debounce;
+// Filter only active products
+
 
   @override
   Widget build(BuildContext context) {
@@ -1975,15 +1979,35 @@ class _BottomBarHostView extends State<BottomBarHostView> {
       );
     }
 
+    // Filter the active products (assuming a 'status' field or 'isActive' flag)
+    List<Product> activeProducts = logic.mdSkinCareDevicesProducts!.products!
+        .where((product) => product.status == 'active')  // Adjust condition based on your model
+        .toList();
+
+    // Handle case where the filtered product list is empty
+    if (activeProducts.isEmpty) {
+      return Center(
+        child: Text(
+          'No active products available',
+          style: TextStyle(
+            color: AppColors.appPrimaryBlackColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    }
+
     return Container(
       height: 150,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: logic.mdSkinCareDevicesProducts!.products!.length,
+        itemCount: activeProducts.length,  // Use filtered list here
         itemBuilder: (context, index) {
-          // Safely extract data from products list
-          final smartCollection = logic.mdSkinCareDevicesProducts!.products![index];
-
+          // Safely extract data from the filtered list
+          final smartCollection = activeProducts[index];
+print("Tamoor Device");
+print(activeProducts.length);
           return InkWell(
             onTap: () {
               // Safely navigate to ProductDetailView with a valid product ID
@@ -2045,6 +2069,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
     );
   }
 
+
   Widget buildHomeProductListView(BottomBarHostController logic) {
     // Check if the product list or products are null
     if (logic.mdSkinCareProducts == null ||
@@ -2056,11 +2081,16 @@ class _BottomBarHostView extends State<BottomBarHostView> {
       );
     }
 
-    // Handle case where the product list is empty
-    if (logic.mdSkinCareProducts!.products!.isEmpty) {
+    // Filter the active products (assuming a 'status' field or 'isActive' flag)
+    List<Product> activeProducts = logic.mdSkinCareProducts!.products!
+        .where((product) => product.status == 'active')  // Adjust condition based on your model
+        .toList();
+
+    // Handle case where the filtered product list is empty
+    if (activeProducts.isEmpty) {
       return Center(
         child: Text(
-          'No products available',
+          'No active products available',
           style: TextStyle(
             color: AppColors.appPrimaryBlackColor,
             fontSize: 16,
@@ -2074,21 +2104,22 @@ class _BottomBarHostView extends State<BottomBarHostView> {
       height: 150,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: logic.mdSkinCareProducts!.products!.length,
+        itemCount: activeProducts.length,  // Use filtered list here
         itemBuilder: (context, index) {
-          // Safely access the product
-          final skinProducts = logic.mdSkinCareProducts!.products![index];
-
-          // Handle null `skinProducts` or its properties
-          final int? id = skinProducts.id;
-          final String title = skinProducts.title ?? 'Unknown Title';
-          final String imageUrl = skinProducts.image?.src ?? '';
+          // Safely access the filtered active product
+          final skinProduct = activeProducts[index];
+          print("Tamoor Skin Care");
+          print(activeProducts.length);
+          // Handle null `skinProduct` or its properties
+          final int? id = skinProduct.id;
+          final String title = skinProduct.title ?? 'Unknown Title';
+          final String imageUrl = skinProduct.image?.src ?? '';
 
           return InkWell(
             onTap: () {
               if (id != null) {
                 print('id=====${id}');
-                print('skinProducts.productType=====${skinProducts.productType ?? 'Unknown Type'}');
+                print('skinProduct.productType=====${skinProduct.productType ?? 'Unknown Type'}');
                 Get.to(() => ProductDetailView(
                   productId: id,
                   currency: logic.selectedCurrency.value,
