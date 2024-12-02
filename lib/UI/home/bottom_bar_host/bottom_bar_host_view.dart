@@ -34,8 +34,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
 
 // Declare a Timer variable to manage the debounce timing
   Timer? _debounce;
-// Filter only active products
 
+// Filter only active products
 
   @override
   Widget build(BuildContext context) {
@@ -299,7 +299,13 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                       : Container(),
                                 ),
                                 Obx(() => logic.home.value == true
-                                    ? logic.mdSkinCareDevicesProducts==null ? Center(child: CircularProgressIndicator(color: AppColors.appPrimaryColor,),): buildDevicesListView(logic)
+                                    ? logic.mdSkinCareDevicesProducts == null
+                                        ? Center(
+                                            child: CircularProgressIndicator(
+                                              color: AppColors.appPrimaryColor,
+                                            ),
+                                          )
+                                        : buildDevicesListView(logic)
                                     : Container()),
                                 Obx(
                                   () => logic.product.value ||
@@ -320,7 +326,14 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                 Obx(
                                   () => logic.product.value == true &&
                                           logic.devices.value == true
-                                      ? logic.mdDevicesProducts==null ? Center(child: CircularProgressIndicator(color: AppColors.appPrimaryColor,),) : buildDevicesCategories(logic)
+                                      ? logic.mdDevicesProducts == null
+                                          ? Center(
+                                              child: CircularProgressIndicator(
+                                                color:
+                                                    AppColors.appPrimaryColor,
+                                              ),
+                                            )
+                                          : buildDevicesCategories(logic)
                                       : Container(),
                                 ),
 
@@ -476,7 +489,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                 logic.skinCare.value = true;
                 logic.devices.value = false;
                 logic.selectedCategoryForSkinCare.value = 0;
-                logic.fetchProductByCategory(logic.mdSkinCareCategories!.customCollections![0].id!);
+                logic.fetchProductByCategory(
+                    logic.mdSkinCareCategories!.customCollections![0].id!);
               },
               child: Container(
                 padding: EdgeInsets.all(5), // Padding inside the container
@@ -514,7 +528,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                 logic.skinCare.value = false;
                 logic.devices.value = true;
                 logic.selectedCategoryForDevice.value = 0;
-                logic.fetchProductByCategory(logic.mdDevicesProducts!.customCollections![0].id!);
+                logic.fetchProductByCategory(
+                    logic.mdDevicesProducts!.customCollections![0].id!);
               },
               child: Container(
                 padding: EdgeInsets.all(5), // Padding inside the container
@@ -1273,72 +1288,81 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   Widget buildDevicesCategories(BottomBarHostController logic) {
     return logic.mdDevicesProducts!.customCollections!.isEmpty
         ? Center(
-      child: CircularProgressIndicator(
-        color: Color(0xFFB7A06A),
-      ),
-    )
+            child: CircularProgressIndicator(
+              color: Color(0xFFB7A06A),
+            ),
+          )
         : Container(
-      height: 50,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: logic.mdDevicesProducts!.customCollections!.length,
-        itemBuilder: (context, index) {
-          // Adjusting width to account for left and right margins
-          double containerWidth = MediaQuery.of(context).size.width - 40;
+            height: 50,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: logic.mdDevicesProducts!.customCollections!.length,
+              itemBuilder: (context, index) {
+                // Adjusting width to account for left and right margins
+                double containerWidth = MediaQuery.of(context).size.width - 40;
 
-          // Get the title of the category
-          String categoryTitle = logic.mdDevicesProducts!.customCollections![index].title ?? '';
+                // Get the title of the category
+                String categoryTitle =
+                    logic.mdDevicesProducts!.customCollections![index].title ??
+                        '';
 
-          // If the title is "ANTI AGING CARE", show a custom label
-          String displayTitle = categoryTitle == 'ANTI AGING CARE'
-              ? 'ANTI AGING DEVICE'
-              : categoryTitle;
+                // If the title is "ANTI AGING CARE", show a custom label
+                String displayTitle = categoryTitle == 'ANTI AGING CARE'
+                    ? 'ANTI AGING DEVICE'
+                    : categoryTitle;
 
-          return InkWell(
-            splashColor: Colors.transparent,
-            highlightColor: Colors.transparent,
-            onTap: () {
-              logic.searchTextController.clear();
-              logic.selectedCategoryForDevice.value = index;
-              logic.fetchProductByCategory(
-                  logic.mdDevicesProducts!.customCollections![index].id!);
-              print('index========${index}');
-            },
-            child: Obx(
-                  () => Container(
-                margin: EdgeInsets.only(left: 20, right: 5, top: 20),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: logic.selectedCategoryForDevice.value == index
-                        ? Colors.transparent
-                        : Color(0xFFFBF3D7),
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  color: logic.selectedCategoryForDevice.value == index
-                      ? Color(0xFFB7A06A)
-                      : Colors.transparent,
-                ),
-                child: Center(
-                  child: Container(
-                    margin: EdgeInsets.all(5),
-                    child: Text(
-                      displayTitle,  // Display the updated title
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w400,
+                return InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: () {
+                    logic.searchTextController.clear();
+                    logic.selectedCategoryForDevice.value = index;
+
+                    if (logic.mdDevicesProducts!.customCollections![index]
+                            .title ==
+                        'ANTI AGING CARE') {
+                      logic.fetchProductByCategory(292370284659);
+                    } else {
+                      logic.fetchProductByCategory(logic
+                          .mdDevicesProducts!.customCollections![index].id!);
+                    }
+                  },
+                  child: Obx(
+                    () => Container(
+                      margin: EdgeInsets.only(left: 20, right: 5, top: 20),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: logic.selectedCategoryForDevice.value == index
+                              ? Colors.transparent
+                              : Color(0xFFFBF3D7),
+                        ),
+                        borderRadius: BorderRadius.circular(20),
                         color: logic.selectedCategoryForDevice.value == index
-                            ? AppColors.appWhiteColor
-                            : AppColors.appPrimaryBlackColor,
+                            ? Color(0xFFB7A06A)
+                            : Colors.transparent,
+                      ),
+                      child: Center(
+                        child: Container(
+                          margin: EdgeInsets.all(5),
+                          child: Text(
+                            displayTitle, // Display the updated title
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              color:
+                                  logic.selectedCategoryForDevice.value == index
+                                      ? AppColors.appWhiteColor
+                                      : AppColors.appPrimaryBlackColor,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
           );
-        },
-      ),
-    );
   }
 
   Widget buildSkinCareCategories(BottomBarHostController logic) {
@@ -1363,8 +1387,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                   onTap: () {
                     logic.searchTextController.clear();
                     logic.selectedCategoryForSkinCare.value = index;
-                    logic.fetchProductByCategory(
-                        logic.mdSkinCareCategories!.customCollections![index].id!);
+                    logic.fetchProductByCategory(logic
+                        .mdSkinCareCategories!.customCollections![index].id!);
                   },
                   child: Obx(
                     () => Container(
@@ -1386,7 +1410,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                             child: Container(
                           margin: EdgeInsets.all(5),
                           child: Text(
-                            logic.mdSkinCareCategories!.customCollections![index].title!,
+                            logic.mdSkinCareCategories!
+                                .customCollections![index].title!,
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
@@ -1990,7 +2015,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
 
     // Filter the active products (assuming a 'status' field or 'isActive' flag)
     List<Product> activeProducts = logic.mdSkinCareDevicesProducts!.products!
-        .where((product) => product.status == 'active')  // Adjust condition based on your model
+        .where((product) =>
+            product.status == 'active') // Adjust condition based on your model
         .toList();
 
     // Handle case where the filtered product list is empty
@@ -2011,23 +2037,24 @@ class _BottomBarHostView extends State<BottomBarHostView> {
       height: 150,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: activeProducts.length,  // Use filtered list here
+        itemCount: activeProducts.length, // Use filtered list here
         itemBuilder: (context, index) {
           // Safely extract data from the filtered list
           final smartCollection = activeProducts[index];
-print("Tamoor Device");
-print(activeProducts.length);
+          print("Tamoor Device");
+          print(activeProducts.length);
           return InkWell(
             onTap: () {
               // Safely navigate to ProductDetailView with a valid product ID
               final id = smartCollection.id;
               if (id != null) {
                 print('id=====${id}');
-                print('smartCollection.productType=====${smartCollection.productType}');
+                print(
+                    'smartCollection.productType=====${smartCollection.productType}');
                 Get.to(() => ProductDetailView(
-                  productId: id,
-                  currency: logic.selectedCurrency.value,
-                ));
+                      productId: id,
+                      currency: logic.selectedCurrency.value,
+                    ));
               }
             },
             child: Container(
@@ -2043,22 +2070,23 @@ print(activeProducts.length);
                   Spacer(),
                   // Load image from SmartCollections data with null checks
                   Image.network(
-                    smartCollection.image?.src ?? '', // Fallback to empty string if image is null
+                    smartCollection.image?.src ?? '',
+                    // Fallback to empty string if image is null
                     height: 50,
                     width: 50,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        Image.asset(
-                          'assets/images/skinCareDummy.png', // Fallback image
-                          height: 50,
-                          width: 50,
-                          fit: BoxFit.cover,
-                        ),
+                    errorBuilder: (context, error, stackTrace) => Image.asset(
+                      'assets/images/skinCareDummy.png', // Fallback image
+                      height: 50,
+                      width: 50,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                   SizedBox(height: 10),
                   // Display the title of the product category with null check
                   Text(
-                    smartCollection.title ?? 'Unknown Title', // Fallback to 'Unknown Title' if null
+                    smartCollection.title ?? 'Unknown Title',
+                    // Fallback to 'Unknown Title' if null
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -2078,7 +2106,6 @@ print(activeProducts.length);
     );
   }
 
-
   Widget buildHomeProductListView(BottomBarHostController logic) {
     // Check if the product list or products are null
     if (logic.mdSkinCareProducts == null ||
@@ -2092,7 +2119,8 @@ print(activeProducts.length);
 
     // Filter the active products (assuming a 'status' field or 'isActive' flag)
     List<Product> activeProducts = logic.mdSkinCareProducts!.products!
-        .where((product) => product.status == 'active')  // Adjust condition based on your model
+        .where((product) =>
+            product.status == 'active') // Adjust condition based on your model
         .toList();
 
     // Handle case where the filtered product list is empty
@@ -2113,7 +2141,7 @@ print(activeProducts.length);
       height: 150,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: activeProducts.length,  // Use filtered list here
+        itemCount: activeProducts.length, // Use filtered list here
         itemBuilder: (context, index) {
           // Safely access the filtered active product
           final skinProduct = activeProducts[index];
@@ -2128,11 +2156,12 @@ print(activeProducts.length);
             onTap: () {
               if (id != null) {
                 print('id=====${id}');
-                print('skinProduct.productType=====${skinProduct.productType ?? 'Unknown Type'}');
+                print(
+                    'skinProduct.productType=====${skinProduct.productType ?? 'Unknown Type'}');
                 Get.to(() => ProductDetailView(
-                  productId: id,
-                  currency: logic.selectedCurrency.value,
-                ));
+                      productId: id,
+                      currency: logic.selectedCurrency.value,
+                    ));
               } else {
                 print('Product ID is null');
               }
@@ -2151,17 +2180,17 @@ print(activeProducts.length);
                   // Safely load image or fallback
                   imageUrl.isNotEmpty
                       ? Image.network(
-                    imageUrl,
-                    height: 50,
-                    width: 50,
-                    fit: BoxFit.cover,
-                  )
+                          imageUrl,
+                          height: 50,
+                          width: 50,
+                          fit: BoxFit.cover,
+                        )
                       : Image.asset(
-                    'assets/images/skinCareDummy.png',
-                    height: 50,
-                    width: 50,
-                    fit: BoxFit.cover,
-                  ),
+                          'assets/images/skinCareDummy.png',
+                          height: 50,
+                          width: 50,
+                          fit: BoxFit.cover,
+                        ),
                   SizedBox(height: 10),
                   // Display the title of the product
                   Text(
