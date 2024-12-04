@@ -1,13 +1,10 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:opatra/UI/auth/otp_verification.dart';
 import 'package:opatra/constant/AppColors.dart';
-
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../constant/AppLinks.dart';
 
 class ForgotPassword extends StatefulWidget {

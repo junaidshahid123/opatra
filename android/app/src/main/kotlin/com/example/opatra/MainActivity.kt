@@ -1,4 +1,4 @@
-package com.example.opatra
+package com.ontechinc.opatra
 
 import io.flutter.embedding.android.FlutterFragmentActivity
 
