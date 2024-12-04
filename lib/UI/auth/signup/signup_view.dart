@@ -31,7 +31,7 @@ class SignupView extends StatelessWidget {
                         ),
                         Container(
                           child: Image.asset(
-                            'assets/images/splashLogo.png',
+                            'assets/images/splashLogoIcon.png',
                             color: AppColors.appWhiteColor,
                             height: MediaQuery.of(context).size.height / 4,
                             width: MediaQuery.of(context).size.height / 4,
