@@ -35,7 +35,7 @@ class LoginView extends StatelessWidget {
                         Container(
                           child: Image.asset(
                             'assets/images/splashLogo.png',
-                            color: AppColors.appWhiteColor,
+                            color: AppColors.appPrimaryColor,
                             height: MediaQuery.of(context).size.height / 4,
                             width: MediaQuery.of(context).size.height / 4,
                           ),

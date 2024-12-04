@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
@@ -21,13 +22,43 @@ class OtpVerification extends StatefulWidget {
 }
 
 class _OtpVerificationState extends State<OtpVerification> {
-  final BottomBarHostController controller =
-      Get.put(BottomBarHostController()); // Initialize the controller
   RxBool isLoading = false.obs;
+  late Timer _timer;
+  int _remainingSeconds = 60; // Start from 1 minute
+  String? otp;
+
+  @override
+  void initState() {
+    super.initState();
+    startTimer();
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel(); // Cancel the timer when the widget is disposed
+    super.dispose();
+  }
+
+  void startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_remainingSeconds > 0) {
+        setState(() {
+          _remainingSeconds--;
+        });
+      } else {
+        _timer.cancel(); // Stop the timer when it reaches 0
+      }
+    });
+  }
+
+  String getFormattedTime() {
+    final minutes = _remainingSeconds ~/ 60;
+    final seconds = _remainingSeconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')} Sec';
+  }
 
   Future<void> verifyOtp(String otp) async {
     isLoading.value = true;
-
     Map<String, String> requestBody = {
       "email": widget.email,
       "otp": otp, // Send the OTP as part of the request body
@@ -44,8 +75,8 @@ class _OtpVerificationState extends State<OtpVerification> {
         headers: headers,
         body: requestBody,
       );
-      print('requestBody====${requestBody}');
 
+      print('requestBody====${requestBody}');
       if (response.statusCode == 200 || response.statusCode == 201) {
         isLoading.value = false; // Stop loading spinner
 
@@ -54,15 +85,6 @@ class _OtpVerificationState extends State<OtpVerification> {
         var emailverified = responseData['email_verified_at'] ?? "";
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('emailverified', emailverified);
-        // Extract token, name, and email
-        // var token = responseData['authorization']['token'] ?? "";
-        // var userName = responseData['user']['name'] ?? ""; // Fallback to empty string
-        // var userEmail = responseData['user']['email'] ?? ""; // Fallback to empty string
-        //
-        // // Store data in shared preferences
-        // await prefs.setString('token', token);
-        // await prefs.setString('userName', userName);
-        // await prefs.setString('userEmail', userEmail);
 
         Get.snackbar('Success', 'Otp Verified successfully!',
             backgroundColor: Color(0xFFB7A06A), colorText: Colors.white);
@@ -75,7 +97,6 @@ class _OtpVerificationState extends State<OtpVerification> {
       } else {
         isLoading.value = false; // Stop loading spinner
 
-        // Handle errors
         final Map<String, dynamic> responseData = json.decode(response.body);
         String errorMessage = responseData['message'] ?? 'Failed to verify OTP';
 
@@ -98,31 +119,26 @@ class _OtpVerificationState extends State<OtpVerification> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<BottomBarHostController>(
-        init: BottomBarHostController(),
-        builder: (BottomBarHostController) {
-          return Scaffold(
-            resizeToAvoidBottomInset: false,
-            backgroundColor: AppColors.appWhiteColor,
-            body: SafeArea(
-              child: Column(
-                children: [
-                  buildAppBar(),
-                  Container(
-                    child:
-                        Image.asset('assets/images/otpVerificationImage.png'),
-                  ),
-                  buildEnterOtpText(),
-                  buildOtpField(),
-                  buildTimer(),
-                  buildDidntReceivedCode(),
-                  Spacer(),
-                  buildSubmitButton(),
-                ],
-              ),
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      backgroundColor: AppColors.appWhiteColor,
+      body: SafeArea(
+        child: Column(
+          children: [
+            buildAppBar(),
+            Container(
+              child: Image.asset('assets/images/otpVerificationImage.png'),
             ),
-          );
-        });
+            buildEnterOtpText(),
+            buildOtpField(),
+            buildTimer(),
+            buildDidntReceivedCode(),
+            Spacer(),
+            buildSubmitButton(),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget buildTimer() {
@@ -132,7 +148,7 @@ class _OtpVerificationState extends State<OtpVerification> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            '00:13 Sec',
+            getFormattedTime(),
             style: TextStyle(
                 color: Color(0xFF464646),
                 fontWeight: FontWeight.w500,
@@ -149,31 +165,29 @@ class _OtpVerificationState extends State<OtpVerification> {
       margin: EdgeInsets.only(top: 20, right: 20, left: 20),
       child: OtpTextField(
         margin: EdgeInsets.only(left: 5, right: 5),
-        // Reduced the margin between fields
         fieldWidth: 40,
         fieldHeight: 40,
         numberOfFields: 6,
-        // Number of OTP fields
         borderColor: Color(0xFF989898),
         showFieldAsBox: true,
         textStyle: TextStyle(
           height: 1,
           fontSize: 12,
-          color: Colors.black, // Ensure the input text color is black
+          color: Colors.black,
         ),
         onCodeChanged: (String code) {
-          // Handle validation for partially entered OTP code here
           if (code.length == 6) {
             print("OTP is complete: $code");
+            otp=code;
           } else {
             print("OTP is incomplete");
           }
         },
         onSubmit: (String verificationCode) {
-          // Check if OTP is complete before proceeding
           if (verificationCode.length == 6) {
+            otp=verificationCode;
+
             print("OTP successfully entered: $verificationCode");
-            // Handle complete OTP submission
             verifyOtp(verificationCode);
           } else {
             print("Please fill all OTP fields.");
@@ -199,9 +213,7 @@ class _OtpVerificationState extends State<OtpVerification> {
                     color: Color(0xFF323943)),
               ),
               Text(
-                controller.userEmail.value.isNotEmpty
-                    ? controller.userEmail.value
-                    : 'abc123@gmail.com',
+                widget.email.isNotEmpty ? widget.email : 'abc123@gmail.com',
                 style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
@@ -257,34 +269,33 @@ class _OtpVerificationState extends State<OtpVerification> {
 
   Widget buildSubmitButton() {
     return Obx((() => InkWell(
-          onTap: () {
-            // verifyOtp();
-            // Get.to(() => NewPassword());
-          },
-          child: Container(
-              margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
-              width: MediaQuery.of(context).size.width,
-              height: 45,
-              decoration: BoxDecoration(
-                color: Color(0xFFB7A06A),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Center(
-                  child: isLoading.value == true
-                      ? SizedBox(
-                          width: 20.0, // Adjust the width
-                          height: 20.0, // Adjust the height
-                          child: CircularProgressIndicator(
-                            strokeWidth: 5,
-                            color: AppColors.appWhiteColor,
-                          ),
-                        )
-                      : Text(
-                          'Submit',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 16),
-                        ))),
-        )));
+      onTap: () {
+        verifyOtp(otp!);
+      },
+      child: Container(
+          margin: EdgeInsets.only(bottom: 20, left: 20, right: 20),
+          width: MediaQuery.of(context).size.width,
+          height: 45,
+          decoration: BoxDecoration(
+            color: Color(0xFFB7A06A),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Center(
+              child: isLoading.value == true
+                  ? SizedBox(
+                width: 20.0,
+                height: 20.0,
+                child: CircularProgressIndicator(
+                  strokeWidth: 5,
+                  color: AppColors.appWhiteColor,
+                ),
+              )
+                  : Text(
+                'Submit',
+                style: TextStyle(
+                    fontWeight: FontWeight.w600, fontSize: 16),
+              ))),
+    )));
   }
 
   Widget buildAppBar() {
