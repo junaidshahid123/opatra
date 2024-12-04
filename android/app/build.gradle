@@ -24,7 +24,7 @@ def flutterVersionCode = localProperties.getProperty("flutter.versionCode") ?: "
 def flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
 
 android {
-    namespace = "com.ontechinc.opatra"
+    namespace = "com.ontechinc.opatra" // Updated namespace
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -48,7 +48,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.ontechinc.opatra"
+        applicationId = "com.ontechinc.opatra" // Updated application ID
         minSdk = 21
         targetSdk = flutter.targetSdkVersion
         versionCode = flutterVersionCode.toInteger()
@@ -58,10 +58,9 @@ android {
 
     buildTypes {
         release {
-            // Corrected signing config to use 'release' signingConfig, not 'debug'
-            signingConfig signingConfigs.release
-            minifyEnabled false  // Set to true if you want code shrinking
-            shrinkResources false // Set to true if you want resource shrinking
+            signingConfig signingConfigs.release // Ensures the correct signing configuration is used
+            minifyEnabled false // Set to true for code shrinking
+            shrinkResources false // Set to true for resource shrinking
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
