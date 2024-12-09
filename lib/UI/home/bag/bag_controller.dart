@@ -1,8 +1,14 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../models/MDLatestProducts.dart';
 import '../../../models/MDProductDetail.dart';
 
 class BagController extends GetxController {
+  RxBool isLoading = false.obs;
+
   RxInt quantity = 1.obs;
   List<ProductA> cartItems = [];
   RxDouble subTotal = 0.0.obs; // Observable double for subTotal
@@ -14,6 +20,99 @@ class BagController extends GetxController {
   // New map to store total prices for each product
   RxMap<ProductsC, double> totalPrices = <ProductsC, double>{}.obs;
 
+  Future<void> applyDiscount(String discountCode) async {
+    String apiUrl = 'https://opatra.app/api/apply-discount'; // The API endpoint
+
+    // Define the body data to be sent in the POST request
+    Map<String, dynamic> body = {
+      "discount_code": discountCode,
+    };
+
+    // Encode the body as JSON
+    String jsonBody = json.encode(body);
+
+    // Fetch the token from SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token'); // Get the token from shared prefs
+
+    // Set the headers
+    Map<String, String> headers = {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+      "Authorization": "Bearer $token", // Add Bearer token to the headers
+    };
+
+    try {
+      // Show loading dialog
+      Get.dialog(
+        Center(
+          child: CircularProgressIndicator(),
+        ),
+        barrierDismissible: false, // Prevent dismissing the loading dialog
+      );
+
+      // Make the POST request
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: headers,
+        body: jsonBody,
+      );
+
+      // Dismiss the loading dialog
+      if (Get.isDialogOpen!) {
+        Get.back();
+      }
+
+      // Parse the response
+      var responseBody = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        // Successful response
+        print("Success: ${responseBody['message']}");
+        Get.snackbar(
+          'Success',
+          responseBody['message'] ?? 'Discount applied successfully!',
+          backgroundColor: Colors.green,
+        );
+      } else {
+        // Unsuccessful response, handle different cases
+        if (responseBody['message'] != null) {
+          print("Error: ${responseBody['message']}");
+          Get.snackbar(
+            'Error',
+            responseBody['message'],
+            backgroundColor: Colors.red,
+          );
+        }
+
+        // Handle specific errors in the "errors" field
+        if (responseBody['errors'] != null &&
+            responseBody['errors']['discount_code'] != null) {
+          String errorMessage =
+              responseBody['errors']['discount_code'].join(", ");
+          print("Detailed Error: $errorMessage");
+          Get.snackbar(
+            'Invalid Discount Code',
+            errorMessage,
+            backgroundColor: Colors.orange,
+          );
+        }
+      }
+    } catch (e) {
+      // Dismiss the loading dialog in case of an exception
+      if (Get.isDialogOpen!) {
+        Get.back();
+      }
+
+      // Handle network or other errors
+      print("Exception: $e");
+      Get.snackbar(
+        'Error',
+        'An unexpected error occurred. Please try again later.',
+        backgroundColor: Colors.red,
+      );
+    }
+  }
 
   void calculateSubtotal() {
     print('calculateSubtotal function called'); // Check if function is called
@@ -46,8 +145,7 @@ class BagController extends GetxController {
 
 // Method to add a product to the cart
   void addProductToBag(
-      ProductA product, int quantity, String selectedCurrency)
-  {
+      ProductA product, int quantity, String selectedCurrency) {
     print('addProductToBag called with:');
     print('Product ID: ${product.id}');
     print('Product Title: ${product.title}');

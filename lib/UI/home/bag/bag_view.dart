@@ -27,19 +27,21 @@ class BagView extends StatelessWidget {
                   buildAppBar(),
                   buildListOfProducts(context, logic),
                   Container(
-                    height: MediaQuery.of(context).size.height / 4,
+                    height: MediaQuery.of(context).size.height / 3,
                     margin: EdgeInsets.only(
                         left: 20, right: 20, bottom: 20, top: 20),
                     decoration: BoxDecoration(
-                        color: Color(0xFFB7A06A),
-                        borderRadius: BorderRadius.all(Radius.circular(20))),
+                      color: Color(0xFFB7A06A),
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                    ),
                     child: Container(
-                      margin: EdgeInsets.only(
-                        left: 20,
-                        right: 20,
-                      ),
+                      margin: EdgeInsets.only(left: 20, right: 20),
                       child: Column(
                         children: [
+                          // Add TextField before buildSubTotal(logic)
+                          DiscountCodeContainer(logic: logic),
+                          SizedBox(height: 10),
+                          // Spacer between TextField and next widget
                           buildSubTotal(logic),
                           buildDivider(context),
                           // buildTax(),
@@ -48,7 +50,7 @@ class BagView extends StatelessWidget {
                           // buildDivider(context),
                           buildTotal(logic),
                           Spacer(),
-                          buildCheckOutButton(context, logic)
+                          buildCheckOutButton(context, logic),
                         ],
                       ),
                     ),
@@ -462,5 +464,102 @@ class BagView extends StatelessWidget {
       default:
         return SizedBox(); // Return an empty widget for unknown currency
     }
+  }
+}
+
+class DiscountCodeContainer extends StatefulWidget {
+  final BagController logic; // Accept BagController as a parameter
+
+  DiscountCodeContainer({required this.logic}); // Constructor
+
+  @override
+  _DiscountCodeContainerState createState() => _DiscountCodeContainerState();
+}
+
+class _DiscountCodeContainerState extends State<DiscountCodeContainer> {
+  final TextEditingController _controller = TextEditingController();
+
+  // Function to show the alert dialog
+  void _showAlertDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Validation'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Apply button action
+  void _onApplyPressed() {
+    String discountCode = _controller.text;
+
+    if (discountCode.isEmpty) {
+      _showAlertDialog('Please enter a Discount Code or gift card.');
+    } else {
+      // Call BagController to apply the discount code (logic can be implemented here)
+      widget.logic.applyDiscount(discountCode);
+
+      // Optionally, show a message
+      print('Discount Code Applied: $discountCode');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(top: 20),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              height: 45,
+              child: TextField(
+                controller: _controller,
+                decoration: InputDecoration(
+                  hintText: 'Discount Code or gift card',
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.black),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.only(left: 20),
+            height: 45,
+            width: 75,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Color(0xFFFBF3D7),
+            ),
+            child: Center(
+              child: TextButton(
+                onPressed: _onApplyPressed, // Call the apply button function
+                child: Text(
+                  'Apply',
+                  style: TextStyle(
+                    color: Color(0xFFB7A06A),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
