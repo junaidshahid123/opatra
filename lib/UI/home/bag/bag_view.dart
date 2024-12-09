@@ -199,7 +199,12 @@ class BagView extends StatelessWidget {
 
           String parsedCurrency =
               selectedCurrency.isNotEmpty ? selectedCurrency : "usd";
-          Get.to(() => Payment(logic.subTotal.value, parsedCurrency));
+          if (logic.doneWithDiscount.value == true) {
+            Get.to(() => Payment(logic.subTotal.value, parsedCurrency));
+          }
+          if(logic.doneWithDiscount.value == false){
+            Get.snackbar('Alert', 'Please Apply Discount First to Check out',backgroundColor: AppColors.appPrimaryColor);
+          }
         }
       },
       child: Container(
@@ -509,6 +514,7 @@ class _DiscountCodeContainerState extends State<DiscountCodeContainer> {
     } else {
       // Call BagController to apply the discount code (logic can be implemented here)
       widget.logic.applyDiscount(discountCode);
+      _controller.clear();
 
       // Optionally, show a message
       print('Discount Code Applied: $discountCode');
@@ -552,7 +558,6 @@ class _DiscountCodeContainerState extends State<DiscountCodeContainer> {
                     color: Color(0xFFB7A06A),
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-
                   ),
                 ),
               ),

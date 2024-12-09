@@ -5,9 +5,11 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../models/MDLatestProducts.dart';
 import '../../../models/MDProductDetail.dart';
+import 'MDDiscount.dart';
 
 class BagController extends GetxController {
   RxBool isLoading = false.obs;
+  RxBool doneWithDiscount = false.obs;
 
   RxInt quantity = 1.obs;
   List<ProductA> cartItems = [];
@@ -68,12 +70,31 @@ class BagController extends GetxController {
 
       if (response.statusCode == 200) {
         // Successful response
-        print("Success: ${responseBody['message']}");
-        Get.snackbar(
-          'Success',
-          responseBody['message'] ?? 'Discount applied successfully!',
-          backgroundColor: Colors.green,
-        );
+        MDDiscount discountResponse = MDDiscount.fromJson(responseBody);
+
+        if (discountResponse.success == true && discountResponse.discount != null) {
+          double discountValue = double.parse(discountResponse.discount!);
+
+          // Update subTotal
+          subTotal.value = subTotal.value - discountValue;
+
+          print("Discount Applied: $discountValue");
+          print("New SubTotal: ${subTotal.value}");
+
+          Get.snackbar(
+            'Success',
+            'Discount applied successfully! New subtotal: \$${subTotal.value.toStringAsFixed(2)}',
+            backgroundColor: Colors.green,
+          );
+          doneWithDiscount.value=true;
+          update();
+        } else {
+          Get.snackbar(
+            'Error',
+            discountResponse.message ?? 'Unable to apply discount.',
+            backgroundColor: Colors.red,
+          );
+        }
       } else {
         // Unsuccessful response, handle different cases
         if (responseBody['message'] != null) {
@@ -89,7 +110,7 @@ class BagController extends GetxController {
         if (responseBody['errors'] != null &&
             responseBody['errors']['discount_code'] != null) {
           String errorMessage =
-              responseBody['errors']['discount_code'].join(", ");
+          responseBody['errors']['discount_code'].join(", ");
           print("Detailed Error: $errorMessage");
           Get.snackbar(
             'Invalid Discount Code',
