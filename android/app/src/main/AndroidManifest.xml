@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.ontechinc.opatra">
+    package="com.ontechinc.opatralondon">
 
     <uses-permission android:name="android.permission.INTERNET" />
 

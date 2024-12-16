@@ -11,7 +11,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.opatra</string>
+	<string>com.ontechinc.opatralondon</string>
 	<key>PROJECT_ID</key>
 	<string>opatra-d5bda</string>
 	<key>STORAGE_BUCKET</key>
@@ -27,6 +27,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1024991048436:ios:2d50d4e1a0307c23b3e4a1</string>
+	<string>1:1024991048436:ios:a82b7ffaf72419a1b3e4a1</string>
 </dict>
 </plist>
