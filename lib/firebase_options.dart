@@ -50,7 +50,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBRp6SJsLxDzWy9UBsz9EwdDvF_QPkBhvw',
-    appId: '1:1024991048436:android:2324827407a15ec6b3e4a1',
+    appId: '1:1024991048436:android:83765129e0ea8416b3e4a1',
     messagingSenderId: '1024991048436',
     projectId: 'opatra-d5bda',
     storageBucket: 'opatra-d5bda.firebasestorage.app',
@@ -58,12 +58,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDNqAoG-KOOh7q3EOzQi5zmhSaCTI2OUZg',
-    appId: '1:1024991048436:ios:b7fee7dde6e6319bb3e4a1',
+    appId: '1:1024991048436:ios:a82b7ffaf72419a1b3e4a1',
     messagingSenderId: '1024991048436',
     projectId: 'opatra-d5bda',
     storageBucket: 'opatra-d5bda.firebasestorage.app',
     androidClientId: '1024991048436-hq25pn9bodq70guphiuupf1e0soa9ha6.apps.googleusercontent.com',
-    iosBundleId: 'com.ontechinc.opatra',
+    iosBundleId: 'com.ontechinc.opatralondon',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -72,7 +72,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1024991048436',
     projectId: 'opatra-d5bda',
     storageBucket: 'opatra-d5bda.appspot.com',
-    iosBundleId: 'com.ontechinc.opatra',
+    iosBundleId: 'com.ontechinc.opatralondon',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

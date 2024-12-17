@@ -83,7 +83,7 @@ class BagController extends GetxController {
 
           Get.snackbar(
             'Success',
-            'Discount applied successfully! New subtotal: \$${subTotal.value.toStringAsFixed(2)}',
+            'Discount applied successfully! New subtotal: \£${subTotal.value.toStringAsFixed(2)}',
             backgroundColor: Colors.green,
           );
           doneWithDiscount.value=true;

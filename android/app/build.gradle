@@ -25,7 +25,7 @@ def flutterVersionCode = localProperties.getProperty("flutter.versionCode") ?: "
 def flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
 
 android {
-    namespace = "com.ontechinc.opatra" // Updated namespace
+    namespace = "com.ontechinc.opatralondon" // Updated namespace
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -39,17 +39,17 @@ android {
         jvmTarget = "17"
     }
 
-    signingConfigs {
-        release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-        }
-    }
+//    signingConfigs {
+//        release {
+//            keyAlias keystoreProperties['keyAlias']
+//            keyPassword keystoreProperties['keyPassword']
+//            storeFile file(keystoreProperties['storeFile'])
+//            storePassword keystoreProperties['storePassword']
+//        }
+//    }
 
     defaultConfig {
-        applicationId = "com.ontechinc.opatra" // Updated application ID
+        applicationId = "com.ontechinc.opatralondon" // Updated application ID
         minSdk = 21
         targetSdk = flutter.targetSdkVersion
         versionCode = 2
@@ -59,7 +59,7 @@ android {
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release // Use the correct signing configuration
+            signingConfig signingConfigs.debug // Use the correct signing configuration
             minifyEnabled false // Disable code shrinking for easier debugging
             shrinkResources false // Disable resource shrinking for now
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
