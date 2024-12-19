@@ -1013,6 +1013,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   }
 
   Widget buildCurrencyOption(BottomBarHostController logic) {
+    print('logic.selectedCurrency.value===============${logic.selectedCurrency.value}');
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,

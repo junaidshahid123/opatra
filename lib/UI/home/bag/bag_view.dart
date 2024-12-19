@@ -19,13 +19,38 @@ class BagView extends StatelessWidget {
     return GetBuilder<BagController>(
         init: BagController(),
         builder: (logic) {
+          print(logic.total);
+          print(logic.subTotal);
+
           return Scaffold(
             backgroundColor: AppColors.appWhiteColor,
             body: SafeArea(
               child: Column(
                 children: [
                   buildAppBar(),
-                  buildListOfProducts(context, logic),
+                  logic.cartItems.isEmpty ? Spacer() : Container(),
+                  Obx(() {
+                    // Show a loader when isLoading is true
+                    if (logic.isLoading.value) {
+                      return Center(
+                        child: CircularProgressIndicator(), // Show loader
+                      );
+                    } else if (logic.cartItems.isEmpty) {
+                      // Show "Cart is Empty" image when cartItems is empty
+                      return Center(
+                        child: Image.asset(
+                          'assets/images/emptyBagIcon.jpg',
+                          // Replace with your image path
+                          width: 200, // Customize the width as needed
+                          height: 200, // Customize the height as needed
+                        ),
+                      );
+                    } else {
+                      // Show the list of products once loading is done and cart is not empty
+                      return buildListOfProducts(context, logic);
+                    }
+                  }),
+                  logic.cartItems.isEmpty ? Spacer() : Container(),
                   Container(
                     height: MediaQuery.of(context).size.height / 3,
                     margin: EdgeInsets.only(
@@ -77,7 +102,7 @@ class BagView extends StatelessWidget {
             ),
           ),
           Text(
-            '${logic.subTotal}',
+            '${logic.total.value.toStringAsFixed(2)}',
             style: TextStyle(
                 color: Color(0xFFFFFFFF),
                 fontWeight: FontWeight.w700,
@@ -155,11 +180,12 @@ class BagView extends StatelessWidget {
             ),
           ),
           Text(
-            '${logic.subTotal.value}',
+            '${logic.subTotal.value.toStringAsFixed(2)}',
             style: TextStyle(
-                color: Color(0xFFFFFFFF),
-                fontWeight: FontWeight.w700,
-                fontSize: 14),
+              color: Color(0xFFFFFFFF),
+              fontWeight: FontWeight.w700,
+              fontSize: 14,
+            ),
           )
         ],
       ),
@@ -202,8 +228,9 @@ class BagView extends StatelessWidget {
           if (logic.doneWithDiscount.value == true) {
             Get.to(() => Payment(logic.subTotal.value, parsedCurrency));
           }
-          if(logic.doneWithDiscount.value == false){
-            Get.snackbar('Alert', 'Please Apply Discount First to Check out',backgroundColor: AppColors.appPrimaryColor);
+          if (logic.doneWithDiscount.value == false) {
+            Get.snackbar('Alert', 'Please Apply Discount First to Check out',
+                backgroundColor: AppColors.appPrimaryColor);
           }
         }
       },
@@ -232,6 +259,7 @@ class BagView extends StatelessWidget {
   // Widget to build product name, currency, and increment/decrement controls
   Widget buildNameAndTime(ProductA product, int quantity, BagController logic,
       int index, double marginHorizontal) {
+    print('product.price!.value=${product.price!.value}');
     return Container(
       margin: EdgeInsets.only(left: marginHorizontal),
       child: Column(
@@ -251,7 +279,7 @@ class BagView extends StatelessWidget {
           SizedBox(height: 5),
           Row(
             children: [
-              _getCurrencyIcon(product.selectedCurrency!),
+              CurrencyIconWidget(),
               SizedBox(width: 5),
               Text(
                 '${product.price!.value}',
@@ -264,29 +292,38 @@ class BagView extends StatelessWidget {
               Spacer(),
               Row(
                 children: [
-                  // Decrement Button
+                  // Decrement Button or Delete Icon
                   InkWell(
                     onTap: () {
                       if (quantity > 1) {
                         logic.tapOnDecrement(index);
+                      } else {
+                        logic.tapOnDelete(index);
+                        // Call the delete function when quantity is 1
                       }
                     },
                     child: Container(
                       height: (quantity > 99) ? 30 : 35,
-                      // Smaller size for quantities over 99
                       width: (quantity > 99) ? 30 : 35,
-                      // Smaller size for quantities over 99
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100),
-                        color: Color(0xFFFBF3D7),
-                      ),
+                      decoration: quantity > 1
+                          ? BoxDecoration(
+                              borderRadius: BorderRadius.circular(100),
+                              color: Color(0xFFFBF3D7),
+                            )
+                          : null, // No decoration when showing delete icon
                       child: Center(
-                        child: Icon(
-                          Icons.remove,
-                          size: (quantity > 99) ? 16 : 18,
-                          // Smaller icon for quantities over 99
-                          color: AppColors.appPrimaryBlackColor,
-                        ),
+                        child: quantity > 1
+                            ? Icon(
+                                Icons.remove,
+                                size: (quantity > 99) ? 16 : 18,
+                                color: AppColors.appPrimaryBlackColor,
+                              )
+                            : Image.asset(
+                                'assets/images/deleteIcon.png',
+                                // Path to your delete icon
+                                height: (quantity > 99) ? 16 : 18,
+                                width: (quantity > 99) ? 16 : 18,
+                              ),
                       ),
                     ),
                   ),
@@ -296,7 +333,6 @@ class BagView extends StatelessWidget {
                     quantity.toString(),
                     style: TextStyle(
                       fontSize: (quantity > 99) ? 16 : 20,
-                      // Smaller font size for quantities over 99
                       fontWeight: FontWeight.w600,
                       color: AppColors.appPrimaryBlackColor,
                     ),
@@ -309,9 +345,7 @@ class BagView extends StatelessWidget {
                     },
                     child: Container(
                       height: (quantity > 99) ? 30 : 35,
-                      // Smaller size for quantities over 99
                       width: (quantity > 99) ? 30 : 35,
-                      // Smaller size for quantities over 99
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(100),
                         color: Color(0xFFFBF3D7),
@@ -320,7 +354,6 @@ class BagView extends StatelessWidget {
                         child: Icon(
                           Icons.add,
                           size: (quantity > 99) ? 16 : 18,
-                          // Smaller icon for quantities over 99
                           color: AppColors.appPrimaryBlackColor,
                         ),
                       ),
@@ -362,8 +395,9 @@ class BagView extends StatelessWidget {
   }
 
   // Widget to build the list of products with responsive margins and dynamic layout
+
   Widget buildListOfProducts(BuildContext context, BagController logic) {
-    final cartItems = logic.getCartItems();
+    final cartItems = logic.cartItems;
     final double screenWidth = MediaQuery.of(context).size.width;
     final double imageSize = screenWidth * 0.25;
     final double marginHorizontal =
@@ -373,34 +407,37 @@ class BagView extends StatelessWidget {
       child: Container(
         margin: EdgeInsets.symmetric(
             horizontal: marginHorizontal, vertical: marginHorizontal / 2),
-        child: ListView.builder(
-          itemCount: cartItems.length,
-          itemBuilder: (context, index) {
-            final product = cartItems[index];
-            final quantity = product.quantity!.value;
+        child: Obx(() {
+          // Observing cartItems so UI updates when it's changed
+          return ListView.builder(
+            itemCount: cartItems.length,
+            itemBuilder: (context, index) {
+              final product = cartItems[index];
+              final quantity = product.quantity!.value;
 
-            return Container(
-              margin: EdgeInsets.only(bottom: marginHorizontal / 2),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Color(0xFFFBF3D7)),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(marginHorizontal / 2),
-                child: Row(
-                  children: [
-                    buildImage(product, imageSize),
-                    SizedBox(width: marginHorizontal / 2),
-                    Expanded(
-                      child: buildNameAndTime(product, quantity, logic, index,
-                          marginHorizontal / 2),
-                    ),
-                  ],
+              return Container(
+                margin: EdgeInsets.only(bottom: marginHorizontal / 2),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Color(0xFFFBF3D7)),
                 ),
-              ),
-            );
-          },
-        ),
+                child: Padding(
+                  padding: EdgeInsets.all(marginHorizontal / 2),
+                  child: Row(
+                    children: [
+                      buildImage(product, imageSize),
+                      SizedBox(width: marginHorizontal / 2),
+                      Expanded(
+                        child: buildNameAndTime(product, quantity, logic, index,
+                            marginHorizontal / 2),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        }),
       ),
     );
   }
@@ -451,24 +488,6 @@ class BagView extends StatelessWidget {
       style: TextStyle(
           fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF333333)),
     );
-  }
-
-  // Method to get the currency icon based on selected currency
-  Widget _getCurrencyIcon(String? selectedCurrency) {
-    switch (selectedCurrency) {
-      case 'US Dollar':
-        return Icon(Icons.attach_money,
-            color: Color(0xFFB7A06A), size: 20); // Dollar icon
-      case 'Euro':
-        return Icon(Icons.euro_symbol,
-            color: Color(0xFFB7A06A), size: 20); // Euro icon
-      case 'Pound':
-        return Icon(Icons.currency_pound,
-            color: Color(0xFFB7A06A), size: 20); // Rupee icon
-      // Add more currencies as needed
-      default:
-        return SizedBox(); // Return an empty widget for unknown currency
-    }
   }
 }
 
@@ -565,6 +584,50 @@ class _DiscountCodeContainerState extends State<DiscountCodeContainer> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class CurrencyIconWidget extends StatelessWidget {
+  // Fetch the selected currency from SharedPreferences
+  Future<String> _getSelectedCurrency() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('selectedCurrency') ??
+        'Pound'; // Default to US Dollar
+  }
+
+  // Map the currency to the corresponding icon
+  Widget _getCurrencyIcon(String selectedCurrency) {
+    switch (selectedCurrency) {
+      case 'US Dollar':
+        return Icon(Icons.attach_money,
+            color: Color(0xFFB7A06A), size: 20); // Dollar icon
+      case 'Euro':
+        return Icon(Icons.euro_symbol,
+            color: Color(0xFFB7A06A), size: 20); // Euro icon
+      case 'Pound':
+        return Icon(Icons.currency_pound,
+            color: Color(0xFFB7A06A), size: 20); // Pound icon
+      // Add more currencies as needed
+      default:
+        return SizedBox(); // Return an empty widget for unknown currency
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String>(
+      future: _getSelectedCurrency(), // Fetch selected currency
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator(); // Show a loader while fetching
+        } else if (snapshot.hasError) {
+          return Icon(Icons.error, color: Colors.red, size: 20); // Error icon
+        } else {
+          final selectedCurrency = snapshot.data ?? 'US Dollar';
+          return _getCurrencyIcon(selectedCurrency);
+        }
+      },
     );
   }
 }

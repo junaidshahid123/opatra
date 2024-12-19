@@ -25,9 +25,8 @@ Future<List<NotificationModel>> getNotifications() async {
     "Accept": "application/json",
     "Authorization": "Bearer $token", // Include the Bearer token in headers
   };
-  final response = await http.get(
-      Uri.parse(ApiUrls.userNotifications),
-      headers: headers);
+  final response =
+      await http.get(Uri.parse(ApiUrls.userNotifications), headers: headers);
 
   if (response.statusCode == 200) {
     // Parse the JSON response
@@ -61,7 +60,7 @@ class _NotificationsState extends State<Notifications> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: AppColors.appPrimaryWhiteColor,
+      backgroundColor: AppColors.appPrimaryWhiteColor,
       body: SafeArea(
         child: FutureBuilder<List<NotificationModel>>(
           future: getNotifications(),
@@ -71,7 +70,12 @@ class _NotificationsState extends State<Notifications> {
             } else if (snapshot.hasError) {
               return Center(child: Text("Error: ${snapshot.error}"));
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(child: Text("No notifications found"));
+              return Center(
+                  child: Text(
+                "No notifications found",
+                style:
+                    TextStyle(color: AppColors.appPrimaryColor, fontSize: 20),
+              ));
             }
 
             // Display notifications

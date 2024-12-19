@@ -1,3 +1,5 @@
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
+
 class MDDiscount {
   bool? success;
   String? message;
@@ -22,3 +24,4 @@ class MDDiscount {
     return data;
   }
 }
+

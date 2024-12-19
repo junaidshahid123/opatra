@@ -16,9 +16,12 @@ import '../../../models/MDProducts.dart' as MDModels;
 import '../../../models/MDProductsByCategory.dart';
 import '../../../models/MDVideosByCategory.dart';
 import '../../auth/login/login_view.dart';
+import '../bag/bag_controller.dart';
 import 'bottom_bar_host_model.dart';
 
 class BottomBarHostController extends GetxController {
+  final BagController bagController = Get.find<BagController>();
+
   RxBool noProductsMatched = false.obs;
   var userName = ''.obs; // RxString to hold the userName
   var userEmail = ''.obs; // RxString to hold the userEmail
@@ -81,11 +84,12 @@ class BottomBarHostController extends GetxController {
     fetchAllDevicesProducts();
     // fetchAllProducts();
     // fetchProductCategories();
-    selectedCurrency.value = 'Pound';
+    // selectedCurrency.value = 'Pound';
     fetchAllBanners();
     fetchVideoCategories();
     filteredProducts.value = mdProductsByCategory?.products ?? [];
     fetchAppModules();
+    initializeCurrency();
   }
 
   void makeHome() {
@@ -484,31 +488,102 @@ class BottomBarHostController extends GetxController {
     );
   }
 
-  void makeUsDollar() {
+  // Save the selected currency to SharedPreferences
+  Future<void> saveCurrencyToPrefs(String currency) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    print('Attempting to save currency: $currency to SharedPreferences...');
+
+    bool isSaved = await prefs.setString('selectedCurrency', currency);
+
+    if (isSaved) {
+      print('Currency successfully saved: $currency');
+    } else {
+      print('Failed to save currency: $currency');
+    }
+
+    // Verify immediately after saving
+    String? storedCurrency = prefs.getString('selectedCurrency');
+    print('Currency retrieved after saving: $storedCurrency');
+  }
+
+  // Load the selected currency from SharedPreferences
+  Future loadCurrencyFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? currency = prefs.getString('selectedCurrency');
+    if (currency != null) {
+      selectedCurrency.value = currency;
+      if (currency == 'US Dollar') {
+        usd.value = true;
+        euro.value = false;
+        pound.value = false;
+      } else if (currency == 'Euro') {
+        usd.value = false;
+        euro.value = true;
+        pound.value = false;
+      } else if (currency == 'Pound') {
+        usd.value = false;
+        euro.value = false;
+        pound.value = true;
+      }
+    }
+  }
+
+  // Set the currency to US Dollar
+  void makeUsDollar() async {
     usd.value = true;
     euro.value = false;
     pound.value = false;
     isCurrencyDropDown.value = false;
     selectedCurrency.value = 'US Dollar';
+    await saveCurrencyToPrefs('US Dollar');
+    await Get.find<BagController>().loadCartFromLocalStorage();
+
     update();
   }
 
-  void makeEuro() {
+  // Set the currency to Euro
+  void makeEuro() async {
     usd.value = false;
     euro.value = true;
     pound.value = false;
     isCurrencyDropDown.value = false;
     selectedCurrency.value = 'Euro';
+    await saveCurrencyToPrefs('Euro');
+    await Get.find<BagController>().loadCartFromLocalStorage();
+
     update();
   }
 
-  void makePound() {
+  // Set the currency to Pound
+  void makePound() async {
     usd.value = false;
     euro.value = false;
     pound.value = true;
     isCurrencyDropDown.value = false;
     selectedCurrency.value = 'Pound';
+    await saveCurrencyToPrefs('Pound');
+    await Get.find<BagController>().loadCartFromLocalStorage();
+
     update();
+  }
+
+  Future<void> initializeCurrency() async {
+    String? activeCurrency = await loadCurrencyFromPrefs();
+
+    if (activeCurrency == null || activeCurrency.isEmpty) {
+      // Only set the default currency if this is the first time initializing
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      if (!prefs.containsKey('selectedCurrency')) {
+        await saveCurrencyToPrefs('Pound');
+        selectedCurrency.value = 'Pound';
+        print('No stored currency found. Defaulting to: Pound');
+      }
+    } else {
+      // Use the stored currency
+      selectedCurrency.value = activeCurrency;
+      print('Active currency loaded: $activeCurrency');
+    }
   }
 
   void updateSearchQuery(String query) {
@@ -1253,7 +1328,8 @@ class BottomBarHostController extends GetxController {
         final data = jsonDecode(response.body);
         print('Product mdDevicesProducts: $data');
         mdDevicesProducts = MDDevicesProducts.fromJson(data);
-        print('mdDevicesProducts: ${mdDevicesProducts!.customCollections!.length}');
+        print(
+            'mdDevicesProducts: ${mdDevicesProducts!.customCollections!.length}');
         update();
       } else {
         print(

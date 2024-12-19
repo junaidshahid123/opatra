@@ -1,5 +1,3 @@
-
-
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
 class MDProductDetail {
@@ -364,5 +362,17 @@ class ProductA {
     quantity = RxInt(json['quantity'] ?? 0);
     selectedCurrency = json['selectedCurrency'];
   }
-}
 
+  // Convert ProductA to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'image': image?.toJson(), // Assuming Images has toJson method
+      'price': price?.value,
+      'basePrice': basePrice,
+      'quantity': quantity?.value,
+      'selectedCurrency': selectedCurrency,
+    };
+  }
+}

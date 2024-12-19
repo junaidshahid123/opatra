@@ -231,22 +231,40 @@ class _ProductDetailViewState extends State<ProductDetailView> {
         print('controller.quantity.value====${controller.quantity.value}');
         print('widget.currency====${widget.currency}');
 
-        int usDollarIndex = 6;
-        int euroIndex = 4;
-        int poundIndex = 0;
+        // Ensure that the variants list is not null or empty and has the correct number of elements
+        if (controller.mdProductDetail!.product!.variants == null ||
+            controller.mdProductDetail!.product!.variants!.isEmpty) {
+          print('No variants available for the product');
+          return;
+        }
 
+        int? priceIndex;
+
+        // Find the appropriate index based on the selected currency
         if (widget.currency == 'Pound') {
-          controller.price =
-              controller.mdProductDetail!.product!.variants![poundIndex].price!;
+          priceIndex = 0; // Update the correct index for Pound
+        } else if (widget.currency == 'Euro') {
+          priceIndex = 4; // Update the correct index for Euro
+        } else if (widget.currency == 'US Dollar') {
+          priceIndex = 6; // Update the correct index for US Dollar
         }
-        if (widget.currency == 'Euro') {
-          controller.price =
-              controller.mdProductDetail!.product!.variants![euroIndex].price!;
+
+        // Ensure the index is within the valid range
+        if (priceIndex != null &&
+            priceIndex >= 0 &&
+            priceIndex < controller.mdProductDetail!.product!.variants!.length) {
+          controller.price = controller.mdProductDetail!.product!.variants![priceIndex].price!;
+          print(
+              'controller.mdProductDetail!.product!.variants![priceIndex].price!====${controller.mdProductDetail!.product!.variants![priceIndex].title!}');
+        } else if (controller.mdProductDetail!.product!.variants![0].title == 'Default Title') {
+          // If the index is invalid, use the default variant
+          controller.price = controller.mdProductDetail!.product!.variants![0].price!;
+        } else {
+          // If neither condition is met, print the error message
+          print('Invalid index for selected currency');
+          return;
         }
-        if (widget.currency == 'US Dollar') {
-          controller.price = controller
-              .mdProductDetail!.product!.variants![usDollarIndex].price!;
-        }
+
 
         print('price====${controller.price}');
         var priceA =
@@ -291,10 +309,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                   color: Color(0xFFB7A06A),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                margin: EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                ),
+                margin: EdgeInsets.only(left: 20, right: 20),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -304,9 +319,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                       height: 20,
                       width: 20,
                     ),
-                    SizedBox(
-                      width: 10,
-                    ),
+                    SizedBox(width: 10),
                     Text(
                       'Add To Bag',
                       style:
@@ -316,9 +329,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                 ),
               ),
             ),
-            SizedBox(
-              width: 20,
-            ),
+            SizedBox(width: 20),
             InkWell(
               onTap: () {
                 logic.tapOnDecrement();
@@ -331,13 +342,9 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                       color: Color(0xFFFBF3D7)),
                   child: Container(
                       margin: EdgeInsets.all(15),
-                      child: Image.asset(
-                        'assets/images/minusIcon.png',
-                      ))),
+                      child: Image.asset('assets/images/minusIcon.png'))),
             ),
-            SizedBox(
-              width: 10,
-            ),
+            SizedBox(width: 10),
             Obx(
               () => Text(
                 logic.quantity.value.toString(),
@@ -347,9 +354,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                     color: AppColors.appPrimaryBlackColor),
               ),
             ),
-            SizedBox(
-              width: 10,
-            ),
+            SizedBox(width: 10),
             InkWell(
               onTap: () {
                 logic.tapOnIncrement();
@@ -362,9 +367,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                       color: Color(0xFFFBF3D7)),
                   child: Container(
                       margin: EdgeInsets.all(15),
-                      child: Image.asset(
-                        'assets/images/addIcon.png',
-                      ))),
+                      child: Image.asset('assets/images/addIcon.png'))),
             )
           ],
         ),
@@ -595,18 +598,15 @@ class _ProductDetailViewState extends State<ProductDetailView> {
   }
 
   Widget buildName() {
-    return Expanded(
-      child: Text(
-        controller.mdProductDetail!.product!.title!.length > 10
-            ? controller.mdProductDetail!.product!.title!.substring(0, 10) +
-                '...'
-            : controller.mdProductDetail!.product!.title!,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF333333)),
+    return Text(
+      controller.mdProductDetail!.product!.title!,
+      maxLines: 2,
+      // Limit to one line
+      // overflow: TextOverflow.ellipsis, // Truncate with ellipsis if it overflows
+      style: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: Color(0xFF333333),
       ),
     );
   }

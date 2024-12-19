@@ -76,13 +76,15 @@ class ProductDetailController extends GetxController {
       );
 
       // Step 7: Checking response status code
-      print('Step 7: POST request completed. Status code - ${response.statusCode}');
+      print(
+          'Step 7: POST request completed. Status code - ${response.statusCode}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         print('Step 7: Data sent successfully for App Modules!');
         print('Step 8: Server response - ${response.body}');
       } else {
-        print('Step 7: Failed to send data. Status code - ${response.statusCode}');
+        print(
+            'Step 7: Failed to send data. Status code - ${response.statusCode}');
         print('Step 8: Server error response - ${response.body}');
       }
     } catch (e) {
@@ -124,7 +126,8 @@ class ProductDetailController extends GetxController {
       final response = await http.get(url, headers: headers);
 
       // Step 6: Check response status code
-      print('Step 6: GET request completed. Status code - ${response.statusCode}');
+      print(
+          'Step 6: GET request completed. Status code - ${response.statusCode}');
 
       if (response.statusCode == 200) {
         print('Step 6: Data successfully fetched');
@@ -142,7 +145,7 @@ class ProductDetailController extends GetxController {
 
         // Step 10: Check for specific module ('Product Detail')
         final homeModule = data['data'].firstWhere(
-                (module) => module['name'] == 'Product Details',
+            (module) => module['name'] == 'Product Details',
             orElse: () => null);
         if (homeModule != null) {
           int productDetailID = homeModule['id'];
@@ -155,11 +158,13 @@ class ProductDetailController extends GetxController {
           // Step 12: Call activeUser with Product Detail ID
           activeUser(productDetailID);
         } else {
-          print('Step 10: Product Detail module not found in the response data');
+          print(
+              'Step 10: Product Detail module not found in the response data');
         }
       } else {
         // Handle case where status code is not 200
-        print('Step 6: Failed to load mdGetAppModules. Status Code: ${response.statusCode}');
+        print(
+            'Step 6: Failed to load mdGetAppModules. Status Code: ${response.statusCode}');
       }
     } catch (e) {
       // Step 13: Handle and log any errors that occur
@@ -167,7 +172,7 @@ class ProductDetailController extends GetxController {
     }
   }
 
-   addToBag(ProductA? product, String selectedCurrency) {
+  addToBag(ProductA? product, String selectedCurrency) {
     print('addToBag called');
 
     // Ensure the product is not null
@@ -186,7 +191,7 @@ class ProductDetailController extends GetxController {
 
   Future<void> fetchProductDetail(int id) async {
     final url = Uri.parse('${ApiUrls.baseUrl}/product/${id}');
-
+    print(id);
     // Retrieve token from SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
@@ -210,7 +215,10 @@ class ProductDetailController extends GetxController {
         final data = jsonDecode(response.body);
         print('fetchProductDetail: $data');
         mdProductDetail = MDProductDetail.fromJson(data);
-        print('mdProductDetail: ${mdProductDetail!.product!.image!.src}');
+        print('mdProductDetail Variants:');
+        mdProductDetail!.product!.variants!.forEach((variant) {
+          print('Variant: ${variant.title}');
+        });
         update();
 
         // You can further process the data here
