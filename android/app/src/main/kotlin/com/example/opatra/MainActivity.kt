@@ -1,4 +1,4 @@
-package com.example.opatra
+package com.ontechinc.opatralondon
 
 import io.flutter.embedding.android.FlutterActivity
 

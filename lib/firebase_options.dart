@@ -62,7 +62,7 @@ appId: '1:1024991048436:ios:26bb9c055d67cdd3b3e4a1',
 messagingSenderId: '1024991048436',
 projectId: 'opatra-d5bda',
 storageBucket: 'opatra-d5bda.appspot.com',
-iosBundleId: 'com.example.opatra',
+iosBundleId: 'com.ontechinc.opatralondon',
 );
 
 static const FirebaseOptions macos = FirebaseOptions(
@@ -71,7 +71,7 @@ appId: '1:1024991048436:ios:26bb9c055d67cdd3b3e4a1',
 messagingSenderId: '1024991048436',
 projectId: 'opatra-d5bda',
 storageBucket: 'opatra-d5bda.appspot.com',
-iosBundleId: 'com.example.opatra',
+iosBundleId: 'com.ontechinc.opatralondon',
 );
 
 static const FirebaseOptions windows = FirebaseOptions(

@@ -4,6 +4,14 @@ plugins {
     id "kotlin-android" // Kotlin plugin
     id "dev.flutter.flutter-gradle-plugin" // Flutter Gradle plugin
 }
+// Load keystore properties
+def keystoreProperties = new Properties()
+def keystoreFile = rootProject.file("key.properties")
+if (keystoreFile.exists()) {
+    keystoreFile.withReader("UTF-8") { reader ->
+        keystoreProperties.load(reader)
+    }
+}
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file("local.properties")
@@ -17,7 +25,7 @@ def flutterVersionCode = localProperties.getProperty("flutter.versionCode") ?: "
 def flutterVersionName = localProperties.getProperty("flutter.versionName") ?: "1.0"
 
 android {
-    namespace = "com.example.opatra"
+    namespace = "com.ontechinc.opatralondon"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -31,25 +39,39 @@ android {
         jvmTarget = JavaVersion.VERSION_17
     }
 
-    defaultConfig {
-        applicationId = "com.example.opatra"
-        minSdk = 21
-        targetSdk = flutter.targetSdkVersion
-        versionCode = flutterVersionCode.toInteger()
-        versionName = flutterVersionName
+    android {
+        compileSdkVersion flutter.compileSdkVersion
 
-        // Optional: Enable MultiDex if your app exceeds 64K methods
-        multiDexEnabled true
-    }
+        defaultConfig {
+            applicationId "com.ontechinc.opatralondon"
+            minSdkVersion 21
+            targetSdkVersion flutter.targetSdkVersion
+            versionCode flutterVersionCode.toInteger()
+            versionName flutterVersionName
 
-    buildTypes {
+            // Optional: Enable MultiDex if your app exceeds 64K methods
+            multiDexEnabled true
+        }
+
+            signingConfigs {
         release {
-            signingConfig = signingConfigs.debug
-            minifyEnabled false
-            shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
         }
     }
+
+        buildTypes {
+            release {
+                signingConfig signingConfigs.release
+                minifyEnabled false
+                shrinkResources false
+                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            }
+        }
+    }
+
 
     configurations.all {
         resolutionStrategy {

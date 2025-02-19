@@ -2,14 +2,14 @@
   "project_info": {
     "project_number": "1024991048436",
     "project_id": "opatra-d5bda",
-    "storage_bucket": "opatra-d5bda.appspot.com"
+    "storage_bucket": "opatra-d5bda.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1024991048436:android:901d3f72dbe383c2b3e4a1",
+        "mobilesdk_app_id": "1:1024991048436:android:83765129e0ea8416b3e4a1",
         "android_client_info": {
-          "package_name": "com.example.opatra"
+          "package_name": "com.ontechinc.opatralondon"
         }
       },
       "oauth_client": [
