@@ -46,8 +46,8 @@ android {
             applicationId "com.ontechinc.opatralondon"
             minSdkVersion 21
             targetSdkVersion flutter.targetSdkVersion
-            versionCode flutterVersionCode.toInteger()
-            versionName flutterVersionName
+            versionCode 3
+            versionName "1.0.2"
 
             // Optional: Enable MultiDex if your app exceeds 64K methods
             multiDexEnabled true
