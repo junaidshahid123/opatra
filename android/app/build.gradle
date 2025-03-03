@@ -44,8 +44,8 @@ android {
         applicationId "com.ontechinc.opatralondon"
         minSdkVersion 21
         targetSdkVersion flutter.targetSdkVersion
-        versionCode 8
-        versionName "1.0.4"
+        versionCode 9
+        versionName "1.0.5"
         // Enable MultiDex if needed
         multiDexEnabled true
     }
