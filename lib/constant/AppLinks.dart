@@ -1,22 +1,35 @@
 class ApiUrls {
   // Base API URL
-  static const String baseUrl = 'https://opatra.fai-tech.online/api';
+  static const String baseUrl = 'https://opatra.app/api';
 
   // Authentication-related URLs
   static const String loginUrl = '$baseUrl/login';
   static const String registerUrl = '$baseUrl/auth/register';
   static const String logoutUrl = '$baseUrl/logout';
   static const String signUpUrl = '$baseUrl/register';
+  static const String forgotPassword = '$baseUrl/forgot-password';
+  static const String newPassword = '$baseUrl/new-password';
+  static const String verifyOtp = '$baseUrl/verify-otp';
+  static const String deleteAccount = '$baseUrl/delete-account';
+  static const String guestAccount = '$baseUrl/guest-account';
 
   // User-related URLs
   static const String userProfileUrl = '$baseUrl/user/profile';
   static const String userUpdateUrl = '$baseUrl/user/update';
   static const String userChangePasswordUrl = '$baseUrl/user/change-password';
+  static const String newNotifications = '$baseUrl/user/user-notifications';
 
   // Product-related URLs
   static const String productListUrl = '$baseUrl/products';
-  static const String getLatestProducts = '$baseUrl/latest-products';
+  static const String getLatestProducts =
+      '$baseUrl/products/online-only-exclusives';
+  static const String getSkinCareProducts = '$baseUrl/products/skin-care';
+  static const String getSkinDevicesProducts = '$baseUrl/products/devices';
   static const String products = '$baseUrl/products';
+  static const String getAllSkinCareProducts =
+      '$baseUrl/category/261626953843/products';
+  static const String getAllDevicesProducts =
+      '$baseUrl/category/261626593395/products';
   static const String productCategory = '$baseUrl/product-category';
   static const String banner = '$baseUrl/banner';
   static const String videoCategory = '$baseUrl/video-category';
@@ -32,9 +45,12 @@ class ApiUrls {
 
   // Contact us URL
   static const String contactUsUrl = '$baseUrl/contact-us';
+  static const String editProfile = '$baseUrl/profile-update';
   static const String registerProduct = '$baseUrl/register-product';
   static const String deviceSchedule = '$baseUrl/device-schedule';
   static const String warrantyClaims = '$baseUrl/warranty-claim';
+  static const String appModules = '$baseUrl/app-modules';
+  static const String activeUser = '$baseUrl/active-user';
 
   // Other URLs
   static const String termsAndConditionsUrl = '$baseUrl/terms-and-conditions';

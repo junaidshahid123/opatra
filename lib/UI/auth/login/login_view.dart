@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:opatra/UI/auth/forgot_password.dart';
+import 'package:opatra/UI/home/bottom_bar_host/bottom_bar_host_view.dart';
 import 'package:opatra/constant/AppColors.dart';
+import '../../../main.dart';
 import '../signup/signup_view.dart';
 import 'login_logic.dart';
 
@@ -65,6 +67,7 @@ class LoginView extends StatelessWidget {
                               buildPasswordField(logic),
                               buildForgotPasswordText(),
                               buildSignInButton(context, logic),
+                              buildContinueAsAGuestButton(context, logic),
                               buildDontHaveAnAccount()
                             ],
                           ),
@@ -103,60 +106,68 @@ class LoginView extends StatelessWidget {
     );
   }
 
+  Widget buildContinueAsAGuestButton(BuildContext context, LoginLogic logic) {
+    return Obx(() => InkWell(
+      onTap: () {
+        logic.continueAsAGuest();
+      },
+      child: Container(
+          margin: EdgeInsets.only(bottom: 20, top: 20),
+          width: MediaQuery.of(context).size.width,
+          height: 45,
+          decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: AppColors.appPrimaryColor)),
+          child: Center(
+              child: logic.isLoadingForGuest.value == true
+                  ? SizedBox(
+                width: 20.0, // Adjust the width
+                height: 20.0, // Adjust the height
+                child: CircularProgressIndicator(
+                  strokeWidth: 5,
+                  color: AppColors.appPrimaryColor,
+                ),
+              )
+                  : Text(
+                'Continue As A Guest',
+                style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    color: AppColors.appPrimaryColor),
+              ))),
+    ));
+  }
+
   Widget buildSignInButton(BuildContext context, LoginLogic logic) {
     return Obx(() => InkWell(
-          onTap: () {
-            // // Check if the email field is empty
-            // if (_emailController.text.isEmpty) {
-            //   Get.snackbar('Alert', 'Please Enter Email',
-            //       backgroundColor: Colors.red, colorText: Colors.white);
-            //   return; // Return early to avoid further checks
-            // }
-            // // Validate the email format
-            // if (!isValidEmail(_emailController.text)) {
-            //   Get.snackbar('Alert', 'Please Enter a Valid Email',
-            //       backgroundColor: Colors.red, colorText: Colors.white);
-            //   return; // Return early if the email is invalid
-            // }
-            // // Check if the password field is empty
-            // if (_passwordController.text.isEmpty) {
-            //   Get.snackbar('Alert', 'Please Enter Password',
-            //       backgroundColor: Colors.red, colorText: Colors.white);
-            //   return; // Return early to avoid further checks
-            // }
-            // // Check if the password field is empty
-            // if (_passwordController.text.length < 8) {
-            //   Get.snackbar('Alert', 'Password must be at least 8 characters',
-            //       backgroundColor: Colors.red, colorText: Colors.white);
-            //   return; // Return early to avoid further checks
-            // }
-            // loginUser();
-            logic.onLoginTap();
-          },
-          child: Container(
-              margin: EdgeInsets.only(bottom: 20, top: 50),
-              width: MediaQuery.of(context).size.width,
-              height: 45,
-              decoration: BoxDecoration(
-                color: Color(0xFFB7A06A),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Center(
-                  child: logic.isLoading.value == true
-                      ? SizedBox(
-                          width: 20.0, // Adjust the width
-                          height: 20.0, // Adjust the height
-                          child: CircularProgressIndicator(
-                            strokeWidth: 5,
-                            color: AppColors.appWhiteColor,
-                          ),
-                        )
-                      : Text(
-                          'Sign In',
-                          style: TextStyle(
-                              fontWeight: FontWeight.w600, fontSize: 16),
-                        ))),
-        ));
+      onTap: () {
+        logic.onLoginTap();
+      },
+      child: Container(
+          margin: EdgeInsets.only(top: 50),
+          width: MediaQuery.of(context).size.width,
+          height: 45,
+          decoration: BoxDecoration(
+            color: Color(0xFFB7A06A),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Center(
+              child: logic.isLoading.value == true
+                  ? SizedBox(
+                width: 20.0, // Adjust the width
+                height: 20.0, // Adjust the height
+                child: CircularProgressIndicator(
+                  strokeWidth: 5,
+                  color: AppColors.appWhiteColor,
+                ),
+              )
+                  : Text(
+                'Sign In',
+                style: TextStyle(
+                    fontWeight: FontWeight.w600, fontSize: 16),
+              ))),
+    ));
   }
 
   Widget buildDontHaveAnAccount() {
@@ -195,90 +206,88 @@ class LoginView extends StatelessWidget {
 
   Widget buildPasswordField(LoginLogic logic) {
     return Obx(() => Container(
-          margin: EdgeInsets.only(top: 20),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextFormField(
-                controller: logic.passwordController,
-                cursorColor: AppColors.appPrimaryBlackColor,
-                style: TextStyle(color: AppColors.appPrimaryBlackColor),
-                obscureText: logic.isPassword.value,
-                // Obscure text if true
-                decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF989898)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Color(0xFF989898)),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red, width: 2.0),
-                    // Red border on error
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red, width: 2.0),
-                    // Red border when focused and in error
-                    borderRadius: BorderRadius.circular(20.0),
-                  ),
-                  errorStyle: TextStyle(
-                    color: Colors.red, // Error message in red color
-                  ),
-                  label: RichText(
-                    text: TextSpan(
-                      text: 'Password ',
-                      style: TextStyle(
-                        color: Color(0xFF989898),
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                      children: [
-                        TextSpan(
-                          text: '*',
-                          style: TextStyle(
-                            color: Colors.brown,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  hintText: '*********',
-                  hintStyle: TextStyle(color: Color(0xFF989898)),
-                  suffixIcon: IconButton(
-                    icon: Icon(logic.isPassword.value
-                        ? Icons.visibility_off
-                        : Icons.visibility),
-                    onPressed: () => logic.onEyeButtonTap(),
-
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                  ),
-                ),
-                // Validator for the TextFormField
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Password cannot be empty';
-                  }
-                  if (value.length < 8) {
-                    return 'Password must be at least 8 characters';
-                  }
-                  // Add any other password rules you want to enforce here
-                  return null; // Return null if no error
-                },
+      margin: EdgeInsets.only(top: 20),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            controller: logic.passwordController,
+            cursorColor: AppColors.appPrimaryBlackColor,
+            style: TextStyle(color: AppColors.appPrimaryBlackColor),
+            obscureText: logic.isPassword.value,
+            // Obscure text if true
+            decoration: InputDecoration(
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF989898)),
               ),
-              SizedBox(height: 4), // Space for validation message
-            ],
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF989898)),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.red, width: 2.0),
+                // Red border on error
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.red, width: 2.0),
+                // Red border when focused and in error
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+              errorStyle: TextStyle(
+                color: Colors.red, // Error message in red color
+              ),
+              label: RichText(
+                text: TextSpan(
+                  text: 'Password ',
+                  style: TextStyle(
+                    color: Color(0xFF989898),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: '*',
+                      style: TextStyle(
+                        color: Colors.brown,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              hintText: '*********',
+              hintStyle: TextStyle(color: Color(0xFF989898)),
+              suffixIcon: IconButton(
+                icon: Icon(logic.isPassword.value
+                    ? Icons.visibility_off
+                    : Icons.visibility),
+                onPressed: () => logic.onEyeButtonTap(),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+            ),
+            // Validator for the TextFormField
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Password cannot be empty';
+              }
+              if (value.length < 8) {
+                return 'Password must be at least 8 characters';
+              }
+              // Add any other password rules you want to enforce here
+              return null; // Return null if no error
+            },
           ),
-        ));
+          SizedBox(height: 4), // Space for validation message
+        ],
+      ),
+    ));
   }
 
   Widget buildEmailField(LoginLogic logic) {
-    return
-      Container(
+    return Container(
       margin: EdgeInsets.only(top: 20),
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
       child: Column(
