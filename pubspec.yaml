@@ -48,6 +48,7 @@ dependencies:
   google_maps_flutter: ^2.9.0
   geolocator: ^13.0.1
   flutter_widget_from_html: ^0.15.2
+  fluttertoast: ^8.2.12
   wakelock_plus: ^1.2.8
   url_launcher: ^6.3.0
   firebase_messaging: ^15.0.1

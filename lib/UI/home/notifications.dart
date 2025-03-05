@@ -62,38 +62,48 @@ class _NotificationsState extends State<Notifications> {
     return Scaffold(
       backgroundColor: AppColors.appPrimaryWhiteColor,
       body: SafeArea(
-        child: FutureBuilder<List<NotificationModel>>(
-          future: getNotifications(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text("Error: ${snapshot.error}"));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(
-                  child: Text(
-                "No notifications found",
-                style:
-                    TextStyle(color: AppColors.appPrimaryColor, fontSize: 20),
-              ));
-            }
+        child: Column(
+          children: [
+            buildAppBar(),
+            FutureBuilder<List<NotificationModel>>(
+              future: getNotifications(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text("Error: ${snapshot.error}"));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
 
-            // Display notifications
-            return Column(
-              children: [
-                buildAppBar(),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      final notification = snapshot.data![index];
-                      return buildNotificationCard(notification);
-                    },
-                  ),
-                ),
-              ],
-            );
-          },
+                      Text(
+                                          "No notifications found",
+                                          style:
+                        TextStyle(color: AppColors.appPrimaryColor, fontSize: 20),
+                                        ),
+                    ],
+                  );
+                }
+
+                // Display notifications
+                return Column(
+                  children: [
+
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, index) {
+                          final notification = snapshot.data![index];
+                          return buildNotificationCard(notification);
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
