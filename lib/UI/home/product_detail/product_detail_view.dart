@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:opatra/UI/home/bag/bag_view.dart';
 import 'package:opatra/UI/home/product_detail/product_detail_controller.dart';
@@ -54,6 +55,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
     print('widget.productId=====${widget.productId}');
     print('widget.currency=====${widget.currency}');
     controller.fetchProductDetail(widget.productId);
+    controller.fetchAppModules();
   }
 
   @override
@@ -223,47 +225,75 @@ class _ProductDetailViewState extends State<ProductDetailView> {
 
   Widget buildAddToBagButton(ProductDetailController logic) {
     return InkWell(
-      onTap: () {
+      onTap: () async {
         print(
             'controller.mdProductDetail.product.id====${controller.mdProductDetail!.product!.id}');
         print('controller.quantity.value====${controller.quantity.value}');
         print('widget.currency====${widget.currency}');
-        int usDollarIndex = 6;
-        int euroIndex = 4;
-        int poundIndex = 0;
+
+        // Ensure that the variants list is not null or empty and has the correct number of elements
+        if (controller.mdProductDetail!.product!.variants == null ||
+            controller.mdProductDetail!.product!.variants!.isEmpty) {
+          print('No variants available for the product');
+          return;
+        }
+
+        int? priceIndex;
+
+        // Find the appropriate index based on the selected currency
         if (widget.currency == 'Pound') {
-          controller.price =
-              controller.mdProductDetail!.product!.variants![poundIndex].price!;
+          priceIndex = 0; // Update the correct index for Pound
+        } else if (widget.currency == 'Euro') {
+          priceIndex = 4; // Update the correct index for Euro
+        } else if (widget.currency == 'US Dollar') {
+          priceIndex = 6; // Update the correct index for US Dollar
         }
-        if (widget.currency == 'Euro') {
-          controller.price =
-              controller.mdProductDetail!.product!.variants![euroIndex].price!;
+
+        // Ensure the index is within the valid range
+        if (priceIndex != null &&
+            priceIndex >= 0 &&
+            priceIndex < controller.mdProductDetail!.product!.variants!.length) {
+          controller.price = controller.mdProductDetail!.product!.variants![priceIndex].price!;
+          print(
+              'controller.mdProductDetail!.product!.variants![priceIndex].price!====${controller.mdProductDetail!.product!.variants![priceIndex].title!}');
+        } else if (controller.mdProductDetail!.product!.variants![0].title == 'Default Title') {
+          // If the index is invalid, use the default variant
+          controller.price = controller.mdProductDetail!.product!.variants![0].price!;
+        } else {
+          // If neither condition is met, print the error message
+          print('Invalid index for selected currency');
+          return;
         }
-        if (widget.currency == 'US Dollar') {
-          controller.price = controller
-              .mdProductDetail!.product!.variants![usDollarIndex].price!;
-        }
+
+
         print('price====${controller.price}');
-// Ensure controller.price is a String that can be parsed as a double
-        var priceA = controller.quantity.value *
-            double.tryParse(controller.price!)!; // Safely parse the price
+        var priceA =
+            controller.quantity.value * double.tryParse(controller.price!)!;
 
         print('priceA====${priceA}');
 
         if (controller.mdProductDetail!.product != null) {
-          // Create a new ProductA instance from the existing product data
           ProductA productToAdd = ProductA(
-              id: controller.mdProductDetail!.product!.id,
-              title: controller.mdProductDetail!.product!.title,
-              image: controller.mdProductDetail!.product!.image,
-              // Ensure this is of type Images
-              price: priceA.toDouble(),
-              // Make sure this is a double
-              quantity: controller.quantity.value,
-              selectedCurrency: widget.currency);
-          controller.addToBag(productToAdd, widget.currency);
+            id: controller.mdProductDetail!.product!.id,
+            title: controller.mdProductDetail!.product!.title,
+            image: controller.mdProductDetail!.product!.image,
+            price: priceA.toDouble(),
+            quantity: controller.quantity.value,
+            selectedCurrency: widget.currency,
+          );
 
-          Get.to(() => BagView());
+          // Await the addToBag function to ensure it's completed
+          await controller.addToBag(productToAdd, widget.currency);
+
+          // Show toast after the operation is successfully done
+          Fluttertoast.showToast(
+            msg: "Product Added to Bag Successfully",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: AppColors.appPrimaryColor,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
         } else {
           print('No product found to add to the bag.');
         }
@@ -279,10 +309,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                   color: Color(0xFFB7A06A),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                margin: EdgeInsets.only(
-                  left: 20,
-                  right: 20,
-                ),
+                margin: EdgeInsets.only(left: 20, right: 20),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -292,9 +319,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                       height: 20,
                       width: 20,
                     ),
-                    SizedBox(
-                      width: 10,
-                    ),
+                    SizedBox(width: 10),
                     Text(
                       'Add To Bag',
                       style:
@@ -304,9 +329,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                 ),
               ),
             ),
-            SizedBox(
-              width: 20,
-            ),
+            SizedBox(width: 20),
             InkWell(
               onTap: () {
                 logic.tapOnDecrement();
@@ -319,13 +342,9 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                       color: Color(0xFFFBF3D7)),
                   child: Container(
                       margin: EdgeInsets.all(15),
-                      child: Image.asset(
-                        'assets/images/minusIcon.png',
-                      ))),
+                      child: Image.asset('assets/images/minusIcon.png'))),
             ),
-            SizedBox(
-              width: 10,
-            ),
+            SizedBox(width: 10),
             Obx(
               () => Text(
                 logic.quantity.value.toString(),
@@ -335,9 +354,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                     color: AppColors.appPrimaryBlackColor),
               ),
             ),
-            SizedBox(
-              width: 10,
-            ),
+            SizedBox(width: 10),
             InkWell(
               onTap: () {
                 logic.tapOnIncrement();
@@ -350,9 +367,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                       color: Color(0xFFFBF3D7)),
                   child: Container(
                       margin: EdgeInsets.all(15),
-                      child: Image.asset(
-                        'assets/images/addIcon.png',
-                      ))),
+                      child: Image.asset('assets/images/addIcon.png'))),
             )
           ],
         ),
@@ -370,19 +385,19 @@ class _ProductDetailViewState extends State<ProductDetailView> {
     String price;
     if (widget.currency == 'US Dollar') {
       price = (controller.mdProductDetail!.product!.variants != null &&
-          controller.mdProductDetail!.product!.variants!.length >
-              usDollarIndex)
+              controller.mdProductDetail!.product!.variants!.length >
+                  usDollarIndex)
           ? '\$ ${controller.mdProductDetail!.product!.variants![usDollarIndex].price ?? '0.00'} USD'
           : '\$ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} ';
     } else if (widget.currency == 'Euro') {
       price = (controller.mdProductDetail!.product!.variants != null &&
-          controller.mdProductDetail!.product!.variants!.length > euroIndex)
+              controller.mdProductDetail!.product!.variants!.length > euroIndex)
           ? '€ ${controller.mdProductDetail!.product!.variants![euroIndex].price ?? '0.00'} Euro'
           : '€ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'}';
     } else {
       price = (controller.mdProductDetail!.product!.variants != null &&
-          controller.mdProductDetail!.product!.variants!.length >
-              poundIndex)
+              controller.mdProductDetail!.product!.variants!.length >
+                  poundIndex)
           ? '£ ${controller.mdProductDetail!.product!.variants![poundIndex].price ?? '0.00'} Pound'
           : '£ 0.00 Pound';
     }
@@ -486,7 +501,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
               itemBuilder: (context, index) {
                 return Image.network(
                   controller.mdProductDetail!.product!.images![index].src!,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                 );
               },
             ),
@@ -525,8 +540,7 @@ class _ProductDetailViewState extends State<ProductDetailView> {
       ),
       child: Row(
         children: [
-          buildSideBarOption(),
-          Spacer(),
+          buildBackOption(), Spacer(),
           controller.mdProductDetail == null
               ? Center(
                   child: CircularProgressIndicator(
@@ -535,27 +549,33 @@ class _ProductDetailViewState extends State<ProductDetailView> {
                 )
               : buildName(),
           Spacer(),
-          buildNotificationOption()
+          Container()
+          // buildNotificationOption()
         ],
       ),
     );
   }
 
-  Widget buildSideBarOption() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          height: 40.sp,
-          width: 40.sp,
-          child: Image.asset('assets/images/ellipse.png'),
-        ),
-        Container(
-          height: 15,
-          width: 15,
-          child: Image.asset('assets/images/menuLines.png'),
-        ),
-      ],
+  Widget buildBackOption() {
+    return InkWell(
+      onTap: () {
+        Get.back();
+      },
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            height: 50.sp,
+            width: 50.sp,
+            child: Image.asset('assets/images/ellipse.png'),
+          ),
+          Container(
+            height: 15,
+            width: 15,
+            child: Image.asset('assets/images/leftArrow.png'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -578,18 +598,15 @@ class _ProductDetailViewState extends State<ProductDetailView> {
   }
 
   Widget buildName() {
-    return Expanded(
-      child: Text(
-        controller.mdProductDetail!.product!.title!.length > 10
-            ? controller.mdProductDetail!.product!.title!.substring(0, 10) +
-                '...'
-            : controller.mdProductDetail!.product!.title!,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF333333)),
+    return Text(
+      controller.mdProductDetail!.product!.title!,
+      maxLines: 2,
+      // Limit to one line
+      // overflow: TextOverflow.ellipsis, // Truncate with ellipsis if it overflows
+      style: TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w600,
+        color: Color(0xFF333333),
       ),
     );
   }

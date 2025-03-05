@@ -6,16 +6,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constant/AppColors.dart';
 import '../../../constant/AppLinks.dart';
 import '../../../models/MDAllBanners.dart';
+import '../../../models/MDAllSkinCareProducts.dart';
 import '../../../models/MDAllVideoCategories.dart';
 import '../../../models/MDAllVideos.dart';
 import '../../../models/MDCategories.dart';
 import '../../../models/MDLatestProducts.dart';
 import '../../../models/MDProducts.dart';
+import '../../../models/MDProducts.dart' as MDModels;
 import '../../../models/MDProductsByCategory.dart';
 import '../../../models/MDVideosByCategory.dart';
 import '../../auth/login/login_view.dart';
+import '../bag/bag_controller.dart';
+import 'bottom_bar_host_model.dart';
 
 class BottomBarHostController extends GetxController {
+  final BagController bagController = Get.find<BagController>();
+
   RxBool noProductsMatched = false.obs;
   var userName = ''.obs; // RxString to hold the userName
   var userEmail = ''.obs; // RxString to hold the userEmail
@@ -28,8 +34,15 @@ class BottomBarHostController extends GetxController {
   List<Video>? mdAllVideos;
   List<MDVideosByCategory>? mdAllVideosByCategory;
   MDLatestProducts? mdLatestProducts;
+  MDGetAppModules? mdGetAppModules;
   MDProducts? mdProducts;
+  List<MDModels.Products> skinProducts = [];
+  List<MDModels.Products> devicesA = [];
   MDProductsByCategory? mdProductsByCategory;
+  MDSkinCareProductsA? mdSkinCareProducts;
+  MDSkinCareProductsA? mdSkinCareDevicesProducts;
+  MDSkinCareProducts? mdSkinCareCategories;
+  MDDevicesProducts? mdDevicesProducts;
   RxBool isLoading = false.obs;
   RxBool isCurrencyDropDown = false.obs;
   RxBool usd = false.obs;
@@ -65,12 +78,159 @@ class BottomBarHostController extends GetxController {
     _loadUserName(); // Load userName when the controller is initialized
     _loadUserEmail();
     fetchLatestProducts();
-    fetchAllProducts();
-    fetchProductCategories();
-    selectedCurrency.value = 'Pound';
+    fetchSkinCareProducts();
+    fetchDevicesProducts();
+    fetchAllSkinCareProducts();
+    fetchAllDevicesProducts();
+    // fetchAllProducts();
+    // fetchProductCategories();
+    // selectedCurrency.value = 'Pound';
     fetchAllBanners();
     fetchVideoCategories();
     filteredProducts.value = mdProductsByCategory?.products ?? [];
+    fetchAppModules();
+    initializeCurrency();
+  }
+
+  void makeHome() {
+    home.value = true;
+    product.value = false;
+    video.value = false;
+    fetchAppModules();
+
+    update();
+  }
+
+  void makeProduct() {
+    home.value = false;
+    product.value = true;
+    video.value = false;
+    fetchAppModules();
+    update();
+  }
+
+  void makeVideo() {
+    home.value = false;
+    product.value = false;
+    video.value = true;
+    fetchAppModules();
+    update();
+  }
+
+  Future<void> activeUser(int id) async {
+    Map<String, dynamic> data = {"app_module_id": id};
+    print('Data to be sent: $data');
+
+    // Get the token from shared preferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token == null) {
+      print('No token found. Make sure the user is logged in.');
+      isLoading.value = false; // Set loading to false if there's no token
+      return;
+    } else {
+      print('Token retrieved: $token');
+    }
+
+    String jsonBody = json.encode(data);
+    final url = Uri.parse(ApiUrls.activeUser);
+    print('Sending request to: $url');
+    try {
+      print('Sending data to: $url');
+
+      final response = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+        body: jsonBody,
+      );
+
+      // Check if the POST request was successful
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print(
+            'Data sent successfully for App Modules! Status code: ${response.statusCode}');
+        print('Server response: ${response.body}');
+      } else {
+        print('Failed to send data. Status code: ${response.statusCode}');
+        print('Server response: ${response.body}');
+      }
+    } catch (e) {
+      print('Error during POST request: $e');
+    }
+  }
+
+  Future<void> fetchAppModules() async {
+    final url = Uri.parse(ApiUrls.appModules);
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token'); // Get the token from shared prefs
+    if (token == null || token.isEmpty) {
+      Get.snackbar('Error', 'No token found. Please log in again.',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return;
+    }
+
+    Map<String, String> headers = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $token", // Include the Bearer token in headers
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        mdGetAppModules = MDGetAppModules.fromJson(data);
+        print('mdGetAppModules: ${mdGetAppModules}');
+        update();
+
+        // Check if home.value is true
+        if (home.value == true) {
+          final homeModule = data['data'].firstWhere(
+              (module) => module['name'] == 'Home',
+              orElse: () => null);
+          if (homeModule != null) {
+            int homeId = homeModule['id'];
+            print('Home ID: $homeId');
+            prefs.setInt('homeId', homeId); // Store home ID
+            activeUser(homeId);
+          }
+        }
+
+        // Check if product.value is true
+        if (product.value == true) {
+          final productModule = data['data'].firstWhere(
+              (module) => module['name'] == 'Products',
+              orElse: () => null);
+          if (productModule != null) {
+            int productId = productModule['id'];
+            print('Product ID: $productId');
+            prefs.setInt('productId', productId); // Store product ID
+            activeUser(productId);
+          }
+        }
+
+        // Check if video.value is true
+        if (video.value == true) {
+          final videoModule = data['data'].firstWhere(
+              (module) => module['name'] == 'Videos',
+              orElse: () => null);
+          if (videoModule != null) {
+            int videoId = videoModule['id'];
+            print('Video ID: $videoId');
+            prefs.setInt('videoId', videoId); // Store video ID
+            activeUser(videoId);
+          }
+        }
+      } else {
+        print(
+            'Failed to load mdGetAppModules. Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
   }
 
   Future<String> _getUserName() async {
@@ -328,31 +488,102 @@ class BottomBarHostController extends GetxController {
     );
   }
 
-  void makeUsDollar() {
+  // Save the selected currency to SharedPreferences
+  Future<void> saveCurrencyToPrefs(String currency) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    print('Attempting to save currency: $currency to SharedPreferences...');
+
+    bool isSaved = await prefs.setString('selectedCurrency', currency);
+
+    if (isSaved) {
+      print('Currency successfully saved: $currency');
+    } else {
+      print('Failed to save currency: $currency');
+    }
+
+    // Verify immediately after saving
+    String? storedCurrency = prefs.getString('selectedCurrency');
+    print('Currency retrieved after saving: $storedCurrency');
+  }
+
+  // Load the selected currency from SharedPreferences
+  Future loadCurrencyFromPrefs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? currency = prefs.getString('selectedCurrency');
+    if (currency != null) {
+      selectedCurrency.value = currency;
+      if (currency == 'US Dollar') {
+        usd.value = true;
+        euro.value = false;
+        pound.value = false;
+      } else if (currency == 'Euro') {
+        usd.value = false;
+        euro.value = true;
+        pound.value = false;
+      } else if (currency == 'Pound') {
+        usd.value = false;
+        euro.value = false;
+        pound.value = true;
+      }
+    }
+  }
+
+  // Set the currency to US Dollar
+  void makeUsDollar() async {
     usd.value = true;
     euro.value = false;
     pound.value = false;
     isCurrencyDropDown.value = false;
     selectedCurrency.value = 'US Dollar';
+    await saveCurrencyToPrefs('US Dollar');
+    await Get.find<BagController>().loadCartFromLocalStorage();
+
     update();
   }
 
-  void makeEuro() {
+  // Set the currency to Euro
+  void makeEuro() async {
     usd.value = false;
     euro.value = true;
     pound.value = false;
     isCurrencyDropDown.value = false;
     selectedCurrency.value = 'Euro';
+    await saveCurrencyToPrefs('Euro');
+    await Get.find<BagController>().loadCartFromLocalStorage();
+
     update();
   }
 
-  void makePound() {
+  // Set the currency to Pound
+  void makePound() async {
     usd.value = false;
     euro.value = false;
     pound.value = true;
     isCurrencyDropDown.value = false;
     selectedCurrency.value = 'Pound';
+    await saveCurrencyToPrefs('Pound');
+    await Get.find<BagController>().loadCartFromLocalStorage();
+
     update();
+  }
+
+  Future<void> initializeCurrency() async {
+    String? activeCurrency = await loadCurrencyFromPrefs();
+
+    if (activeCurrency == null || activeCurrency.isEmpty) {
+      // Only set the default currency if this is the first time initializing
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      if (!prefs.containsKey('selectedCurrency')) {
+        await saveCurrencyToPrefs('Pound');
+        selectedCurrency.value = 'Pound';
+        print('No stored currency found. Defaulting to: Pound');
+      }
+    } else {
+      // Use the stored currency
+      selectedCurrency.value = activeCurrency;
+      print('Active currency loaded: $activeCurrency');
+    }
   }
 
   void updateSearchQuery(String query) {
@@ -409,7 +640,7 @@ class BottomBarHostController extends GetxController {
     // Retrieve token from SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
-
+    String emailVerifiedAt = prefs.getString('emailverified') ?? "null";
     //  Ensure the token exists before proceeding
     if (token == null || token.isEmpty) {
       isLoading.value = false;
@@ -435,6 +666,7 @@ class BottomBarHostController extends GetxController {
         final Map<String, dynamic> responseData = json.decode(response.body);
         print('responseData========${responseData}');
         prefs.remove('token');
+        prefs.remove("emailverified");
         Get.snackbar('Success', 'Log Out Successfully');
         Get.offAll(LoginView());
       } else {
@@ -506,7 +738,7 @@ class BottomBarHostController extends GetxController {
     mdProductsByCategory = null;
     searchQuery.value = '';
     isLoading.value = true;
-    final url = Uri.parse('${ApiUrls.baseUrl}/category/${id}/products');
+    final url = Uri.parse('https://opatra.app/api/category/${id}/products');
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token'); // Get the token from shared prefs
@@ -637,6 +869,8 @@ class BottomBarHostController extends GetxController {
         mdCategories = MDCategories.fromJson(data);
         print('mdCategories: $mdCategories');
         for (int i = 0; i < mdCategories!.smartCollections!.length; i++) {
+          print(
+              'mdCategories!.smartCollections![i].title=======${mdCategories!.smartCollections![i].title}');
           if (mdCategories!.smartCollections![i].title == 'ACCESSORIES') {
             devicesCategories.add(mdCategories!.smartCollections![i]);
           }
@@ -661,12 +895,10 @@ class BottomBarHostController extends GetxController {
           if (mdCategories!.smartCollections![i].title == 'DRY SKIN') {
             skinCareCategories.add(mdCategories!.smartCollections![i]);
           }
-          print('title============${mdCategories!.smartCollections![i].title}');
+          print(' ${mdCategories!.smartCollections![i].title}');
         }
 
         fetchProductByCategory(skinCareCategories[0].id!);
-        update();
-
         update();
       } else {
         print(
@@ -714,39 +946,291 @@ class BottomBarHostController extends GetxController {
     }
   }
 
-  Future<void> fetchAllProducts() async {
-    final url = Uri.parse(ApiUrls.products);
+  Future<void> fetchAllSkinCareProducts() async {
+    final url = Uri.parse(ApiUrls.getAllSkinCareProducts);
 
+    // Fetch token from SharedPreferences
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token'); // Get the token from shared prefs
+    String? token = prefs.getString('token');
     if (token == null || token.isEmpty) {
-      Get.snackbar('Error', 'No token found. Please log in again.',
-          backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(
+        'Error',
+        'No token found. Please log in again.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
       return;
     }
 
+    // Prepare headers with the Bearer token
     Map<String, String> headers = {
       "Accept": "application/json",
-      "Authorization": "Bearer $token", // Include the Bearer token in headers
+      "Authorization": "Bearer $token",
     };
 
     try {
+      // Send GET request
       final response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print('mdProducts: $data');
-        mdProducts = MDProducts.fromJson(data);
-        print('mdProducts: $mdProducts');
+        print('Fetched data: $data'); // Debug raw response
+
+        // Parse the response into the MDSkinCareProducts model
+        mdSkinCareProducts = MDSkinCareProductsA.fromJson(data);
+
+        print(
+            'mdSkinCareProducts========${mdSkinCareProducts!.products!.length}');
+
+        // Notify UI/state about changes
         update();
-        for (int i = 0; i < mdProducts!.products!.length; i++) {
-          print('title============${mdProducts!.products![i].title}');
-        }
       } else {
         print('Failed to load products. Status Code: ${response.statusCode}');
+        Get.snackbar(
+          'Error',
+          'Failed to fetch products. Please try again later.',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
       }
     } catch (e) {
       print('Error: $e');
+      Get.snackbar(
+        'Error',
+        'Something went wrong. Please try again later.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> fetchAllDevicesProducts() async {
+    final url = Uri.parse(ApiUrls.getAllDevicesProducts);
+
+    // Fetch token from SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'No token found. Please log in again.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    // Prepare headers with the Bearer token
+    Map<String, String> headers = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $token",
+    };
+
+    try {
+      // Send GET request
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Fetched data: $data'); // Debug raw response
+
+        // Parse the response into the MDSkinCareProducts model
+        mdSkinCareDevicesProducts = MDSkinCareProductsA.fromJson(data);
+
+        print(
+            'mdSkinCareDevicesProducts========${mdSkinCareDevicesProducts!.products!.length}');
+
+        // Notify UI/state about changes
+        update();
+      } else {
+        print('Failed to load products. Status Code: ${response.statusCode}');
+        Get.snackbar(
+          'Error',
+          'Failed to fetch products. Please try again later.',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+      Get.snackbar(
+        'Error',
+        'Something went wrong. Please try again later.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  Future<void> fetchAllProducts() async {
+    final url = Uri.parse(ApiUrls.products);
+
+    // Fetch token from SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token == null || token.isEmpty) {
+      Get.snackbar(
+        'Error',
+        'No token found. Please log in again.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      return;
+    }
+
+    // Prepare headers with the Bearer token
+    Map<String, String> headers = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $token",
+    };
+
+    try {
+      // Send GET request
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Fetched data: $data'); // Debug raw data
+
+        // Parse the response into the MDProducts model
+        mdProducts = MDProducts.fromJson(data);
+        print(
+            'Parsed mdProducts: ${mdProducts?.products?.length ?? 0}'); // Debug parsed model
+        print(
+            'mdProducts!.products!.length=========${mdProducts!.products!.length}');
+        update(); // Notify listeners/UI about state changes
+
+        // Process each product
+        for (var product in mdProducts?.products ?? []) {
+          print(
+              'Processing product: ${product.toJson()}'); // Debugging individual products
+
+          // Check productType
+          if (product.productType?.isNotEmpty ?? false) {
+            print('Product type: ${product.productType}');
+            print('Variants: ${product.variants}');
+            print('Options: ${product.options}');
+            print('Images: ${product.images}');
+            print('Image: ${product.image}');
+
+            // Match "Skincare devices" in productType
+            if (product.title!.contains('CREAM') ||
+                product.title!.contains('MASK') ||
+                product.title!.contains('GEL') ||
+                product.title!.contains('FACIAL') ||
+                product.title!.contains('SOAP') ||
+                product.title!.contains('SERUM') ||
+                product.title!.contains('TONER')) {
+              print('Product matches "Skincare devices": ${product.toJson()}');
+              try {
+                // Convert to Products model
+                Products skinProduct = Products(
+                  id: product.id,
+                  title: product.title,
+                  bodyHtml: product.bodyHtml,
+                  vendor: product.vendor,
+                  productType: product.productType,
+                  createdAt: product.createdAt,
+                  handle: product.handle,
+                  updatedAt: product.updatedAt,
+                  publishedAt: product.publishedAt,
+                  templateSuffix: product.templateSuffix,
+                  publishedScope: product.publishedScope,
+                  tags: product.tags,
+                  status: product.status,
+                  adminGraphqlApiId: product.adminGraphqlApiId,
+                  variants: product.variants,
+                  options: product.options,
+                  images: product.images,
+                  image: product.image,
+                );
+
+                // Add to skinProducts list
+                skinProducts.add(skinProduct);
+                print('Added product to skinProducts: ${skinProduct.toJson()}');
+              } catch (e, stackTrace) {
+                print('Error adding product to skinProducts: $e');
+                print('Stack trace: $stackTrace');
+              }
+            } else {
+              print(
+                  'Product type does not match "Skincare devices": ${product.productType}');
+            }
+          }
+          if (product.title!.contains('CABLE') ||
+              product.title!.contains('CHARGER') ||
+              product.title!.contains('USB') ||
+              product.title!.contains('ADAPTER') ||
+              product.title!.contains('CASE') ||
+              product.title!.contains('SET') ||
+              product.title!.contains('CHAIR') ||
+              product.title!.contains('CAVISHAPER') ||
+              product.title!.contains('ELECTRIC') ||
+              product.title!.contains('REPLACEMENT') ||
+              product.title!.contains('CLEANLIFT') ||
+              product.title!.contains('COOLGLOBE') ||
+              product.title!.contains('DERMIEYE') ||
+              product.title!.contains('PLUS') ||
+              product.title!.contains('DERMILIGHT') ||
+              product.title!.contains('DERMINECK') ||
+              product.title!.contains('DERMIPORES') ||
+              product.title!.contains('DERMISONIC') ||
+              product.title!.contains('DERMISONIC II') ||
+              product.title!.contains('EXCLUSIVE OFFER') ||
+              product.title!.contains('EYEPOD')) {
+            try {
+              // Convert to Products model
+              Products device = Products(
+                id: product.id,
+                title: product.title,
+                bodyHtml: product.bodyHtml,
+                vendor: product.vendor,
+                productType: product.productType,
+                createdAt: product.createdAt,
+                handle: product.handle,
+                updatedAt: product.updatedAt,
+                publishedAt: product.publishedAt,
+                templateSuffix: product.templateSuffix,
+                publishedScope: product.publishedScope,
+                tags: product.tags,
+                status: product.status,
+                adminGraphqlApiId: product.adminGraphqlApiId,
+                variants: product.variants,
+                options: product.options,
+                images: product.images,
+                image: product.image,
+              );
+
+              // Add to skinProducts list
+              devicesA.add(device);
+              print('Added product to devices: ${devices.toJson()}');
+            } catch (e, stackTrace) {
+              print('Error adding product to skinProducts: $e');
+              print('Stack trace: $stackTrace');
+            }
+          }
+        }
+
+        // Final list of skinProducts
+        print(
+            'Final skinProducts list: ${skinProducts.map((p) => p.toJson()).toList()}');
+      } else {
+        print('Failed to load products. Status Code: ${response.statusCode}');
+        Get.snackbar(
+          'Error',
+          'Failed to fetch products. Please try again later.',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+      Get.snackbar(
+        'Error',
+        'Something went wrong. Please try again later.',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
     }
   }
 
@@ -773,7 +1257,7 @@ class BottomBarHostController extends GetxController {
         final data = jsonDecode(response.body);
         print('Product mdLatestProducts: $data');
         mdLatestProducts = MDLatestProducts.fromJson(data);
-        print('mdLatestProducts: $mdLatestProducts');
+        print('mdLatestProducts: ${mdLatestProducts!.products!.length}');
         update();
       } else {
         print(
@@ -784,10 +1268,85 @@ class BottomBarHostController extends GetxController {
     }
   }
 
+  Future<void> fetchSkinCareProducts() async {
+    final url = Uri.parse(ApiUrls.getSkinCareProducts);
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token'); // Get the token from shared prefs
+    if (token == null || token.isEmpty) {
+      Get.snackbar('Error', 'No token found. Please log in again.',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return;
+    }
+
+    Map<String, String> headers = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $token", // Include the Bearer token in headers
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Product mdSkinCareProducts: $data');
+        mdSkinCareCategories = MDSkinCareProducts.fromJson(data);
+        print(
+            'mdSkinCareProducts!.customCollections!.length: ${mdSkinCareCategories!.customCollections!.length}');
+        fetchProductByCategory(mdSkinCareCategories!.customCollections![0].id!);
+
+        update();
+      } else {
+        print(
+            'Failed to load mdSkinCareProducts products. Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<void> fetchDevicesProducts() async {
+    final url = Uri.parse(ApiUrls.getSkinDevicesProducts);
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token'); // Get the token from shared prefs
+    if (token == null || token.isEmpty) {
+      Get.snackbar('Error', 'No token found. Please log in again.',
+          backgroundColor: Colors.red, colorText: Colors.white);
+      return;
+    }
+
+    Map<String, String> headers = {
+      "Accept": "application/json",
+      "Authorization": "Bearer $token", // Include the Bearer token in headers
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('Product mdDevicesProducts: $data');
+        mdDevicesProducts = MDDevicesProducts.fromJson(data);
+        print(
+            'mdDevicesProducts: ${mdDevicesProducts!.customCollections!.length}');
+        update();
+      } else {
+        print(
+            'Failed to load mdDevicesProducts products. Status Code: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
   Future<void> _loadUserName() async {
     final prefs = await SharedPreferences.getInstance();
-    userName.value =
-        prefs.getString('userName') ?? 'Guest'; // Set default to 'Guest'
+    userName.value = ((prefs.getString('userName')?.isNotEmpty ?? false)
+        ? prefs.getString('userName')
+        : 'Guest')!; // Set default to 'Guest'
+
+    print('User Name: ${userName.value}');
   }
 
   Future<void> _loadUserEmail() async {

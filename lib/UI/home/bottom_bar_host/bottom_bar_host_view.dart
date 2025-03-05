@@ -7,11 +7,14 @@ import 'package:opatra/UI/home/bag/bag_view.dart';
 import 'package:opatra/UI/home/contact_us/contact_us_view.dart';
 import 'package:opatra/UI/home/product_detail/product_detail_view.dart';
 import 'package:opatra/UI/home/resgister_own_product/register_own_product_view.dart';
+import 'package:opatra/UI/home/settings/settings_view.dart';
 import 'package:opatra/UI/home/treatment/treatment_view.dart';
 import 'package:opatra/UI/home/warranty_claim/warranty_claim_view.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../models/MDAllSkinCareProducts.dart';
 import '../../../models/MDAllVideos.dart';
+import '../../../models/MDLatestProducts.dart';
 import '../../../models/MDProductsByCategory.dart';
 import '../../../models/MDVideosByCategory.dart';
 import '../ask_ouur_experts/ask_our_experts_view.dart';
@@ -31,6 +34,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
 
 // Declare a Timer variable to manage the debounce timing
   Timer? _debounce;
+
+// Filter only active products
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +72,12 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                               children: [
                                 Obx(
                                   () => logic.home.value == true
+                                      ? buildProductListViewForBanners(logic)
+                                      : Container(),
+                                ),
+
+                                Obx(
+                                  () => logic.home.value == true
                                       ? buildLatestProductsTextForHome()
                                       : Container(),
                                 ),
@@ -92,7 +103,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                                   controller: _controller,
                                                   itemCount: logic
                                                       .mdLatestProducts!
-                                                      .products
+                                                      .products!
                                                       .length,
                                                   onPageChanged: (int index) {
                                                     setState(() {
@@ -104,118 +115,167 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                                       (context, index) {
                                                     bool isCurrent = index ==
                                                         logic.currentIndex;
-                                                    return AnimatedContainer(
-                                                      duration: Duration(
-                                                          milliseconds: 300),
-                                                      curve: Curves.easeInOut,
-                                                      margin:
-                                                          EdgeInsets.symmetric(
-                                                        horizontal:
-                                                            isCurrent ? 10 : 20,
-                                                        vertical:
-                                                            isCurrent ? 5 : 20,
-                                                      ),
-                                                      width:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.95,
-                                                      decoration: BoxDecoration(
-                                                        color: isCurrent
-                                                            ? Colors.blue
-                                                            : Colors.grey,
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20),
-                                                        boxShadow: isCurrent
-                                                            ? [
-                                                                BoxShadow(
-                                                                    color: Colors
-                                                                        .black26,
-                                                                    blurRadius:
-                                                                        10)
-                                                              ]
-                                                            : [],
-                                                      ),
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(20),
-                                                        // Clip the image to the container's rounded corners
-                                                        child: Stack(
-                                                          children: [
-                                                            logic.mdLatestProducts!.products[index].image !=
-                                                                        null &&
-                                                                    logic
-                                                                            .mdLatestProducts!
-                                                                            .products[index]
-                                                                            .image!
-                                                                            .src !=
-                                                                        null
-                                                                ? Image.network(
-                                                                    logic
-                                                                        .mdLatestProducts!
-                                                                        .products[
-                                                                            index]
-                                                                        .image!
-                                                                        .src!,
-                                                                    fit: BoxFit
-                                                                        .cover,
-                                                                    // Ensure the image covers the entire container
-                                                                    height: double
-                                                                        .infinity,
-                                                                    // Make the image take up the full container height
-                                                                    width: double
-                                                                        .infinity, // Make the image take up the full container width
-                                                                  )
-                                                                : Image.asset(
-                                                                    'assets/images/skinCareDummy.png',
-                                                                    fit: BoxFit
-                                                                        .cover,
-                                                                    // Fallback image should also cover the container
-                                                                    height: double
-                                                                        .infinity,
-                                                                    width: double
-                                                                        .infinity,
-                                                                  ),
-                                                            Positioned(
-                                                              top: 20,
-                                                              left: 20,
-                                                              child: Column(
-                                                                children: [
-                                                                  Text(
-                                                                    logic
-                                                                        .mdLatestProducts!
-                                                                        .products[
-                                                                            index]
-                                                                        .title,
-                                                                    style: TextStyle(
-                                                                        color: AppColors
-                                                                            .appPrimaryBlackColor,
-                                                                        fontSize:
-                                                                            20,
-                                                                        fontWeight:
-                                                                            FontWeight.w600),
-                                                                  ),
-                                                                  Text(
-                                                                    logic
-                                                                        .mdLatestProducts!
-                                                                        .products[
-                                                                            index]
-                                                                        .vendor,
-                                                                    style: TextStyle(
-                                                                        color: AppColors
-                                                                            .appPrimaryBlackColor,
-                                                                        fontSize:
-                                                                            20,
-                                                                        fontWeight:
-                                                                            FontWeight.w600),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ],
+                                                    return InkWell(
+                                                      onTap: () {
+                                                        // Navigate to ProductDetailScreen
+                                                        int? id = logic
+                                                            .mdLatestProducts!
+                                                            .products![index]
+                                                            .id;
+                                                        print('id=====${id}');
+                                                        // print('logic.mdLatestProducts!.products[index].variants[0].title=====${logic.mdLatestProducts!.products![index].variants[0].title}');
+
+                                                        Get.to(() =>
+                                                            ProductDetailView(
+                                                              productId: id!,
+                                                              currency: logic
+                                                                  .selectedCurrency
+                                                                  .value,
+                                                              // currency: logic
+                                                              //             .mdLatestProducts!
+                                                              //             .products[
+                                                              //                 index]
+                                                              //             .variants[
+                                                              //                 0]
+                                                              //             .title ==
+                                                              //         'Default Title'
+                                                              //     ? 'Pound'
+                                                              //     : logic
+                                                              //         .selectedCurrency
+                                                              //         .value,
+                                                            ));
+                                                      },
+                                                      child: AnimatedContainer(
+                                                        duration: Duration(
+                                                            milliseconds: 300),
+                                                        curve: Curves.easeInOut,
+                                                        margin: EdgeInsets
+                                                            .symmetric(
+                                                          horizontal: isCurrent
+                                                              ? 10
+                                                              : 20,
+                                                          vertical: isCurrent
+                                                              ? 5
+                                                              : 20,
                                                         ),
+                                                        width: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.95,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          border: Border.all(
+                                                              color: AppColors
+                                                                  .appPrimaryColor),
+                                                          // color: isCurrent
+                                                          //     ? Colors.blue
+                                                          //     : Colors.grey,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(20),
+                                                          // boxShadow: isCurrent
+                                                          //     ? [
+                                                          //         BoxShadow(
+                                                          //             color: Colors
+                                                          //                 .black26,
+                                                          //             blurRadius:
+                                                          //                 10)
+                                                          //       ]
+                                                          //     : [],
+                                                        ),
+                                                        child: ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        20),
+                                                            // Clip the image to the container's rounded corners
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(
+                                                                          6.0),
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Center(
+                                                                        child:
+                                                                            Text(
+                                                                          logic
+                                                                              .mdLatestProducts!
+                                                                              .products![index]
+                                                                              .title!,
+                                                                          style:
+                                                                              TextStyle(
+                                                                            color:
+                                                                                AppColors.appPrimaryBlackColor,
+                                                                            fontSize:
+                                                                                16,
+                                                                            fontWeight:
+                                                                                FontWeight.w600,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                      SizedBox(
+                                                                          height:
+                                                                              8),
+                                                                      // Space between title and vendor text
+                                                                      Center(
+                                                                        child:
+                                                                            Text(
+                                                                          logic
+                                                                              .mdLatestProducts!
+                                                                              .products![index]
+                                                                              .vendor!,
+                                                                          style:
+                                                                              TextStyle(
+                                                                            color:
+                                                                                AppColors.appPrimaryBlackColor,
+                                                                            fontSize:
+                                                                                16,
+                                                                            fontWeight:
+                                                                                FontWeight.w600,
+                                                                          ),
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                Expanded(
+                                                                  child: logic.mdLatestProducts!.products![index].image !=
+                                                                              null &&
+                                                                          logic.mdLatestProducts!.products![index].image!.src !=
+                                                                              null
+                                                                      ? Image
+                                                                          .network(
+                                                                          logic
+                                                                              .mdLatestProducts!
+                                                                              .products![index]
+                                                                              .image!
+                                                                              .src!,
+                                                                          fit: BoxFit
+                                                                              .fitHeight,
+                                                                          width:
+                                                                              double.infinity,
+                                                                        )
+                                                                      : Image
+                                                                          .asset(
+                                                                          'assets/images/skinCareDummy.png',
+                                                                          fit: BoxFit
+                                                                              .cover,
+                                                                          width:
+                                                                              double.infinity,
+                                                                        ),
+                                                                ),
+                                                              ],
+                                                            )),
                                                       ),
                                                     );
                                                   },
@@ -224,7 +284,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                       ),
                                 Obx(
                                   () => logic.home.value == true
-                                      ? buildHeadingTextForHome()
+                                      ? buildSkinCareHeading()
                                       : Container(),
                                 ),
                                 Obx(() => logic.home.value == true
@@ -233,6 +293,20 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                         ? buildProductListView()
                                         : buildProductListViewForBanners(
                                             logic)),
+                                Obx(
+                                  () => logic.home.value == true
+                                      ? buildDevicesHeading()
+                                      : Container(),
+                                ),
+                                Obx(() => logic.home.value == true
+                                    ? logic.mdSkinCareDevicesProducts == null
+                                        ? Center(
+                                            child: CircularProgressIndicator(
+                                              color: AppColors.appPrimaryColor,
+                                            ),
+                                          )
+                                        : buildDevicesListView(logic)
+                                    : Container()),
                                 Obx(
                                   () => logic.product.value ||
                                           logic.video.value == true
@@ -252,7 +326,14 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                 Obx(
                                   () => logic.product.value == true &&
                                           logic.devices.value == true
-                                      ? buildDevicesCategories(logic)
+                                      ? logic.mdDevicesProducts == null
+                                          ? Center(
+                                              child: CircularProgressIndicator(
+                                                color:
+                                                    AppColors.appPrimaryColor,
+                                              ),
+                                            )
+                                          : buildDevicesCategories(logic)
                                       : Container(),
                                 ),
 
@@ -408,7 +489,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                 logic.skinCare.value = true;
                 logic.devices.value = false;
                 logic.selectedCategoryForSkinCare.value = 0;
-                logic.fetchProductByCategory(logic.skinCareCategories[0].id!);
+                logic.fetchProductByCategory(
+                    logic.mdSkinCareCategories!.customCollections![0].id!);
               },
               child: Container(
                 padding: EdgeInsets.all(5), // Padding inside the container
@@ -446,7 +528,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                 logic.skinCare.value = false;
                 logic.devices.value = true;
                 logic.selectedCategoryForDevice.value = 0;
-                logic.fetchProductByCategory(logic.devicesCategories[0].id!);
+                logic.fetchProductByCategory(
+                    logic.mdDevicesProducts!.customCollections![0].id!);
               },
               child: Container(
                 padding: EdgeInsets.all(5), // Padding inside the container
@@ -498,8 +581,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
               Row(
                 children: [
                   Image.asset(
-                    'assets/images/logoForSideDrawer.png',
-                    height: 100,
+                    'assets/images/splashLogo.png',
+                    height: 150,
                     width: MediaQuery.of(context).size.width / 2,
                   ),
                 ],
@@ -522,12 +605,13 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                   buildTreatmentOption(logic),
                   buildLiveStreamOption(logic),
                   buildAskOurExpertsOption(logic),
-                  buildAboutUsOption(logic),
-                  buildContactUsOption(logic),
+                  // buildAboutUsOption(logic),
+                  //  buildContactUsOption(logic),
                   buildRegisterYourProductOption(logic),
                   buildWarrantyClaimsOption(logic),
-                  buildLogOutOption(logic),
-                  buildSocialOptions(logic)
+                  buildSettingsOption(logic),
+                  // buildLogOutOption(logic),
+                  // buildSocialOptions(logic)
                 ],
               ),
             ],
@@ -537,87 +621,99 @@ class _BottomBarHostView extends State<BottomBarHostView> {
 
   Widget buildSocialOptions(BottomBarHostController logic) {
     return Container(
-      margin: EdgeInsets.only(top: 50),
-      child: Column(
-        children: [buildFbOption(), buildInstaOption(), buildTwitterOption()],
+      margin: EdgeInsets.only(top: 50, bottom: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start, // Center the row items
+        children: [
+          buildFbOption(),
+          SizedBox(width: 20), // Add some spacing between the icons
+          buildInstaOption(),
+          SizedBox(width: 20), // Add some spacing between the icons
+          buildTwitterOption(),
+          SizedBox(width: 20), // Add some spacing between the icons
+
+          buildYoutubeOption()
+        ],
       ),
     );
   }
 
+  void _launchURL() async {
+    final Uri url = Uri.parse('https://www.facebook.com/opatraskincare');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   Widget buildFbOption() {
-    return Container(
-      // margin: EdgeInsets.only(left: 20,),
-      child: Row(
-        children: [
-          Image.asset(
-            'assets/images/fcIcon.png',
-            height: 25,
-            width: 25,
-          ),
-          SizedBox(
-            width: 10,
-          ),
-          Text(
-            'Facebook',
-            style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-                color: Color(0xFFB7A06A)),
-          )
-        ],
+    return InkWell(
+      onTap: () async {
+        // Using launchUrl and Uri instead of launch() for newer versions of url_launcher
+        _launchURL();
+      },
+      child: Image.asset(
+        'assets/images/fcIcon.png',
+        height: 25,
+        width: 25,
       ),
     );
   }
 
   Widget buildInstaOption() {
-    return Container(
-      margin: EdgeInsets.only(
-        top: 20,
-      ),
-      child: Row(
-        children: [
-          Image.asset(
-            'assets/images/instaIcon.png',
-            height: 25,
-            width: 25,
-          ),
-          SizedBox(
-            width: 10,
-          ),
-          Text(
-            'Instagram',
-            style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-                color: Color(0xFFB7A06A)),
-          )
-        ],
-      ),
+    return Image.asset(
+      'assets/images/instaIcon.png',
+      height: 25,
+      width: 25,
     );
   }
 
   Widget buildTwitterOption() {
-    return Container(
-      margin: EdgeInsets.only(
-        top: 20,
-      ),
-      child: Row(
+    return Image.asset(
+      'assets/images/twitterIcon.png',
+      height: 25,
+      width: 25,
+    );
+  }
+
+  Widget buildYoutubeOption() {
+    return InkWell(
+      onTap: () async {
+        final Uri youTubeUri = Uri.parse(
+            'https://www.youtube.com/channel/UClBMMEa5NFxdrxo7Cfs-KOQ'); // Facebook URL
+
+        try {
+          // Attempt to launch the URL in the default browser or appropriate app
+          if (await canLaunchUrl(youTubeUri)) {
+            await launchUrl(youTubeUri,
+                mode: LaunchMode
+                    .inAppWebView); // Let the system decide the app (browser or external app)
+          } else {
+            throw 'Could not launch $youTubeUri';
+          }
+        } catch (e) {
+          print('Error: $e');
+        }
+      },
+      child: Stack(
+        alignment: Alignment.center,
         children: [
-          Image.asset(
-            'assets/images/twitterIcon.png',
+          Container(
             height: 25,
             width: 25,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: AppColors.appPrimaryColor),
           ),
-          SizedBox(
-            width: 10,
+          Container(
+            margin: EdgeInsets.all(15),
+            child: Image.asset(
+              'assets/images/youtubeIcon.png',
+              height: 15,
+              width: 15,
+            ),
           ),
-          Text(
-            'Twitter',
-            style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-                color: Color(0xFFB7A06A)),
-          )
         ],
       ),
     );
@@ -664,54 +760,13 @@ class _BottomBarHostView extends State<BottomBarHostView> {
     );
   }
 
-  Widget buildWarrantyClaimsOption(BottomBarHostController logic) {
-    return InkWell(
-      splashColor: Colors.transparent,
-      highlightColor: Colors.transparent,
-      onTap: () {
-        logic.selectedIndex.value = 7;
-        Get.to(() => WarrantyClaimView());
-      },
-      child: Container(
-        margin: EdgeInsets.only(top: 20),
-        decoration: BoxDecoration(
-            border: Border.all(
-                color: logic.selectedIndex.value == 7
-                    ? Colors.transparent
-                    : Color(0xFFFBF3D7)),
-            color: logic.selectedIndex.value == 7
-                ? Color(0xFFB7A06A)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(10)),
-        height: 45,
-        width: MediaQuery.of(context).size.width,
-        child: Container(
-          margin: EdgeInsets.only(left: 20),
-          child: Row(
-            children: [
-              Text(
-                'Warranty Claims',
-                style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: logic.selectedIndex.value == 7
-                        ? AppColors.appWhiteColor
-                        : Color(0xFFB7A06A)),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildRegisterYourProductOption(BottomBarHostController logic) {
+  Widget buildSettingsOption(BottomBarHostController logic) {
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       onTap: () {
         logic.selectedIndex.value = 6;
-        Get.to(() => RegisterYourOwnProductView());
+        Get.to(() => SettingsView());
       },
       child: Container(
         margin: EdgeInsets.only(top: 20),
@@ -731,11 +786,93 @@ class _BottomBarHostView extends State<BottomBarHostView> {
           child: Row(
             children: [
               Text(
-                'Register Your Product',
+                'Settings',
                 style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: logic.selectedIndex.value == 6
+                        ? AppColors.appWhiteColor
+                        : Color(0xFFB7A06A)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildWarrantyClaimsOption(BottomBarHostController logic) {
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        logic.selectedIndex.value = 5;
+        Get.to(() => WarrantyClaimView());
+      },
+      child: Container(
+        margin: EdgeInsets.only(top: 20),
+        decoration: BoxDecoration(
+            border: Border.all(
+                color: logic.selectedIndex.value == 5
+                    ? Colors.transparent
+                    : Color(0xFFFBF3D7)),
+            color: logic.selectedIndex.value == 5
+                ? Color(0xFFB7A06A)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(10)),
+        height: 45,
+        width: MediaQuery.of(context).size.width,
+        child: Container(
+          margin: EdgeInsets.only(left: 20),
+          child: Row(
+            children: [
+              Text(
+                'Warranty Claims',
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: logic.selectedIndex.value == 5
+                        ? AppColors.appWhiteColor
+                        : Color(0xFFB7A06A)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildRegisterYourProductOption(BottomBarHostController logic) {
+    return InkWell(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      onTap: () {
+        logic.selectedIndex.value = 4;
+        Get.to(() => RegisterYourOwnProductView());
+      },
+      child: Container(
+        margin: EdgeInsets.only(top: 20),
+        decoration: BoxDecoration(
+            border: Border.all(
+                color: logic.selectedIndex.value == 4
+                    ? Colors.transparent
+                    : Color(0xFFFBF3D7)),
+            color: logic.selectedIndex.value == 4
+                ? Color(0xFFB7A06A)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(10)),
+        height: 45,
+        width: MediaQuery.of(context).size.width,
+        child: Container(
+          margin: EdgeInsets.only(left: 20),
+          child: Row(
+            children: [
+              Text(
+                'Register Your Product',
+                style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: logic.selectedIndex.value == 4
                         ? AppColors.appWhiteColor
                         : Color(0xFFB7A06A)),
               ),
@@ -876,6 +1013,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   }
 
   Widget buildCurrencyOption(BottomBarHostController logic) {
+    print('logic.selectedCurrency.value===============${logic.selectedCurrency.value}');
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
@@ -937,6 +1075,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
       highlightColor: Colors.transparent,
       onTap: () {
         logic.selectedIndex.value = 1;
+
         Get.to(() => TreatmentView());
       },
       child: Container(
@@ -1051,7 +1190,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                     // Access 'thumbnail' using dot notation
                     video.thumbnail != null
                         ? Image.network(
-                            "https://opatra.fai-tech.online/${video.thumbnail}",
+                            "${video.thumbnail}",
                             fit: BoxFit.fill,
                             width: double.infinity,
                             height: double.infinity,
@@ -1148,7 +1287,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   }
 
   Widget buildDevicesCategories(BottomBarHostController logic) {
-    return logic.devicesCategories.isEmpty
+    return logic.mdDevicesProducts!.customCollections!.isEmpty
         ? Center(
             child: CircularProgressIndicator(
               color: Color(0xFFB7A06A),
@@ -1158,10 +1297,20 @@ class _BottomBarHostView extends State<BottomBarHostView> {
             height: 50,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: logic.devicesCategories.length,
+              itemCount: logic.mdDevicesProducts!.customCollections!.length,
               itemBuilder: (context, index) {
                 // Adjusting width to account for left and right margins
                 double containerWidth = MediaQuery.of(context).size.width - 40;
+
+                // Get the title of the category
+                String categoryTitle =
+                    logic.mdDevicesProducts!.customCollections![index].title ??
+                        '';
+
+                // If the title is "ANTI AGING CARE", show a custom label
+                String displayTitle = categoryTitle == 'ANTI AGING CARE'
+                    ? 'ANTI AGING DEVICE'
+                    : categoryTitle;
 
                 return InkWell(
                   splashColor: Colors.transparent,
@@ -1169,39 +1318,47 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                   onTap: () {
                     logic.searchTextController.clear();
                     logic.selectedCategoryForDevice.value = index;
-                    logic.fetchProductByCategory(
-                        logic.devicesCategories[index].id!);
-                    print('index========${index}');
+
+                    if (logic.mdDevicesProducts!.customCollections![index]
+                            .title ==
+                        'ANTI AGING CARE') {
+                      logic.fetchProductByCategory(292370284659);
+                    } else {
+                      logic.fetchProductByCategory(logic
+                          .mdDevicesProducts!.customCollections![index].id!);
+                    }
                   },
                   child: Obx(
                     () => Container(
-                        margin: EdgeInsets.only(left: 20, right: 5, top: 20),
-                        // width: 60,
-                        decoration: BoxDecoration(
-                            border: Border.all(
-                                color: logic.selectedCategoryForDevice.value ==
-                                        index
-                                    ? Colors.transparent
-                                    : Color(0xFFFBF3D7)),
-                            borderRadius: BorderRadius.circular(20),
-                            color:
-                                logic.selectedCategoryForDevice.value == index
-                                    ? Color(0xFFB7A06A)
-                                    : Colors.transparent),
-                        child: Center(
-                            child: Container(
+                      margin: EdgeInsets.only(left: 20, right: 5, top: 20),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: logic.selectedCategoryForDevice.value == index
+                              ? Colors.transparent
+                              : Color(0xFFFBF3D7),
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        color: logic.selectedCategoryForDevice.value == index
+                            ? Color(0xFFB7A06A)
+                            : Colors.transparent,
+                      ),
+                      child: Center(
+                        child: Container(
                           margin: EdgeInsets.all(5),
                           child: Text(
-                            logic.devicesCategories[index].title!,
+                            displayTitle, // Display the updated title
                             style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w400,
-                                color: logic.selectedCategoryForDevice.value ==
-                                        index
-                                    ? AppColors.appWhiteColor
-                                    : AppColors.appPrimaryBlackColor),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              color:
+                                  logic.selectedCategoryForDevice.value == index
+                                      ? AppColors.appWhiteColor
+                                      : AppColors.appPrimaryBlackColor,
+                            ),
                           ),
-                        ))),
+                        ),
+                      ),
+                    ),
                   ),
                 );
               },
@@ -1210,7 +1367,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   }
 
   Widget buildSkinCareCategories(BottomBarHostController logic) {
-    return logic.skinCareCategories.isEmpty
+    return logic.mdSkinCareCategories!.customCollections!.isEmpty
         ? Center(
             child: CircularProgressIndicator(
               color: Color(0xFFB7A06A),
@@ -1220,7 +1377,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
             height: 50,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: logic.skinCareCategories.length,
+              itemCount: logic.mdSkinCareCategories!.customCollections!.length,
               itemBuilder: (context, index) {
                 // Adjusting width to account for left and right margins
                 double containerWidth = MediaQuery.of(context).size.width - 40;
@@ -1231,8 +1388,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                   onTap: () {
                     logic.searchTextController.clear();
                     logic.selectedCategoryForSkinCare.value = index;
-                    logic.fetchProductByCategory(
-                        logic.skinCareCategories[index].id!);
+                    logic.fetchProductByCategory(logic
+                        .mdSkinCareCategories!.customCollections![index].id!);
                   },
                   child: Obx(
                     () => Container(
@@ -1254,7 +1411,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                             child: Container(
                           margin: EdgeInsets.all(5),
                           child: Text(
-                            logic.skinCareCategories[index].title!,
+                            logic.mdSkinCareCategories!
+                                .customCollections![index].title!,
                             style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w400,
@@ -1337,7 +1495,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
             Spacer(),
             buildName(logic),
             Spacer(),
-            buildCartOption(),
+            buildCartOption(logic),
             SizedBox(
               width: 5,
             ),
@@ -1377,10 +1535,10 @@ class _BottomBarHostView extends State<BottomBarHostView> {
     );
   }
 
-  Widget buildCartOption() {
+  Widget buildCartOption(BottomBarHostController logic) {
     return InkWell(
       onTap: () {
-        Get.to(() => BagView());
+        Get.to(() => BagView(logic.selectedCurrency.value));
       },
       child: Stack(
         alignment: Alignment.center,
@@ -1521,9 +1679,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   Widget buildHomeOption(BottomBarHostController logic) {
     return InkWell(
         onTap: () {
-          logic.home.value = true;
-          logic.product.value = false;
-          logic.video.value = false;
+          logic.makeHome();
         },
         child: Obx(() => Container(
               margin: EdgeInsets.only(bottom: 2, top: 2),
@@ -1567,9 +1723,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   Widget buildProductOption(BottomBarHostController logic) {
     return InkWell(
         onTap: () {
-          logic.home.value = false;
-          logic.product.value = true;
-          logic.video.value = false;
+          logic.makeProduct();
         },
         child: Obx(
           () => Container(
@@ -1613,9 +1767,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   Widget buildVideoOption(BottomBarHostController logic) {
     return InkWell(
         onTap: () {
-          logic.home.value = false;
-          logic.product.value = false;
-          logic.video.value = true;
+          logic.makeVideo();
         },
         child: Obx(
           () => Container(
@@ -1663,7 +1815,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
         children: [
           Expanded(
             child: const Text(
-              'Latest Products',
+              'Popular Products',
               style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -1675,27 +1827,53 @@ class _BottomBarHostView extends State<BottomBarHostView> {
     );
   }
 
-  Widget buildHeadingTextForHome() {
+  Widget buildDevicesHeading() {
     return Container(
       margin: EdgeInsets.only(left: 20, top: 20, right: 20),
       child: Row(
         children: [
           Expanded(
             child: const Text(
-              'Best-Selling Skincare',
+              'Devices',
               style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF333333)),
             ),
           ),
-          Text(
-            'see all',
-            style: TextStyle(
-                color: Color(0xFFB7A06A),
-                fontWeight: FontWeight.w600,
-                fontSize: 12),
-          )
+          // Text(
+          //   'see all',
+          //   style: TextStyle(
+          //       color: Color(0xFFB7A06A),
+          //       fontWeight: FontWeight.w600,
+          //       fontSize: 12),
+          // )
+        ],
+      ),
+    );
+  }
+
+  Widget buildSkinCareHeading() {
+    return Container(
+      margin: EdgeInsets.only(left: 20, top: 20, right: 20),
+      child: Row(
+        children: [
+          Expanded(
+            child: const Text(
+              'SkinCare',
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF333333)),
+            ),
+          ),
+          // Text(
+          //   'see all',
+          //   style: TextStyle(
+          //       color: Color(0xFFB7A06A),
+          //       fontWeight: FontWeight.w600,
+          //       fontSize: 12),
+          // )
         ],
       ),
     );
@@ -1824,127 +2002,217 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   //         );
   // }
 
-  Widget buildHomeProductListView(BottomBarHostController logic) {
-    return logic.mdProducts == null
-        ? Center(
-            child: CircularProgressIndicator(
-              color: AppColors.appPrimaryBlackColor,
-            ),
-          )
-        : Container(
-            height: 150,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: logic.mdProducts!.products!.length ?? 0,
-              itemBuilder: (context, index) {
-                // Extract SmartCollections data from the controller
-                final smartCollection = logic.mdProducts!.products![index];
+  Widget buildDevicesListView(BottomBarHostController logic) {
+    // Check if products are null or empty and show a loading spinner if so
+    if (logic.mdSkinCareDevicesProducts == null ||
+        logic.mdSkinCareDevicesProducts!.products == null ||
+        logic.mdSkinCareDevicesProducts!.products!.isEmpty) {
+      return Center(
+        child: CircularProgressIndicator(
+          color: AppColors.appPrimaryBlackColor,
+        ),
+      );
+    }
 
-                int usDollarIndex = 6;
-                int euroIndex = 4;
-                int poundIndex = 0;
+    // Filter the active products (assuming a 'status' field or 'isActive' flag)
+    List<Product> activeProducts = logic.mdSkinCareDevicesProducts!.products!
+        .where((product) =>
+            product.status == 'active') // Adjust condition based on your model
+        .toList();
 
-                // Check if the product has a variant with the title "Default Title"
-                bool hasDefaultTitle = smartCollection.variants
-                        ?.any((variant) => variant.title == "Default Title") ??
-                    false;
+    // Handle case where the filtered product list is empty
+    if (activeProducts.isEmpty) {
+      return Center(
+        child: Text(
+          'No active products available',
+          style: TextStyle(
+            color: AppColors.appPrimaryBlackColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    }
 
-                // Define the updated price based on selected currency and "Default Title" presence
-                String price;
-
-                if (hasDefaultTitle) {
-                  price =
-                      '£ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
-                } else if (logic.selectedCurrency.value == 'US Dollar') {
-                  price = (smartCollection.variants != null &&
-                          smartCollection.variants!.length > usDollarIndex)
-                      ? '\$ ${smartCollection.variants![usDollarIndex].price ?? '0.00'} USD'
-                      : '\$ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
-                } else if (logic.selectedCurrency.value == 'Euro') {
-                  price = (smartCollection.variants != null &&
-                          smartCollection.variants!.length > euroIndex)
-                      ? '€ ${smartCollection.variants![euroIndex].price ?? '0.00'} Euro'
-                      : '€ ${smartCollection.variants != null && smartCollection.variants!.length > poundIndex ? smartCollection.variants![poundIndex].price ?? '0.00' : '0.00'} Pound';
-                } else {
-                  price = (smartCollection.variants != null &&
-                          smartCollection.variants!.length > poundIndex)
-                      ? '£ ${smartCollection.variants![poundIndex].price ?? '0.00'} Pound'
-                      : '£ 0.00 Pound';
-                }
-
-                return InkWell(
-                  onTap: () {
-                    // Navigate to ProductDetailScreen
-                    int? id = smartCollection.id;
-                    print('id=====${id}');
-                    Get.to(() => ProductDetailView(
-                          productId: id!,
-                          currency: smartCollection.variants![0].title ==
-                                  'Default Title'
-                              ? 'Pound'
-                              : logic.selectedCurrency.value,
-                        ));
-                  },
-                  child: Container(
-                    width: 150,
-                    margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Color(0xFFFBF3D7), width: 1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Spacer(),
-                        // Load image from SmartCollections data
-                        smartCollection.image != null &&
-                                smartCollection.image!.src != null
-                            ? Image.network(
-                                smartCollection.image!.src!,
-                                height: 50,
-                                width: 50,
-                                fit: BoxFit.cover,
-                              )
-                            : Image.asset(
-                                'assets/images/skinCareDummy.png', // Fallback image
-                                height: 50,
-                                width: 50,
-                                fit: BoxFit.cover,
-                              ),
-                        SizedBox(height: 10),
-                        // Display the title of the product category
-                        Text(
-                          smartCollection.title ?? 'Unknown Title',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.appPrimaryBlackColor,
-                          ),
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                        ),
-                        SizedBox(height: 5),
-                        // Display the updated price
-                        GetBuilder<BottomBarHostController>(
-                            init: BottomBarHostController(),
-                            builder: (BottomBarHostController) {
-                              return Text(
-                                price,
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.appPrimaryBlackColor,
-                                ),
-                              );
-                            }),
-                        Spacer(),
-                      ],
+    return Container(
+      height: 150,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: activeProducts.length, // Use filtered list here
+        itemBuilder: (context, index) {
+          // Safely extract data from the filtered list
+          final smartCollection = activeProducts[index];
+          print("Tamoor Device");
+          print(activeProducts.length);
+          return InkWell(
+            onTap: () {
+              // Safely navigate to ProductDetailView with a valid product ID
+              final id = smartCollection.id;
+              if (id != null) {
+                print('id=====${id}');
+                print(
+                    'smartCollection.productType=====${smartCollection.productType}');
+                Get.to(() => ProductDetailView(
+                      productId: id,
+                      currency: logic.selectedCurrency.value,
+                    ));
+              }
+            },
+            child: Container(
+              width: 150,
+              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              decoration: BoxDecoration(
+                border: Border.all(color: Color(0xFFFBF3D7), width: 1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Spacer(),
+                  // Load image from SmartCollections data with null checks
+                  Image.network(
+                    smartCollection.image?.src ?? '',
+                    // Fallback to empty string if image is null
+                    height: 50,
+                    width: 50,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Image.asset(
+                      'assets/images/skinCareDummy.png', // Fallback image
+                      height: 50,
+                      width: 50,
+                      fit: BoxFit.cover,
                     ),
                   ),
-                );
-              },
+                  SizedBox(height: 10),
+                  // Display the title of the product category with null check
+                  Text(
+                    smartCollection.title ?? 'Unknown Title',
+                    // Fallback to 'Unknown Title' if null
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.appPrimaryBlackColor,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                  ),
+                  SizedBox(height: 5),
+                  Spacer(),
+                ],
+              ),
             ),
           );
+        },
+      ),
+    );
+  }
+
+  Widget buildHomeProductListView(BottomBarHostController logic) {
+    // Check if the product list or products are null
+    if (logic.mdSkinCareProducts == null ||
+        logic.mdSkinCareProducts!.products == null) {
+      return Center(
+        child: CircularProgressIndicator(
+          color: AppColors.appPrimaryBlackColor,
+        ),
+      );
+    }
+
+    // Filter the active products (assuming a 'status' field or 'isActive' flag)
+    List<Product> activeProducts = logic.mdSkinCareProducts!.products!
+        .where((product) =>
+            product.status == 'active') // Adjust condition based on your model
+        .toList();
+
+    // Handle case where the filtered product list is empty
+    if (activeProducts.isEmpty) {
+      return Center(
+        child: Text(
+          'No active products available',
+          style: TextStyle(
+            color: AppColors.appPrimaryBlackColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      height: 150,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: activeProducts.length, // Use filtered list here
+        itemBuilder: (context, index) {
+          // Safely access the filtered active product
+          final skinProduct = activeProducts[index];
+          print("Tamoor Skin Care");
+          print(activeProducts.length);
+          // Handle null `skinProduct` or its properties
+          final int? id = skinProduct.id;
+          final String title = skinProduct.title ?? 'Unknown Title';
+          final String imageUrl = skinProduct.image?.src ?? '';
+
+          return InkWell(
+            onTap: () {
+              if (id != null) {
+                print('id=====${id}');
+                print(
+                    'skinProduct.productType=====${skinProduct.productType ?? 'Unknown Type'}');
+                Get.to(() => ProductDetailView(
+                      productId: id,
+                      currency: logic.selectedCurrency.value,
+                    ));
+              } else {
+                print('Product ID is null');
+              }
+            },
+            child: Container(
+              width: 150,
+              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              decoration: BoxDecoration(
+                border: Border.all(color: Color(0xFFFBF3D7), width: 1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Spacer(),
+                  // Safely load image or fallback
+                  imageUrl.isNotEmpty
+                      ? Image.network(
+                          imageUrl,
+                          height: 50,
+                          width: 50,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset(
+                          'assets/images/skinCareDummy.png',
+                          height: 50,
+                          width: 50,
+                          fit: BoxFit.cover,
+                        ),
+                  SizedBox(height: 10),
+                  // Display the title of the product
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.appPrimaryBlackColor,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                  ),
+                  SizedBox(height: 5),
+                  Spacer(),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 
   Widget buildProductListView() {
@@ -2064,62 +2332,21 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                     color: AppColors.appWhiteColor,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Stack(
-                    children: [
-                      // Image filling the parent container
-                      Positioned.fill(
-                        left: 100,
-                        top: 10,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Image.network(
-                            logic.mdAllBanners!.data![index].imageUrl!,
-                            fit: BoxFit
-                                .contain, // Ensure the image covers the entire container
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 20,
-                        left: 20,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              color: Colors.grey.withOpacity(0.5),
-                              padding: EdgeInsets.all(10),
-                              child: Text(
-                                logic.mdAllBanners!.data![index].title!,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                  color: Colors
-                                      .black, // White text color for better contrast
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 15),
-                            Container(
-                              height: 40,
-                              width: 100,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(50),
-                                color: Color(0xFFB7A06A),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'Shop now',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12),
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.network(
+                        logic.mdAllBanners!.data![index].imageUrl!,
+                        fit: BoxFit.fill,
+                        // Ensure the image covers the entire container
+                        errorBuilder: (BuildContext context, Object error,
+                            StackTrace? stackTrace) {
+                          return Image.asset(
+                            'assets/images/skinCareDummy.png',
+                            // Path to your placeholder image
+                            fit: BoxFit.contain,
+                          );
+                        },
+                      )),
                 );
               },
             ),
@@ -2149,18 +2376,16 @@ class _BottomBarHostView extends State<BottomBarHostView> {
               itemCount: logic.filteredProducts.length,
               itemBuilder: (context, index) {
                 return InkWell(
-                  onTap: (){
+                  onTap: () {
                     print('index========${index}');
-                    final smartCollection =
-                    logic.filteredProducts[index];
+                    final smartCollection = logic.filteredProducts[index];
 
                     int? id = smartCollection.id;
                     print('id=====${id}');
                     Get.to(() => ProductDetailView(
-                      productId:
-                      logic.filteredProducts[index].id!,
-                      currency: 'Pound',
-                    ));
+                          productId: logic.filteredProducts[index].id!,
+                          currency: 'Pound',
+                        ));
                   },
                   child: Container(
                     margin: EdgeInsets.all(8),
@@ -2413,7 +2638,7 @@ class VideoGridWidget extends StatelessWidget {
           crossAxisCount: 2,
           crossAxisSpacing: 20.0,
           mainAxisSpacing: 20.0,
-          childAspectRatio: 1.2,
+          childAspectRatio: 0.9,
         ),
         itemCount: videos.length,
         itemBuilder: (context, index) {
@@ -2421,52 +2646,74 @@ class VideoGridWidget extends StatelessWidget {
           final videoUrl = video.videoUrl ?? '';
           final thumbnailUrl =
               video.thumbnail != null ? '${video.thumbnail}' : '';
-          print('This is video Thumbnail==========${video.thumbnail}');
+          final videoName = video.name ?? 'No Name';
 
           return GestureDetector(
             onTap: () {
               _playVideo(videoUrl); // Play video on tap
             },
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.grey.shade300,
-              ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Display thumbnail with FadeInImage for a smoother image loading experience
-                  thumbnailUrl.isNotEmpty
-                      ? FadeInImage.assetNetwork(
-                          placeholder: 'assets/images/youtubeLogo.png',
-                          image: thumbnailUrl,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                          imageErrorBuilder: (context, error, stackTrace) {
-                            print('Error loading image: $error');
-                            return Container(
-                              color: Colors.grey.shade300,
-                              child: const Center(
-                                child: Icon(Icons.error, color: Colors.red),
-                              ),
-                            );
-                          },
-                        )
-                      : Container(
-                          color: Colors.grey.shade300,
-                          child: const Center(
-                            child: Icon(Icons.error, color: Colors.red),
-                          ),
-                        ),
-                  // Play icon overlay
-                  const Icon(
-                    Icons.play_circle_fill,
-                    color: Colors.white,
-                    size: 50,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 120.0, // Fixed height for thumbnail
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.grey.shade300,
                   ),
-                ],
-              ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Constrain FadeInImage within the defined size
+                        thumbnailUrl.isNotEmpty
+                            ? FadeInImage.assetNetwork(
+                                placeholder: 'assets/images/youtubeLogo.png',
+                                image: thumbnailUrl,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                height: double.infinity,
+                                imageErrorBuilder:
+                                    (context, error, stackTrace) {
+                                  print('Error loading image: $error');
+                                  return Container(
+                                    color: Colors.grey.shade300,
+                                    child: const Center(
+                                      child:
+                                          Icon(Icons.error, color: Colors.red),
+                                    ),
+                                  );
+                                },
+                              )
+                            : Container(
+                                color: Colors.grey.shade300,
+                                child: const Center(
+                                  child: Icon(Icons.error, color: Colors.red),
+                                ),
+                              ),
+                        // Play icon overlay
+                        const Icon(
+                          Icons.play_circle_fill,
+                          color: Colors.white,
+                          size: 50,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8.0), // Space between thumbnail and name
+                Text(
+                  videoName,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
             ),
           );
         },

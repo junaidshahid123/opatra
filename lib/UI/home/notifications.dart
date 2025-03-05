@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:opatra/constant/AppColors.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:opatra/constant/AppLinks.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/NotifcationModel.dart';
 
@@ -24,9 +25,8 @@ Future<List<NotificationModel>> getNotifications() async {
     "Accept": "application/json",
     "Authorization": "Bearer $token", // Include the Bearer token in headers
   };
-  final response = await http.get(
-      Uri.parse('https://opatra.fai-tech.online/api/user-notifications'),
-      headers: headers);
+  final response =
+      await http.get(Uri.parse(ApiUrls.userNotifications), headers: headers);
 
   if (response.statusCode == 200) {
     // Parse the JSON response
@@ -60,39 +60,43 @@ class _NotificationsState extends State<Notifications> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: AppColors.appPrimaryWhiteColor,
-        body: Scaffold(
-          body: SafeArea(
-            child: FutureBuilder<List<NotificationModel>>(
-              future: getNotifications(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text("Error: ${snapshot.error}"));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text("No notifications found"));
-                }
+      backgroundColor: AppColors.appPrimaryWhiteColor,
+      body: SafeArea(
+        child: FutureBuilder<List<NotificationModel>>(
+          future: getNotifications(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text("Error: ${snapshot.error}"));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(
+                  child: Text(
+                "No notifications found",
+                style:
+                    TextStyle(color: AppColors.appPrimaryColor, fontSize: 20),
+              ));
+            }
 
-                // Display notifications
-                return Column(
-                  children: [
-                    buildAppBar(),
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (context, index) {
-                          final notification = snapshot.data![index];
-                          return buildNotificationCard(notification);
-                        },
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ));
+            // Display notifications
+            return Column(
+              children: [
+                buildAppBar(),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      final notification = snapshot.data![index];
+                      return buildNotificationCard(notification);
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
   }
 
   Widget buildNotificationCard(NotificationModel notification) {

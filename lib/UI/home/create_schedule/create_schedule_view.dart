@@ -25,23 +25,21 @@ class CreateScheduleView extends StatelessWidget {
   }
 
   Widget buildDetails(BuildContext context, CreateScheduleController logic) {
-    return Expanded(
-        child: SingleChildScrollView(
-      child: Container(
-        margin: EdgeInsets.only(right: 20, left: 20, top: 20),
-        child: Column(
-          children: [
-            buildImage(context, logic),
-            buildDeviceName(context, logic),
-            buildDescription(context, logic),
-            buildDays(context, logic),
-            buildText(context, logic),
-            buildTreatmentTimeField(context, logic),
-            buildSaveButton(context, logic)
-          ],
-        ),
+    print('logic.selectedTime======${logic.selectedTime}');
+    return Container(
+      margin: EdgeInsets.only(right: 20, left: 20, top: 20),
+      child: Column(
+        children: [
+          buildImage(context, logic),
+          buildDeviceName(context, logic),
+          buildDescription(context, logic),
+          // buildDays(context, logic),
+          buildText(context, logic),
+          buildTreatmentTimeField(context, logic),
+          buildSaveButton(context, logic),
+        ],
       ),
-    ));
+    );
   }
 
   Widget buildTreatmentTime(
@@ -125,16 +123,16 @@ class CreateScheduleView extends StatelessWidget {
       child: InkWell(
         onTap: () async {
           // Show the TimePicker when tapped
-          TimeOfDay? selectedTime = await showTimePicker(
+          TimeOfDay? selectedTimeA = await showTimePicker(
             context: context,
             initialTime: TimeOfDay.now(),
           );
 
           // If a time is selected, handle it accordingly
-          if (selectedTime != null) {
-            logic.selectedTime.value = selectedTime
-                .format(context); // Store the selected time in the controller
-            print('Selected Time: ${selectedTime.format(context)}');
+          if (selectedTimeA != null) {
+            print('Selected Time: ${selectedTimeA.format(context)}');
+            logic.updateTime(context,selectedTimeA);
+
           }
         },
         child: Container(
@@ -148,21 +146,17 @@ class CreateScheduleView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Obx(() {
-                  return Text(
-                    logic.selectedTime.value.isEmpty // Access the value here
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(
+                    logic.selectedTime.isEmpty // Access the value here
                         ? 'Select Time' // Placeholder text
-                        : logic.selectedTime.value, // Display selected time
+                        : logic.selectedTime, // Display selected time
                     style: TextStyle(
                       color: Color(0xFF333333),
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
                     ),
-                  );
-
-                }),
-              ),
+                  )),
               Padding(
                 padding: const EdgeInsets.only(right: 15),
                 child: Image.asset(

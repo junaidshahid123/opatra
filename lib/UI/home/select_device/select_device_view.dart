@@ -1,9 +1,7 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:opatra/UI/home/select_device/select_device_logic.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constant/AppColors.dart';
 
 class SelectDeviceView extends StatelessWidget {
@@ -99,6 +97,7 @@ class SelectDeviceView extends StatelessWidget {
                     onTap: () async {
                       // Call the controller's function instead of writing the logic here
                       await logic.selectAndStoreDevice(index);
+                      print('logic.devices[index].id========${logic.devices[index].id}');
                     },
                     child: Column(
                       children: [

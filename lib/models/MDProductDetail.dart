@@ -1,15 +1,13 @@
-
-
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
 class MDProductDetail {
-  Product? product;
+  ProductB? product;
 
   MDProductDetail({this.product});
 
   MDProductDetail.fromJson(Map<String, dynamic> json) {
     product =
-        json['product'] != null ? Product.fromJson(json['product']) : null;
+        json['product'] != null ? ProductB.fromJson(json['product']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -21,7 +19,7 @@ class MDProductDetail {
   }
 }
 
-class Product {
+class ProductB {
   int? id;
   String? title;
   String? bodyHtml;
@@ -41,7 +39,7 @@ class Product {
   List<Images>? images;
   Images? image;
 
-  Product({
+  ProductB({
     this.id,
     this.title,
     this.bodyHtml,
@@ -62,7 +60,7 @@ class Product {
     this.image,
   });
 
-  Product.fromJson(Map<String, dynamic> json) {
+  ProductB.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     title = json['title'];
     bodyHtml = json['body_html'];
@@ -333,7 +331,6 @@ class Images {
   }
 }
 
-
 class ProductA {
   int? id;
   String? title;
@@ -365,5 +362,17 @@ class ProductA {
     quantity = RxInt(json['quantity'] ?? 0);
     selectedCurrency = json['selectedCurrency'];
   }
-}
 
+  // Convert ProductA to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'image': image?.toJson(), // Assuming Images has toJson method
+      'price': price?.value,
+      'basePrice': basePrice,
+      'quantity': quantity?.value,
+      'selectedCurrency': selectedCurrency,
+    };
+  }
+}

@@ -1,12 +1,14 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../models/MDLatestProducts.dart';
 import '../../../models/MDProductDetail.dart';
 import '../calender/calender_view.dart';
 
 class CreateScheduleController extends GetxController {
-  Rx<Product?> storedDevice = Rx<Product?>(null);
-
+  Rx<ProductsC?> storedDevice = Rx<ProductsC?>(null);
   RxBool sunday = false.obs;
   RxBool monday = false.obs;
   RxBool tuesday = false.obs;
@@ -14,7 +16,7 @@ class CreateScheduleController extends GetxController {
   RxBool thursday = false.obs;
   RxBool friday = false.obs;
   RxBool saturday = false.obs;
-  RxString selectedTime = ''.obs; // Observable for storing selected time
+  String selectedTime = ''; // Observable for storing selected time
   var selectedTimes = List.generate(7, (index) => ''.obs);
 
   @override
@@ -22,6 +24,13 @@ class CreateScheduleController extends GetxController {
     // TODO: implement onInit
     super.onInit();
     getDevice();
+  }
+
+  void updateTime(BuildContext context, TimeOfDay selectedTimeA) {
+    selectedTime = selectedTimeA
+        .format(context); // Store the selected time in the controller
+    print('Selected Time: ${selectedTimeA.format(context)}');
+    update();
   }
 
   // List to store selected days
@@ -41,7 +50,9 @@ class CreateScheduleController extends GetxController {
   void onSaveClick() {
     print('selectedTime=====${selectedTime}');
     print('storedDevice.value!.title=====${storedDevice.value!.title}');
-    print(' storedDevice.value!.id=====${ storedDevice.value!.id}');
+    print('storedDevice.value!.id=====${storedDevice.value!.id}');
+
+    // Navigate to CalendarView and pass the arguments
     Get.to(
       () => CalenderView(),
       arguments: {
@@ -50,6 +61,11 @@ class CreateScheduleController extends GetxController {
         'id': storedDevice.value!.id,
       },
     );
+
+    // Reset selectedTime after the data transfer
+    selectedTime = "";
+    print(
+        'selectedTime reset to: $selectedTime'); // Optional: Print to confirm the reset
   }
 
   Future<void> getDevice() async {
@@ -63,7 +79,7 @@ class CreateScheduleController extends GetxController {
     if (deviceJson != null) {
       // Decode the JSON string and convert it into a Device object
       Map<String, dynamic> deviceMap = jsonDecode(deviceJson);
-      storedDevice.value = Product.fromJson(deviceMap);
+      storedDevice.value = ProductsC.fromJson(deviceMap);
 
       // You can now use the storedDevice object
       print('Retrieved Device: ${storedDevice.value!.title}');

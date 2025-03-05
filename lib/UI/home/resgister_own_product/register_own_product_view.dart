@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:opatra/UI/home/resgister_own_product/register_own_product_logic.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../constant/AppColors.dart';
 
 class RegisterYourOwnProductView extends StatelessWidget {
@@ -41,7 +42,8 @@ class RegisterYourOwnProductView extends StatelessWidget {
           Spacer(),
           buildName(),
           Spacer(),
-          buildNotificationOption()
+          Container()
+          // buildNotificationOption()
         ],
       ),
     );
@@ -159,9 +161,8 @@ class RegisterYourOwnProductView extends StatelessWidget {
             }));
   }
 
-  Widget buildItemWithCross(String itemName, int index,
-      RegisterYourOwnProductController logic)
-  {
+  Widget buildItemWithCross(
+      String itemName, int index, RegisterYourOwnProductController logic) {
     // Check if the item is selected
     bool isSelected = logic.selectedItems.contains(itemName);
 
@@ -222,39 +223,61 @@ class RegisterYourOwnProductView extends StatelessWidget {
       ],
     );
   }
-
-
 }
 
 Widget buildSubmitButton(
     BuildContext context, RegisterYourOwnProductController logic) {
   return Obx(() => InkWell(
-        onTap: () {
+        onTap: () async {
+          // Retrieve guest status from SharedPreferences
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          bool isGuest = prefs.getBool('is_guest') ?? false;
+
+          // If the user is a guest, show a Snackbar
+          if (isGuest) {
+            Get.snackbar(
+              'Notice',
+              'Please log in or create an account to submit your product registration.',
+              backgroundColor: Colors.red,
+              colorText: Colors.white,
+            );
+            return;
+          }
+
+          // Proceed if the user is not a guest and avoid multiple requests if loading
+          if (logic.isLoading.value) return;
+
+          // Call the sendData function to submit the data
           logic.sendData();
         },
         child: Container(
-            margin: EdgeInsets.only(top: 50, right: 20),
-            width: MediaQuery.of(context).size.width,
-            height: 45,
-            decoration: BoxDecoration(
-              color: Color(0xFFB7A06A),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Center(
-                child: logic.isLoading.value == true
-                    ? SizedBox(
-                        width: 20.0, // Adjust the width
-                        height: 20.0, // Adjust the height
-                        child: CircularProgressIndicator(
-                          strokeWidth: 5,
-                          color: AppColors.appWhiteColor,
-                        ),
-                      )
-                    : Text(
-                        'Submit',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 16),
-                      ))),
+          margin: const EdgeInsets.only(top: 50, right: 20),
+          width: MediaQuery.of(context).size.width,
+          height: 45,
+          decoration: BoxDecoration(
+            color: Color(0xFFB7A06A),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Center(
+            child: logic.isLoading.value
+                ? SizedBox(
+                    width: 20.0,
+                    height: 20.0,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 5,
+                      color: AppColors.appWhiteColor,
+                    ),
+                  )
+                : Text(
+                    'Submit',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
+                      color: AppColors.appWhiteColor,
+                    ),
+                  ),
+          ),
+        ),
       ));
 }
 

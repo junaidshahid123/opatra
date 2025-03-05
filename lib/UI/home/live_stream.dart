@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:opatra/constant/AppColors.dart';
 
 class LiveStream extends StatefulWidget {
@@ -19,62 +20,80 @@ class _LiveStreamState extends State<LiveStream> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.appWhiteColor,
+
       body: SafeArea(
-          child: Stack(
-        children: [
-          Column(
+          child: Column(
             children: [
               buildAppBar(),
-              Expanded(
-                  child: SingleChildScrollView(
-                child: Container(
-                  margin: EdgeInsets.only(
-                    left: 20,
-                    right: 20,
-                  ),
-                  child: Column(
-                    children: [
-                      buildProductListViewForVideos(),
-                      buildHeading(),
-                      buildViewsAndLikesRow(),
-                      buildDescription(),
-                      buildReviewsList(),
-                      SizedBox(height: MediaQuery.of(context).size.height / 8),
-                    ],
-                  ),
-                ),
-              ))
-            ],
-          ),
-          Positioned(
-            bottom: 0,
-            child: Container(
-              width:
-                  MediaQuery.of(context).size.width, // Full width of the screen
-              height: MediaQuery.of(context).size.height /
-                  8, // Adjust the height as needed
-              decoration: BoxDecoration(
-                border: Border.all(color: AppColors.appGrayColor),
-                color: Colors.white, // Background color for the container
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(40),
-                  topLeft: Radius.circular(40),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2), // Shadow color
-                    spreadRadius: 2, // The spread radius
-                    blurRadius: 8, // The blur radius
-                    offset: Offset(0, 4), // The position of the shadow
-                  ),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.30,
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text('Live Stream coming soon',style: TextStyle(color: AppColors.appPrimaryColor),),
                 ],
               ),
+            ],
+          )
 
-              child: buildCommentField(),
-            ),
+          //     Stack(
+          //   children: [
+          //     Column(
+          //       children: [
+          //         buildAppBar(),
+          //         Expanded(
+          //             child: SingleChildScrollView(
+          //           child: Container(
+          //             margin: EdgeInsets.only(
+          //               left: 20,
+          //               right: 20,
+          //             ),
+          //             child: Column(
+          //               children: [
+          //                 buildProductListViewForVideos(),
+          //                 buildHeading(),
+          //                 buildViewsAndLikesRow(),
+          //                 buildDescription(),
+          //                 buildReviewsList(),
+          //                 SizedBox(height: MediaQuery.of(context).size.height / 8),
+          //               ],
+          //             ),
+          //           ),
+          //         ))
+          //       ],
+          //     ),
+          //     Positioned(
+          //       bottom: 0,
+          //       child: Container(
+          //         width:
+          //             MediaQuery.of(context).size.width, // Full width of the screen
+          //         height: MediaQuery.of(context).size.height /
+          //             8, // Adjust the height as needed
+          //         decoration: BoxDecoration(
+          //           border: Border.all(color: AppColors.appGrayColor),
+          //           color: Colors.white, // Background color for the container
+          //           borderRadius: BorderRadius.only(
+          //             topRight: Radius.circular(40),
+          //             topLeft: Radius.circular(40),
+          //           ),
+          //           boxShadow: [
+          //             BoxShadow(
+          //               color: Colors.black.withOpacity(0.2), // Shadow color
+          //               spreadRadius: 2, // The spread radius
+          //               blurRadius: 8, // The blur radius
+          //               offset: Offset(0, 4), // The position of the shadow
+          //             ),
+          //           ],
+          //         ),
+          //
+          //         child: buildCommentField(),
+          //       ),
+          //     ),
+          //   ],
+          // )
           ),
-        ],
-      )),
     );
   }
 
@@ -303,20 +322,26 @@ class _LiveStreamState extends State<LiveStream> {
   }
 
   Widget buildSideBarOption() {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Container(
-          height: 50.sp,
-          width: 50.sp,
-          child: Image.asset('assets/images/ellipse.png'),
-        ),
-        Container(
-          height: 15,
-          width: 15,
-          child: Image.asset('assets/images/arrowLeft.png'),
-        ),
-      ],
+    return InkWell(
+      onTap: () {
+        Get.back();
+      },
+      child: Stack(
+
+        alignment: Alignment.center,
+        children: [
+          Container(
+            height: 50.sp,
+            width: 50.sp,
+            child: Image.asset('assets/images/ellipse.png'),
+          ),
+          Container(
+            height: 15,
+            width: 15,
+            child: Image.asset('assets/images/arrowLeft.png'),
+          ),
+        ],
+      ),
     );
   }
 

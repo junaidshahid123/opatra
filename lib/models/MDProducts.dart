@@ -1,8 +1,6 @@
 class MDProducts {
   List<Products>? products;
-
   MDProducts({this.products});
-
   MDProducts.fromJson(Map<String, dynamic> json) {
     if (json['products'] != null) {
       products = <Products>[];
@@ -36,7 +34,7 @@ class Products {
   String? tags;
   String? status;
   String? adminGraphqlApiId;
-  List<Variants>? variants;
+  List<VariantsA>? variants;
   List<Options>? options;
   List<Images>? images;
   Images? image;
@@ -77,9 +75,9 @@ class Products {
     status = json['status'];
     adminGraphqlApiId = json['admin_graphql_api_id'];
     if (json['variants'] != null) {
-      variants = <Variants>[];
+      variants = <VariantsA>[];
       json['variants'].forEach((v) {
-        variants!.add(new Variants.fromJson(v));
+        variants!.add(new VariantsA.fromJson(v));
       });
     }
     if (json['options'] != null) {
@@ -129,7 +127,7 @@ class Products {
   }
 }
 
-class Variants {
+class VariantsA {
   int? id;
   int? productId;
   String? title;
@@ -157,7 +155,7 @@ class Variants {
   String? adminGraphqlApiId;
   Null imageId;
 
-  Variants(
+  VariantsA(
       {this.id,
         this.productId,
         this.title,
@@ -185,7 +183,7 @@ class Variants {
         this.adminGraphqlApiId,
         this.imageId});
 
-  Variants.fromJson(Map<String, dynamic> json) {
+  VariantsA.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     productId = json['product_id'];
     title = json['title'];
@@ -285,7 +283,7 @@ class Images {
   int? width;
   int? height;
   String? src;
-  List<Variants>? variantIds;
+  List<VariantsA>? variantIds;
 
   Images(
       {this.id,
@@ -312,9 +310,9 @@ class Images {
     height = json['height'];
     src = json['src'];
     if (json['variant_ids'] != null) {
-      variantIds = <Variants>[];
+      variantIds = <VariantsA>[];
       json['variant_ids'].forEach((v) {
-        variantIds!.add(new Variants.fromJson(v));
+        variantIds!.add(new VariantsA.fromJson(v));
       });
     }
   }
@@ -337,3 +335,4 @@ class Images {
     return data;
   }
 }
+

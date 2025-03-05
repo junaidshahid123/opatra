@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:opatra/UI/home/calender/calender_logic.dart';
-import 'package:opatra/UI/home/treatment1.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../constant/AppColors.dart';
+import '../treatment1/treatment1_view.dart';
 
 class CalenderView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final arguments = Get.arguments as Map<String, dynamic>;
+    final args = Get.arguments;
 
-    final RxString selectedTime = arguments['selectedTime'];
-    final int device_id = arguments['id'];
-    final String device_title = arguments['title'];
+// Check if args is null
+    if (args == null) {
+      // Handle the case when no arguments were passed, maybe navigate back or show a message
+      return Center(child: Text('No arguments were passed.'));
+    }
+
+// Extracting the necessary values from the arguments
+    final String selectedTime = args['selectedTime'] ?? 'Default Time'; // Provide a default value
+    final String title = args['title'] ?? 'Default Title'; // Provide a default value
+    final int id = args['id'] ?? 0; // Provide a default value
 
     return GetBuilder<CalenderController>(
         init: CalenderController(),
@@ -28,19 +34,27 @@ class CalenderView extends StatelessWidget {
                   buildNextTreatment(),
                   Container(
                     decoration: BoxDecoration(
-                        border: Border.all(color: Color(0xFFFBF3D7)),
-                        borderRadius: BorderRadius.circular(20)),
+                      border: Border.all(color: Color(0xFFFBF3D7)),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                     margin: EdgeInsets.only(left: 20, right: 20, top: 20),
                     child: CustomizableCalendar(
                       selectedDayColor: Color(0xFFB7A06A),
+                      todayColor: AppColors.appHistoryDateTextColor,
+                      // Example for the today color
+                      dayTextStyle:
+                          TextStyle(fontSize: 16, color: Colors.black),
+                      weekendTextStyle:
+                          TextStyle(fontSize: 16, color: Colors.red),
                       onDaysSelected: (selectedDays) {
+                        print('Selected days: $selectedDays');
                         logic.updateSelectedDays(
                             selectedDays); // Update controller
                       },
                     ),
                   ),
                   buildStartTreatmentButton(
-                      context, logic, selectedTime, device_id, device_title)
+                      context, logic, selectedTime, id, title)
                 ],
               ),
             ),
@@ -140,13 +154,33 @@ class CalenderView extends StatelessWidget {
   Widget buildStartTreatmentButton(
       BuildContext context,
       CalenderController logic,
-      RxString selectedTime,
+      String selectedTime,
       int device_id,
       String device_title) {
     return InkWell(
       onTap: () {
-        logic.deviceSchedule(selectedTime, device_id,
-            device_title); // Pass the selected time value to the function
+        print("Selected Days: ${logic.selectedDays}");
+        print("Title: $device_title");
+        print("ID: $device_id");
+        print("Selected Time: $selectedTime");
+
+        // Check if at least one day is selected
+        if (logic.selectedDays.isNotEmpty) {
+          // Navigate to Treatment1View and pass the arguments
+          Get.to(() => Treatment1View(
+                selectedDays: logic.selectedDays,
+                title: device_title,
+                id: device_id,
+                selectedTime: selectedTime,
+              ));
+        } else {
+          // Show a snackbar if no day is selected
+          Get.snackbar(
+            'Error',
+            'Please Select At Least One Day',
+            backgroundColor: Colors.red,
+          );
+        }
       },
       child: Container(
           margin: EdgeInsets.only(top: 50, bottom: 20, left: 20, right: 20),
@@ -223,40 +257,42 @@ class _CustomizableCalendarState extends State<CustomizableCalendar> {
           lastDay: DateTime.utc(2030, 12, 31),
           focusedDay: _focusedDay,
           selectedDayPredicate: (day) => _selectedDays.contains(day),
+          // Inside CustomizableCalendar
           onDaySelected: (selectedDay, focusedDay) {
             setState(() {
-              // Toggle selection for the day
               if (_selectedDays.contains(selectedDay)) {
-                _selectedDays.remove(selectedDay); // Remove if already selected
+                _selectedDays.remove(selectedDay);
               } else {
-                _selectedDays.add(selectedDay); // Add if not selected
+                _selectedDays.add(selectedDay);
               }
               _focusedDay = focusedDay;
             });
 
-            // Update the selected days in the controller
+            // Call the parent's callback if it exists
             if (widget.onDaysSelected != null) {
-              widget.onDaysSelected!(
-                  _selectedDays); // Pass the updated list of selected days
+              widget.onDaysSelected!(_selectedDays);
             }
           },
           headerVisible: false,
-          // Hide default header
           calendarStyle: CalendarStyle(
             todayDecoration: BoxDecoration(
-                color: widget.todayColor ?? Color(0xFFB7A06A),
-                shape: BoxShape.rectangle,
-                borderRadius: BorderRadius.circular(10)),
+              color: widget.todayColor ?? Color(0xFFB7A06A),
+              shape: BoxShape.rectangle,
+              // Change to rectangle if you want rounded corners
+              borderRadius: BorderRadius.circular(10), // Only for rectangles
+            ),
             selectedDecoration: BoxDecoration(
-                color: widget.selectedDayColor ?? Colors.blueGrey,
-                shape: BoxShape.rectangle,
-                borderRadius: BorderRadius.circular(10)),
+              color: widget.selectedDayColor ?? Colors.blueGrey,
+              shape: BoxShape.rectangle,
+              // Change to rectangle if you want rounded corners
+              // borderRadius: BorderRadius.circular(10), // Only for rectangles
+            ),
             defaultTextStyle: widget.dayTextStyle ??
                 TextStyle(color: Colors.black, fontSize: 14.0),
             weekendTextStyle: widget.weekendTextStyle ??
                 TextStyle(color: Color(0xFF8F9BB3), fontSize: 14.0),
           ),
-        ),
+        )
       ],
     );
   }

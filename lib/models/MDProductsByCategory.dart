@@ -1,4 +1,5 @@
 import 'MDLatestProducts.dart';
+import 'MDProductDetail.dart';
 
 class MDProductsByCategory {
   List<ProductsA>? products;
@@ -148,7 +149,7 @@ class Options {
 
 class Images {
   int? id;
-  Null alt;
+  String? alt;
   int? position;
   int? productId;
   String? createdAt;
@@ -159,8 +160,7 @@ class Images {
   String? src;
 
   Images(
-      {this.id,
-      this.alt,
+      {this.id, this.alt,
       this.position,
       this.productId,
       this.createdAt,
