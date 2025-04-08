@@ -1,0 +1,2 @@
+C:/Users/junai/StudioProjects/opatra/android/app/.cxx/RelWithDebInfo/286g6l29/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Users/junai/StudioProjects/opatra/android/app/.cxx/RelWithDebInfo/286g6l29/arm64-v8a/CMakeFiles/rebuild_cache.dir

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -19,7 +20,7 @@ import '../../../models/MDProductsByCategory.dart';
 import '../../../models/MDVideosByCategory.dart';
 import '../ask_ouur_experts/ask_our_experts_view.dart';
 import '../live_stream.dart';
-import '../notifications.dart';
+import '../notifications/notifications_view.dart';
 import 'bottom_bar_host_logic.dart';
 
 class BottomBarHostView extends StatefulWidget {
@@ -429,7 +430,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                 // Inside the Obx that controls showing videos based on selected category
                                 Obx(() {
                                   return logic.video.value == true
-                                      ? logic.mdVideosByCategory == null
+                                      ? logic.categoryModel == null
                                           ? Container(
                                               margin: EdgeInsets.only(top: 20),
                                               child: Center(
@@ -450,12 +451,16 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                                     ),
                                                   ),
                                                 )
-                                              : VideoGridWidget(
-                                                  videos: logic
-                                                      .mdVideosByCategory!
-                                                      .data!
-                                                      .videos!,
-                                                )
+                                              : logic.categoryModel?.videos !=
+                                                          null &&
+                                                      logic.categoryModel!
+                                                          .videos!.isNotEmpty
+                                                  ? VideoGridWidget(
+                                                      videos: logic
+                                                          .categoryModel!
+                                                          .videos!,
+                                                    )
+                                                  : Container() // Empty container if videos list is null or empty
                                       : Container(); // Empty container if the video value is false
                                 }),
                               ],
@@ -1013,7 +1018,8 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   }
 
   Widget buildCurrencyOption(BottomBarHostController logic) {
-    print('logic.selectedCurrency.value===============${logic.selectedCurrency.value}');
+    print(
+        'logic.selectedCurrency.value===============${logic.selectedCurrency.value}');
     return InkWell(
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
@@ -1227,7 +1233,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
   }
 
   Widget buildCategoriesForVideos(BottomBarHostController logic) {
-    return logic.mdVideosByCategory == null
+    return logic.mdAllVideoCategories == null
         ? Center(
             child: CircularProgressIndicator(
               color: Color(0xFFB7A06A),
@@ -2604,26 +2610,33 @@ class _BottomBarHostView extends State<BottomBarHostView> {
 }
 
 class VideoGridWidget extends StatelessWidget {
-  final List<Videos> videos;
+  final List<VideoModel> videos;
 
   VideoGridWidget({required this.videos});
 
-  // Function to play video using URL launcher
-  void _playVideo(String videoUrl) async {
-    if (videoUrl.isEmpty) {
-      print('Error: Empty video URL');
-      return;
-    }
+  // Improved function to handle YouTube URLs
 
-    try {
-      final Uri videoUri = Uri.parse(Uri.encodeFull(videoUrl));
-      if (await canLaunchUrl(videoUri)) {
-        await launchUrl(videoUri, mode: LaunchMode.externalApplication);
-      } else {
-        print('Could not launch $videoUrl');
-      }
-    } catch (e) {
-      print('Exception while launching video URL: $e');
+  Future<void> _launchYouTubeVideo(String videoId, BuildContext context) async {
+    print("Received videoId: $videoId");
+
+    final Uri youtubeUrl =
+        Uri.parse("https://www.youtube.com/watch?v=$videoId");
+    print("Constructed YouTube URL: $youtubeUrl");
+
+    final canLaunch = await canLaunchUrl(youtubeUrl);
+    print("Can launch URL: $canLaunch");
+
+    if (!await launchUrl(
+      youtubeUrl,
+      mode: LaunchMode.externalApplication,
+    )) {
+      print("Failed to launch URL: $youtubeUrl");
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Could not launch the video")),
+      );
+    } else {
+      print("Launched YouTube URL successfully");
     }
   }
 
@@ -2643,20 +2656,13 @@ class VideoGridWidget extends StatelessWidget {
         itemCount: videos.length,
         itemBuilder: (context, index) {
           final video = videos[index];
-          final videoUrl = video.videoUrl ?? '';
-          final thumbnailUrl =
-              video.thumbnail != null ? '${video.thumbnail}' : '';
-          final videoName = video.name ?? 'No Name';
-
           return GestureDetector(
-            onTap: () {
-              _playVideo(videoUrl); // Play video on tap
-            },
+            onTap: () => _launchYouTubeVideo(video.videoUrl ?? '', context),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  height: 120.0, // Fixed height for thumbnail
+                  height: 120.0,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     color: Colors.grey.shade300,
@@ -2666,33 +2672,30 @@ class VideoGridWidget extends StatelessWidget {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        // Constrain FadeInImage within the defined size
-                        thumbnailUrl.isNotEmpty
-                            ? FadeInImage.assetNetwork(
-                                placeholder: 'assets/images/youtubeLogo.png',
-                                image: thumbnailUrl,
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                height: double.infinity,
-                                imageErrorBuilder:
-                                    (context, error, stackTrace) {
-                                  print('Error loading image: $error');
-                                  return Container(
-                                    color: Colors.grey.shade300,
-                                    child: const Center(
-                                      child:
-                                          Icon(Icons.error, color: Colors.red),
-                                    ),
-                                  );
-                                },
-                              )
-                            : Container(
+                        if (video.thumbnail?.isNotEmpty ?? false)
+                          FadeInImage.assetNetwork(
+                            placeholder: 'assets/images/youtubeLogo.png',
+                            image: video.thumbnail!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                            imageErrorBuilder: (context, error, stackTrace) {
+                              return Container(
                                 color: Colors.grey.shade300,
                                 child: const Center(
                                   child: Icon(Icons.error, color: Colors.red),
                                 ),
-                              ),
-                        // Play icon overlay
+                              );
+                            },
+                          )
+                        else
+                          Container(
+                            color: Colors.grey.shade300,
+                            child: const Center(
+                              child:
+                                  Icon(Icons.videocam_off, color: Colors.red),
+                            ),
+                          ),
                         const Icon(
                           Icons.play_circle_fill,
                           color: Colors.white,
@@ -2702,12 +2705,12 @@ class VideoGridWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 8.0), // Space between thumbnail and name
+                const SizedBox(height: 8.0),
                 Text(
-                  videoName,
+                  video.name ?? 'No Name',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14.0,
                     fontWeight: FontWeight.w500,
                     color: Colors.black87,

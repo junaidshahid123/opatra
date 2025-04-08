@@ -219,19 +219,25 @@ class BagView extends StatelessWidget {
             duration: Duration(seconds: 3),
           );
         } else {
-          // If not a guest, proceed with the checkout process
-          print('logic.subTotal.value========${logic.subTotal.value}');
-          print('selectedCurrency========${selectedCurrency}');
+          // Proceed with checkout whether or not discount is applied
+          print('logic.subTotal.value ======== ${logic.subTotal.value}');
+          print('selectedCurrency ========== $selectedCurrency');
 
           String parsedCurrency =
               selectedCurrency.isNotEmpty ? selectedCurrency : "usd";
-          if (logic.doneWithDiscount.value == true) {
-            Get.to(() => Payment(logic.subTotal.value, parsedCurrency));
+
+          if (!logic.doneWithDiscount.value) {
+            // Optional reminder if discount isn't applied
+            Get.snackbar(
+              'Note',
+              'You haven\'t applied a discount. Proceeding anyway.',
+              backgroundColor: Colors.orangeAccent,
+              colorText: Colors.black,
+              duration: Duration(seconds: 3),
+            );
           }
-          if (logic.doneWithDiscount.value == false) {
-            Get.snackbar('Alert', 'Please Apply Discount First to Check out',
-                backgroundColor: AppColors.appPrimaryColor);
-          }
+
+          Get.to(() => Payment(logic.subTotal.value, parsedCurrency));
         }
       },
       child: Container(

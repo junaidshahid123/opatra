@@ -564,9 +564,4 @@ class BagController extends GetxController {
     // Update the UI
     update();
   }
-
-// // Method to get all products in the cart
-// List<ProductA> getCartItems() {
-//   return cartItems; // Return the list of cart items
-// }
 }

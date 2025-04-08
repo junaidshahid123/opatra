@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
@@ -30,9 +32,10 @@ class BottomBarHostController extends GetxController {
   List<SmartCollections> devicesCategories = [];
   MDAllBanners? mdAllBanners;
   MDAllVideoCategories? mdAllVideoCategories;
-  MDVideosByCategory? mdVideosByCategory;
+  // MDVideosByCategory? mdVideosByCategory;
+  CategoryModel? categoryModel;
   List<Video>? mdAllVideos;
-  List<MDVideosByCategory>? mdAllVideosByCategory;
+  // List<MDVideosByCategory>? mdAllVideosByCategory;
   MDLatestProducts? mdLatestProducts;
   MDGetAppModules? mdGetAppModules;
   MDProducts? mdProducts;
@@ -695,43 +698,94 @@ class BottomBarHostController extends GetxController {
   }
 
   Future<void> fetchVideoByCategory(int id) async {
+    print('1. [fetchVideoByCategory] Starting fetch for category ID: $id');
+
+    // Reset search and loading state
     searchQuery.value = '';
     isLoading.value = true;
-    final url = Uri.parse('${ApiUrls.baseUrl}/video-category/${id}');
+
+    final url = Uri.parse('${ApiUrls.baseUrl}/video-category/$id');
+    print('2. Constructed API URL: $url');
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token'); // Get the token from shared prefs
+    String? token = prefs.getString('token');
+
     if (token == null || token.isEmpty) {
+      print('3. ERROR: No token found in SharedPreferences');
       Get.snackbar('Error', 'No token found. Please log in again.',
           backgroundColor: Colors.red, colorText: Colors.white);
+      isLoading.value = false;
       return;
     }
 
     Map<String, String> headers = {
       "Accept": "application/json",
-      "Authorization": "Bearer $token", // Include the Bearer token in headers
+      "Authorization": "Bearer $token",
     };
+    print('4. Request headers: $headers');
 
     try {
+      print('5. Making HTTP GET request to $url');
       final response = await http.get(url, headers: headers);
+      print('6. Response status: ${response.statusCode}');
+      print('7. Response body: ${response.body}');
 
       if (response.statusCode == 200) {
-        isLoading.value = false;
-        final data = jsonDecode(response.body);
-        print('mdVideosByCategory: $data');
-        mdVideosByCategory = MDVideosByCategory.fromJson(data);
-        print('mdVideosByCategory: $mdVideosByCategory');
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        print('8. Parsed response data');
+
+        // Parse categoryModel from response data
+        categoryModel = CategoryModel.fromJson(responseData['data']);
+        print('9. Model parsed successfully');
+
+        // Safely check if categoryModel and its videos list are not null
+        if (categoryModel != null && categoryModel!.videos != null) {
+          print('10. Videos count: ${categoryModel!.videos!.length}');
+        } else {
+          print('10. Videos are null or categoryModel is null');
+        }
+
         update();
-        // filterProducts(searchQuery.value); // Filter with current query
+        print('11. UI updated');
       } else {
-        isLoading.value = false;
-        print(
-            'Failed to load mdVideosByCategory. Status Code: ${response.statusCode}');
+        print('11. Failed with status: ${response.statusCode}');
+        Get.snackbar(
+          'Error',
+          'Failed to load videos (Code: ${response.statusCode})',
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+        );
       }
-    } catch (e) {
+    } on SocketException {
+      print('12. No internet connection');
+      Get.snackbar(
+        'Error',
+        'No internet connection',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } on FormatException catch (e) {
+      print('13. Format exception: $e');
+      Get.snackbar(
+        'Error',
+        'Invalid response format',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } catch (e, stack) {
+      print('14. Unexpected error: $e');
+      print('15. Stack trace: $stack');
+      Get.snackbar(
+        'Error',
+        'Something went wrong',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
       isLoading.value = false;
-      print('Error: $e');
+      print('16. Fetch complete');
     }
+
   }
 
   Future<void> fetchProductByCategory(int id) async {
