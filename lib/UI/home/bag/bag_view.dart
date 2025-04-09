@@ -210,7 +210,6 @@ class BagView extends StatelessWidget {
         bool isGuest = prefs.getBool('is_guest') ?? false;
 
         if (isGuest) {
-          // Show snackbar to alert guest users to log in or create an account
           Get.snackbar(
             'Login Required',
             'Please log in or create an account to proceed to checkout.',
@@ -219,15 +218,9 @@ class BagView extends StatelessWidget {
             duration: Duration(seconds: 3),
           );
         } else {
-          // Proceed with checkout whether or not discount is applied
-          print('logic.subTotal.value ======== ${logic.subTotal.value}');
-          print('selectedCurrency ========== $selectedCurrency');
-
-          String parsedCurrency =
-              selectedCurrency.isNotEmpty ? selectedCurrency : "usd";
+          String parsedCurrency = selectedCurrency.isNotEmpty ? selectedCurrency : "usd";
 
           if (!logic.doneWithDiscount.value) {
-            // Optional reminder if discount isn't applied
             Get.snackbar(
               'Note',
               'You haven\'t applied a discount. Proceeding anyway.',
@@ -237,7 +230,7 @@ class BagView extends StatelessWidget {
             );
           }
 
-          Get.to(() => Payment(logic.subTotal.value, parsedCurrency));
+          await logic.initStripePaymentSheet(logic, selectedCurrency);
         }
       },
       child: Container(

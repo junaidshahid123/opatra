@@ -1,8 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../constant/AppLinks.dart';
 import '../../../models/MDLatestProducts.dart';
 import '../../../models/MDProductDetail.dart';
@@ -29,6 +34,249 @@ class BagController extends GetxController {
     // TODO: implement onInit
     super.onInit();
     init(); // Load the cart when the screen is initialized
+  }
+
+  Future<void> initStripePaymentSheet(
+      BagController logic, String currency) async {
+    try {
+      // Show loading indicator
+      Get.dialog(
+        const Center(child: CircularProgressIndicator()),
+        barrierDismissible: false,
+      );
+
+      // Calculate the total amount in cents (Stripe requires smallest currency unit)
+      final amount = (logic.total.value * 100).toInt();
+
+      // Convert and validate currency
+      final stripeCurrency = _parseCurrency(currency);
+
+      // 1. Create payment intent (client-side only - for testing)
+      final paymentIntent = await _createPaymentIntent(amount, stripeCurrency);
+
+      // 2. Initialize Stripe payment sheet
+      await Stripe.instance.initPaymentSheet(
+        paymentSheetParameters: SetupPaymentSheetParameters(
+          paymentIntentClientSecret: paymentIntent['client_secret'],
+          merchantDisplayName: 'Your App Name',
+          style: ThemeMode.light,
+          appearance: PaymentSheetAppearance(
+            colors: PaymentSheetAppearanceColors(
+              primary: const Color(0xFFB7A06A),
+            ),
+          ),
+        ),
+      );
+
+      // 3. Present the payment sheet with enhanced error handling
+      try {
+        await Stripe.instance.presentPaymentSheet();
+
+        // Close loading dialog
+        Get.back();
+
+        // Payment successful
+        Get.snackbar(
+          'Success',
+          'Payment completed successfully!',
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
+
+        // Clear cart or perform other success actions
+        cartItems.clear();
+      } on StripeException catch (e) {
+        Get.back();
+        _handleLocalizedErrorMessage(e.error);
+      } on PlatformException catch (e) {
+        Get.back();
+        _handlePlatformPaymentError(e);
+      } catch (e) {
+        Get.back();
+        _handleGenericPaymentError(e);
+      }
+    } catch (e) {
+      Get.back();
+      _handleGenericPaymentError(e);
+    }
+  }
+
+  // New handler for LocalizedErrorMessage
+  void _handleLocalizedErrorMessage(LocalizedErrorMessage error) {
+    debugPrint('Stripe Localized Error: ${error.localizedMessage}');
+
+    Get.snackbar(
+      'Payment Failed',
+      error.localizedMessage ?? 'Payment failed',
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+      duration: const Duration(seconds: 5),
+    );
+  }
+
+// Add these new helper methods to handle different error types
+  void _handleStripePaymentError(StripeError error) {
+    String userMessage;
+    String debugMessage = error.message ?? 'No error details';
+
+    switch (error.code) {
+      case 'failed':
+        userMessage = 'Payment failed. Please try another payment method.';
+        break;
+      case 'canceled':
+        userMessage = 'Payment was canceled.';
+        break;
+      case 'invalid_client_secret':
+        userMessage = 'Payment configuration error. Please contact support.';
+        debugMessage = 'Invalid client secret: $debugMessage';
+        break;
+      case 'timeout':
+        userMessage = 'Payment timed out. Please try again.';
+        break;
+      case 'api_connection_error':
+        userMessage = 'Network error. Please check your connection.';
+        break;
+      case 'api_error':
+        userMessage = 'Payment service error. Please try again later.';
+        break;
+      case 'authentication_error':
+        userMessage = 'Authentication error. Please contact support.';
+        debugMessage = 'Auth error: $debugMessage';
+        break;
+      case 'rate_limit_error':
+        userMessage = 'Too many requests. Please wait and try again.';
+        break;
+      default:
+        userMessage = 'Payment failed. Please try again.';
+    }
+
+    // Log the detailed error for debugging
+    debugPrint('Stripe Payment Error: $debugMessage');
+
+    Get.snackbar(
+      'Payment Failed',
+      userMessage,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+  }
+
+  void _handlePlatformPaymentError(PlatformException e) {
+    debugPrint('Platform Error during payment: ${e.message}');
+
+    Get.snackbar(
+      'Payment Error',
+      'A system error occurred. Please try again or contact support.',
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+  }
+
+  void _handleGenericPaymentError(dynamic e) {
+    debugPrint('Generic Payment Error: ${e.toString()}');
+
+    Get.snackbar(
+      'Error',
+      'An unexpected error occurred during payment: ${e.toString()}',
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+  }
+
+  String _parseCurrency(String inputCurrency) {
+    // Convert to lowercase
+    final lowerCurrency = inputCurrency.toLowerCase();
+
+    // Map common currency names to their ISO codes
+    const currencyMap = {
+      'pound': 'gbp',
+      'euro': 'eur',
+      'dollar': 'usd',
+      'us dollars': 'usd',
+      'euros': 'eur',
+      'pounds': 'gbp',
+      // Add more mappings as needed
+    };
+
+    // Return mapped value or original if already valid
+    return currencyMap[lowerCurrency] ?? lowerCurrency;
+  }
+
+// WARNING: FOR TESTING ONLY - UNSAFE FOR PRODUCTION
+  Future<Map<String, dynamic>> _createPaymentIntent(
+      int amount, String currency) async
+  {
+    try {
+      // First validate the currency is supported
+      _validateCurrency(currency);
+
+      final response = await http.post(
+        Uri.parse('https://api.stripe.com/v1/payment_intents'),
+        headers: {
+          'Authorization':
+          'Bearer sk_test_51JrLuBSE6S1t50lC7SUzctTxvWLEjdQzzhqTSFPF2jrq5PtDIjJYavIMWOZHEnt8BeDAevWcoalM6rtkf31ILYEG00KMOfXPX7',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'amount': amount.toString(),
+          'currency': currency,
+          'automatic_payment_methods[enabled]': 'true',
+        },
+      ).timeout(const Duration(seconds: 30)); // Add timeout for the request
+
+      final responseBody = json.decode(response.body);
+
+      if (response.statusCode == 200) {
+        // Payment intent created successfully
+        return responseBody;
+      } else {
+        // Handle different Stripe API error codes
+        final errorCode = responseBody['error']['code'] ?? 'unknown_error';
+        final errorMessage = responseBody['error']['message'] ?? 'Unknown error occurred';
+
+        switch (errorCode) {
+          case 'amount_too_small':
+            throw Exception('Payment failed: The amount is too small for this currency');
+          case 'amount_too_large':
+            throw Exception('Payment failed: The amount is too large');
+          case 'invalid_currency':
+            throw Exception('Payment failed: Invalid currency');
+          case 'card_declined':
+            throw Exception('Payment failed: Card was declined');
+          case 'expired_card':
+            throw Exception('Payment failed: Card has expired');
+          case 'insufficient_funds':
+            throw Exception('Payment failed: Insufficient funds');
+          case 'processing_error':
+            throw Exception('Payment failed: Processing error occurred');
+          default:
+            throw Exception('Payment failed: $errorMessage');
+        }
+      }
+    } on SocketException {
+      throw Exception('Payment failed: No internet connection');
+    } on TimeoutException {
+      throw Exception('Payment failed: Request timed out');
+    } on http.ClientException catch (e) {
+      throw Exception('Payment failed: Network error - ${e.message}');
+    } on FormatException {
+      throw Exception('Payment failed: Invalid response from server');
+    } on StripeException catch (e) {
+      // If you're using the Stripe SDK, you might get specific Stripe exceptions
+      throw Exception('Payment failed: ${e.error.message}');
+    } catch (e) {
+      throw Exception('Payment failed: An unexpected error occurred - $e');
+    }
+  }
+  void _validateCurrency(String currency) {
+    const supportedCurrencies = [
+      'usd', 'eur', 'gbp', 'cad', 'aud', 'jpy' // Add all needed currencies
+    ];
+
+    if (!supportedCurrencies.contains(currency)) {
+      throw Exception(
+          'Unsupported currency: $currency. Supported currencies: ${supportedCurrencies.join(', ')}');
+    }
   }
 
   Future<List> getCartItemsFromStorage() async {

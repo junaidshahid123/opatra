@@ -85,7 +85,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                 logic.mdLatestProducts == null
                                     ? Center(
                                         child: CircularProgressIndicator(
-                                          color: AppColors.appPrimaryBlackColor,
+                                          color: AppColors.appPrimaryColor,
                                         ),
                                       )
                                     : Obx(
@@ -361,7 +361,9 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                           print('Loading products...');
                                           return Center(
                                               child:
-                                                  CircularProgressIndicator());
+                                                  CircularProgressIndicator(
+                                                      color: AppColors.appPrimaryColor
+                                                  ));
                                         }
 
                                         // Check if there are filtered products after the search query
@@ -436,7 +438,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                               child: Center(
                                                 child:
                                                     CircularProgressIndicator(
-                                                  color: Color(0xFFB7A06A),
+                                                      color: AppColors.appPrimaryColor,
                                                 ),
                                               ),
                                             )
@@ -447,7 +449,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                                                   child: Center(
                                                     child:
                                                         CircularProgressIndicator(
-                                                      color: Color(0xFFB7A06A),
+                                                          color: AppColors.appPrimaryColor,
                                                     ),
                                                   ),
                                                 )
@@ -1210,7 +1212,9 @@ class _BottomBarHostView extends State<BottomBarHostView> {
                               if (loadingProgress == null) return child;
                               return Center(
                                   child:
-                                      CircularProgressIndicator()); // Show loader while the image is loading
+                                      CircularProgressIndicator(
+                                          color: AppColors.appPrimaryColor
+                                      )); // Show loader while the image is loading
                             },
                           )
                         : Container(
@@ -1236,7 +1240,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
     return logic.mdAllVideoCategories == null
         ? Center(
             child: CircularProgressIndicator(
-              color: Color(0xFFB7A06A),
+              color: AppColors.appPrimaryColor,
             ),
           )
         : Container(
@@ -1296,7 +1300,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
     return logic.mdDevicesProducts!.customCollections!.isEmpty
         ? Center(
             child: CircularProgressIndicator(
-              color: Color(0xFFB7A06A),
+                color: AppColors.appPrimaryColor
             ),
           )
         : Container(
@@ -1376,8 +1380,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
     return logic.mdSkinCareCategories!.customCollections!.isEmpty
         ? Center(
             child: CircularProgressIndicator(
-              color: Color(0xFFB7A06A),
-            ),
+                color: AppColors.appPrimaryColor            ),
           )
         : Container(
             height: 50,
@@ -2119,7 +2122,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
         logic.mdSkinCareProducts!.products == null) {
       return Center(
         child: CircularProgressIndicator(
-          color: AppColors.appPrimaryBlackColor,
+          color: AppColors.appPrimaryColor,
         ),
       );
     }
@@ -2302,7 +2305,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
     return logic.mdAllBanners == null
         ? Center(
             child: CircularProgressIndicator(
-              color: Color(0xFFB7A06A),
+              color: AppColors.appPrimaryColor
             ),
           )
         : Container(
@@ -2364,7 +2367,7 @@ class _BottomBarHostView extends State<BottomBarHostView> {
     return logic.filteredProducts.isEmpty || logic.isLoading.value == true
         ? Center(
             child: CircularProgressIndicator(
-              color: Color(0xFFB7A06A),
+              color: AppColors.appPrimaryColor
             ),
           )
         : Container(
